@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, 
-  Repeat, Shuffle, Heart, ListMusic, Mic2
+  Repeat, Shuffle, ListMusic, Mic2
 } from 'lucide-react';
 import { PixelButton } from '@/components/custom/PixelButton';
 import { cn } from '@/lib/utils';
@@ -83,7 +83,7 @@ const Music: React.FC = () => {
   const [repeatMode, setRepeatMode] = useState<RepeatMode>('none');
   const [isShuffle, setIsShuffle] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('player');
-  const [isLiked, setIsLiked] = useState<Set<number>>(new Set());
+  // const [isLiked, setIsLiked] = useState<Set<number>>(new Set());
   const [playlist] = useState<Song[]>(songs);
   const [currentLyricIndex, setCurrentLyricIndex] = useState(0);
   const [audioInitialized, setAudioInitialized] = useState(false);
@@ -291,15 +291,6 @@ const Music: React.FC = () => {
     if (audioRef.current && !isNaN(audioRef.current.duration)) {
       audioRef.current.currentTime = percentage * audioRef.current.duration;
     }
-  }, []);
-
-  const toggleLike = useCallback((songId: number) => {
-    setIsLiked(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(songId)) newSet.delete(songId);
-      else newSet.add(songId);
-      return newSet;
-    });
   }, []);
 
   const formatTime = (seconds: number) => {
