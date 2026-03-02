@@ -259,9 +259,9 @@ export const chapters: Chapter[] = [
 ];
 
 export const songs: Song[] = [
-  { id: 1, title: 'Last Son', artist: 'David Fleming', duration: '2:45', src: 'src/audio/bgm/Superman.mp3' },
-  { id: 2, title: "Five Nights at Freddy'2" , artist: 'The Living Tombstone', duration: '3:00', src: 'src/audio/bgm/Fnaf.mp3' },
-  { id: 3, title: " love" , artist: 'wave to earth', duration: '5:05', src: 'src/audio/bgm/Love.mp3' },
+  { id: 1, title: 'Last Son', artist: 'David Fleming', duration: '2:45', src: '/audio/bgm/Superman.mp3' },
+  { id: 2, title: "Five Nights at Freddy'2", artist: 'The Living Tombstone', duration: '3:00', src: '/audio/bgm/Fnaf.mp3' },
+  { id: 3, title: " love", artist: 'wave to earth', duration: '5:05', src: '/audio/bgm/Love.mp3' },
 ];
 
 export const characters: Character[] = [
