@@ -397,20 +397,33 @@ const Music: React.FC = () => {
                 />
               </div>
 
-              <div className="text-center space-y-1 md:space-y-2 max-w-md">
+{/* KITA TAMBAHKAN TRUNCATE AGAR TEKS TIDAK TURUN KE BAWAH */}
+              <div className="text-center space-y-1 md:space-y-2 w-full max-w-[90vw] md:max-w-md px-4">
                 <motion.h1 
                   key={currentSong.title}
-                  initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-                  className="font-['Press_Start_2P'] text-lg md:text-2xl text-white leading-tight"
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  className="font-['Press_Start_2P'] text-sm md:text-lg text-white leading-tight truncate"
                 >
                   {currentSong.title}
                 </motion.h1>
                 <motion.p 
                   key={currentSong.artist}
-                  initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-                  className="font-['VT323'] text-xl md:text-2xl text-white/60"
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="font-['VT323'] text-xl md:text-2xl text-white/60 truncate"
                 >
                   {currentSong.artist}
+                </motion.p>
+                <motion.p 
+                  key={currentSong.album}
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="font-['VT323'] text-sm md:text-base text-white/40 truncate"
+                >
+                  {currentSong.album}
                 </motion.p>
               </div>
 
