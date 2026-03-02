@@ -27,13 +27,6 @@ interface Particle {
   size: number;
 }
 
-// Tipe untuk Buff agar bisa dikategorikan
-interface ActiveBuff {
-  id: string; // Unique ID (e.g., 'speed_buff', 'time_freeze')
-  category: 'SPEED' | 'TIME' | 'OTHER'; // Kategori untuk conflict resolution
-  onEnd: () => void;
-}
-
 interface StoredGameState {
   highScore: number;
   highScoreTimeAttack: number;
@@ -49,7 +42,7 @@ const PLAYER_SIZE_PERCENT = 7;
 const THEMES = {
   default: 'bg-gradient-to-b from-[#4B0082] to-[#1A1A2E]', // Ungu Gelap (Normal)
   freeze: 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#00F260] via-[#0575E6] to-[#021B79]', // Biru Es (Freeze)
-  fast: 'bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-[#FZT700] via-[#11998e] to-[#38ef7d]', // Hijau Listrik (Cepat) - Kami pakai gradient custom dibawah
+  fast: 'bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-[#FZT700] via-[#11998e] to-[#38ef7d]', // Hijau Listrik (Cepat)
   slow: 'bg-gradient-to-b from-[#3E5151] to-[#DECBA4]', // Lumpur/Pasir (Lambat)
   chaos: 'bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045]' // Merah/Oranye (Chaos/Damage)
 };
@@ -78,7 +71,7 @@ const Game: React.FC = () => {
 
   // --- REFS (Engine Data) ---
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number>(0); // FIX TS2554: Ditambahkan nilai awal 0
   const isPausedRef = useRef(false);
 
   // Physics
@@ -169,9 +162,6 @@ const Game: React.FC = () => {
         // Cek apakah masih ada buff lain? Jika tidak, kembalikan background default
         if (activeBuffsRef.current.size === 0) {
           setBgStyle(THEMES.default);
-        } else {
-          // Opsional: Jika masih ada buff lain (misal freeze masih sisa), bisa balikin ke tema freeze
-          // Untuk simpelnya, kita biarkan default atau tema terakhir
         }
       },
       category
@@ -466,7 +456,6 @@ const Game: React.FC = () => {
         } else {
           scoreRef.current = Math.max(0, scoreRef.current - 50);
         }
-        // Efek visual damage?
         break;
       
       // --- LOGIC BUFF DENGAN VISUAL ---
