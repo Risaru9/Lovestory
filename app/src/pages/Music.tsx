@@ -434,7 +434,7 @@ const Music: React.FC = () => {
                 {currentSong ? currentSong.title : 'SELECT A SONG'}
               </h2>
               <p className="font-['VT323'] text-2xl text-[#FFD700] mb-4">
-                {currentSong ? song.artist : '---'}
+                {currentSong ? currentSong.artist : '---'}
               </p>
               
               {/* Progress Bar */}
