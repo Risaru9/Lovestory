@@ -1,316 +1,679 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, 
+  Repeat, Shuffle, Heart, ListMusic, Mic2, Maximize2,
+  Share2, Download, MoreHorizontal
+} from 'lucide-react';
 import { PixelButton } from '@/components/custom/PixelButton';
-import { songs } from '@/lib/chapter-data';
 import { cn } from '@/lib/utils';
+
+// Extended song type dengan lyrics support
+interface Song {
+  id: number;
+  title: string;
+  artist: string;
+  album: string;
+  cover: string;
+  src: string;
+  duration: string;
+  durationSeconds: number;
+  color: string;
+  lyrics?: { time: number; text: string }[];
+}
+
+// Mock data yang lebih lengkap
+const songs: Song[] = [
+  {
+    id: 1,
+    title: "Perfect",
+    artist: "Ed Sheeran",
+    album: "÷ (Divide)",
+    cover: "/covers/perfect.jpg",
+    src: "/music/perfect.mp3",
+    duration: "4:23",
+    durationSeconds: 263,
+    color: "#FF6B6B",
+    lyrics: [
+      { time: 0, text: "I found a love for me" },
+      { time: 4, text: "Darling, just dive right in and follow my lead" },
+      { time: 10, text: "Well, I found a girl, beautiful and sweet" },
+      // ... more lyrics
+    ]
+  },
+  // Add more songs...
+];
+
+type RepeatMode = 'none' | 'all' | 'one';
+type ViewMode = 'player' | 'playlist' | 'lyrics';
 
 const Music: React.FC = () => {
   const navigate = useNavigate();
-
-  // STATE
-  const [currentSong, setCurrentSong] = useState<typeof songs[0] | null>(null);
+  
+  // Audio refs
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number>(0);
+  
+  // State
+  const [currentSong, setCurrentSong] = useState<Song>(songs[0]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  
-  // REF
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const visualizerRef = useRef<HTMLCanvasElement | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [volume, setVolume] = useState(0.7);
+  const [isMuted, setIsMuted] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>('none');
+  const [isShuffle, setIsShuffle] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('player');
+  const [isLiked, setIsLiked] = useState<Set<number>>(new Set());
+  const [playlist, setPlaylist] = useState<Song[]>(songs);
+  const [currentLyricIndex, setCurrentLyricIndex] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [audioInitialized, setAudioInitialized] = useState(false);
 
-  // --- 1. HANDLE GANTI LAGU (CORE LOGIC) ---
-  useEffect(() => {
-    if (currentSong && audioRef.current) {
-      // Step 1: Pause lagu lama
-      audioRef.current.pause();
-      
-      // Step 2: Ganti Source
-      audioRef.current.src = currentSong.src;
-      audioRef.current.load();
-
-      // Step 3: Jika statusnya "Playing", mainkan lagu baru
-      if (isPlaying) {
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((error) => {
-            console.log("Playback interrupted/prevented:", error);
-            // Jangan ubah isPlaying jadi false disini agar UI tetap responsif
-          });
-        }
-      }
-    }
-  }, [currentSong]); // Hanya jalan kalau currentSong berubah (Ganti Lagu)
-
-  // --- 2. HANDLE TOMBOL PLAY/PAUSE ---
-  useEffect(() => {
-    if (!audioRef.current || !currentSong) return;
-
-    if (isPlaying) {
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(e => console.error("Play error:", e));
-      }
-    } else {
-      audioRef.current.pause();
-    }
-  }, [isPlaying]); // Hanya jalan kalau tombol Play/Pause ditekan
-
-
-  // --- 3. NAVIGASI (NEXT & PREV) - LOGIKA MATEMATIKA ---
-  const changeSong = (direction: 'next' | 'prev') => {
-    // Jika belum ada lagu, mainkan yang pertama
-    if (!currentSong) {
-      setCurrentSong(songs[0]);
-      setIsPlaying(true);
-      return;
-    }
-
-    // Cari index lagu saat ini
-    const currentIndex = songs.findIndex((s) => s.id === currentSong.id);
+  // Initialize Web Audio API
+  const initAudioContext = useCallback(() => {
+    if (!audioRef.current || audioContextRef.current) return;
     
-    let newIndex;
-    if (direction === 'next') {
-      // Logic Circular Next: (0 -> 1 -> 2 -> 0)
-      newIndex = (currentIndex + 1) % songs.length;
-    } else {
-      // Logic Circular Prev: (0 -> 2 -> 1 -> 0)
-      newIndex = (currentIndex - 1 + songs.length) % songs.length;
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.8;
+      
+      const source = audioContext.createMediaElementSource(audioRef.current);
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+      
+      audioContextRef.current = audioContext;
+      analyserRef.current = analyser;
+      sourceRef.current = source;
+      setAudioInitialized(true);
+    } catch (error) {
+      console.error("Audio Context Error:", error);
     }
+  }, []);
 
-    // Set Lagu Baru
-    setCurrentSong(songs[newIndex]);
-    setIsPlaying(true); // Otomatis play saat ganti
-  };
-
-  // --- 4. PLAYER CONTROLS ---
-  const handlePlayToggle = () => {
-    if (!currentSong) {
-      // Jika belum pilih lagu, pilih lagu pertama
-      setCurrentSong(songs[0]);
-      setIsPlaying(true);
-    } else {
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleSelectSong = (song: typeof songs[0]) => {
-    if (currentSong?.id === song.id) {
-      // Jika klik lagu yang SAMA, toggle play/pause
-      setIsPlaying(!isPlaying);
-    } else {
-      // Jika klik lagu BEDA, ganti lagu & play
-      setCurrentSong(song);
-      setIsPlaying(true);
-    }
-  };
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      const current = audioRef.current.currentTime;
-      const duration = audioRef.current.duration;
-      if (duration && !isNaN(duration)) {
-        setProgress((current / duration) * 100);
+  // Real Visualizer
+  const drawVisualizer = useCallback(() => {
+    if (!canvasRef.current || !analyserRef.current || !isPlaying) return;
+    
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    const analyser = analyserRef.current;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    const draw = () => {
+      if (!isPlaying) return;
+      animationRef.current = requestAnimationFrame(draw);
+      
+      analyser.getByteFrequencyData(dataArray);
+      
+      // Clear with fade effect
+      ctx.fillStyle = 'rgba(26, 26, 46, 0.2)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      const barCount = 64;
+      const barWidth = canvas.width / barCount;
+      const radius = Math.min(canvas.width, canvas.height) * 0.3;
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      
+      // Draw circular visualizer
+      for (let i = 0; i < barCount; i++) {
+        const dataIndex = Math.floor(i * (bufferLength / barCount));
+        const value = dataArray[dataIndex];
+        const percent = value / 255;
+        const barHeight = percent * (canvas.height * 0.4);
+        
+        const angle = (i / barCount) * Math.PI * 2 - Math.PI / 2;
+        const x1 = centerX + Math.cos(angle) * radius;
+        const y1 = centerY + Math.sin(angle) * radius;
+        const x2 = centerX + Math.cos(angle) * (radius + barHeight);
+        const y2 = centerY + Math.sin(angle) * (radius + barHeight);
+        
+        // Gradient based on song color
+        const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+        gradient.addColorStop(0, currentSong.color);
+        gradient.addColorStop(1, `${currentSong.color}80`);
+        
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = barWidth * 0.8;
+        ctx.lineCap = 'round';
+        
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        
+        // Mirror effect
+        ctx.beginPath();
+        ctx.moveTo(centerX - (x1 - centerX), y1);
+        ctx.lineTo(centerX - (x2 - centerX), y2);
+        ctx.stroke();
       }
-    }
-  };
+      
+      // Center glow
+      const glowGradient = ctx.createRadialGradient(
+        centerX, centerY, 0,
+        centerX, centerY, radius * 0.5
+      );
+      glowGradient.addColorStop(0, `${currentSong.color}40`);
+      glowGradient.addColorStop(1, 'transparent');
+      ctx.fillStyle = glowGradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    };
+    
+    draw();
+  }, [isPlaying, currentSong.color]);
 
-  const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (audioRef.current && currentSong) {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const width = rect.width;
-      const percentage = x / width;
+  useEffect(() => {
+    if (isPlaying && audioInitialized) {
+      drawVisualizer();
+    } else {
+      cancelAnimationFrame(animationRef.current);
+    }
+    return () => cancelAnimationFrame(animationRef.current);
+  }, [isPlaying, audioInitialized, drawVisualizer]);
+
+  // Lyrics sync
+  useEffect(() => {
+    if (!currentSong.lyrics || viewMode !== 'lyrics') return;
+    
+    const currentLyric = currentSong.lyrics.findIndex((lyric, index) => {
+      const nextLyric = currentSong.lyrics?.[index + 1];
+      return currentTime >= lyric.time && (!nextLyric || currentTime < nextLyric.time);
+    });
+    
+    if (currentLyric !== -1) {
+      setCurrentLyricIndex(currentLyric);
+    }
+  }, [currentTime, currentSong.lyrics, viewMode]);
+
+  // Audio event handlers
+  const handleTimeUpdate = useCallback(() => {
+    if (audioRef.current) {
+      const time = audioRef.current.currentTime;
+      const duration = audioRef.current.duration || 1;
+      setCurrentTime(time);
+      setProgress((time / duration) * 100);
+    }
+  }, []);
+
+  const handleSongEnd = useCallback(() => {
+    if (repeatMode === 'one') {
+      audioRef.current?.play();
+    } else {
+      handleNext();
+    }
+  }, [repeatMode]);
+
+  const togglePlay = useCallback(() => {
+    if (!audioInitialized) initAudioContext();
+    
+    if (isPlaying) {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current?.play().then(() => {
+        setIsPlaying(true);
+        if (audioContextRef.current?.state === 'suspended') {
+          audioContextRef.current.resume();
+        }
+      }).catch(console.error);
+    }
+  }, [isPlaying, audioInitialized, initAudioContext]);
+
+  const handleNext = useCallback(() => {
+    const currentIndex = playlist.findIndex(s => s.id === currentSong.id);
+    let nextIndex: number;
+    
+    if (isShuffle) {
+      nextIndex = Math.floor(Math.random() * playlist.length);
+    } else {
+      nextIndex = (currentIndex + 1) % playlist.length;
+    }
+    
+    setCurrentSong(playlist[nextIndex]);
+    setIsPlaying(true);
+  }, [currentSong.id, playlist, isShuffle]);
+
+  const handlePrev = useCallback(() => {
+    const currentIndex = playlist.findIndex(s => s.id === currentSong.id);
+    const prevIndex = currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
+    setCurrentSong(playlist[prevIndex]);
+    setIsPlaying(true);
+  }, [currentSong.id, playlist]);
+
+  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    if (audioRef.current) {
       audioRef.current.currentTime = percentage * audioRef.current.duration;
     }
-  };
+  }, []);
+
+  const toggleLike = useCallback((songId: number) => {
+    setIsLiked(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(songId)) newSet.delete(songId);
+      else newSet.add(songId);
+      return newSet;
+    });
+  }, []);
 
   const formatTime = (seconds: number) => {
-    if (!seconds || isNaN(seconds)) return "0:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // --- 5. VISUALIZER (Tetap Sama) ---
-  useEffect(() => {
-    if (!isPlaying || !visualizerRef.current) return;
-    const canvas = visualizerRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const bars = 20;
-    const barWidth = canvas.width / bars;
-    let animationId: number;
-    
-    const animate = () => {
-      if (!isPlaying) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < bars; i++) {
-        const height = Math.random() * canvas.height * 0.8;
-        const hue = (i / bars) * 60 + 300; 
-        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-        ctx.fillRect(i * barWidth, canvas.height - height, barWidth - 2, height);
-      }
-      animationId = requestAnimationFrame(animate);
-    };
-    animate();
-    return () => cancelAnimationFrame(animationId);
-  }, [isPlaying]);
+  // Dynamic background gradient based on song color
+  const bgGradient = useMemo(() => {
+    return `radial-gradient(circle at 50% 50%, ${currentSong.color}20 0%, transparent 70%)`;
+  }, [currentSong.color]);
 
   return (
-    <div className="min-h-screen bg-[#1A1A2E]">
-      {/* Audio Element Hidden */}
+    <div className="min-h-screen bg-[#0f0f1e] text-white overflow-hidden relative">
+      {/* Hidden Audio Element */}
       <audio
         ref={audioRef}
+        src={currentSong.src}
         onTimeUpdate={handleTimeUpdate}
-        onEnded={() => changeSong('next')} // Auto next saat habis
-        onError={(e) => console.log("Audio Error:", e)}
+        onEnded={handleSongEnd}
+        onLoadedMetadata={() => {
+          if (isPlaying) audioRef.current?.play();
+        }}
       />
 
+      {/* Dynamic Background */}
+      <div 
+        className="fixed inset-0 transition-all duration-1000 pointer-events-none"
+        style={{ background: bgGradient }}
+      />
+      <div className="fixed inset-0 bg-[url('/noise.png')] opacity-5 pointer-events-none mix-blend-overlay" />
+
       {/* Header */}
-      <div className="bg-[#1A1A2E]/90 border-b-4 border-[#FF69B4] p-4">
-        <div className="flex justify-between items-center max-w-4xl mx-auto">
-          <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm">
-            ← MENU
-          </PixelButton>
-          <h1 className="font-['Press_Start_2P'] text-lg text-white">
-            OUR SOUNDTRACK
-          </h1>
-          <div className="w-20" />
+      <motion.header 
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="relative z-20 flex justify-between items-center p-4 md:p-6"
+      >
+        <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm">
+          ← BACK
+        </PixelButton>
+        
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setViewMode(viewMode === 'lyrics' ? 'player' : 'lyrics')}
+            className={cn(
+              "p-2 rounded-full transition-all",
+              viewMode === 'lyrics' ? "bg-white/20 text-white" : "text-white/60 hover:text-white"
+            )}
+          >
+            <Mic2 size={20} />
+          </button>
+          <button 
+            onClick={() => setViewMode(viewMode === 'playlist' ? 'player' : 'playlist')}
+            className={cn(
+              "p-2 rounded-full transition-all",
+              viewMode === 'playlist' ? "bg-white/20 text-white" : "text-white/60 hover:text-white"
+            )}
+          >
+            <ListMusic size={20} />
+          </button>
         </div>
-      </div>
+      </motion.header>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="pixel-box p-6 mb-8">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            
-            {/* Vinyl Animation */}
-            <div 
-              className={cn(
-                'w-32 h-32 md:w-48 md:h-48 rounded-full border-8 border-[#1A1A2E] relative transition-all duration-1000',
-                isPlaying ? 'animate-spin' : ''
-              )}
-              style={{
-                background: 'repeating-radial-gradient(circle at center, #1a1a2e 0px, #1a1a2e 3px, #333 3px, #333 6px)',
-                animationDuration: '3s',
-              }}
+      {/* Main Content */}
+      <main className="relative z-10 max-w-6xl mx-auto px-4 h-[calc(100vh-80px)] flex flex-col">
+        <AnimatePresence mode="wait">
+          {viewMode === 'player' && (
+            <motion.div
+              key="player"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="flex-1 flex flex-col items-center justify-center gap-8"
             >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-12 h-12 bg-[#FF69B4] rounded-full" />
-              </div>
-            </div>
-
-            {/* Song Info */}
-            <div className="flex-1 text-center md:text-left w-full">
-              <h2 className="font-['Press_Start_2P'] text-lg text-black mb-2 truncate">
-                {currentSong ? currentSong.title : 'Select a Song'}
-              </h2>
-              <p className="font-['VT323'] text-xl text-[#FFD700]">
-                {currentSong ? currentSong.artist : '---'}
-              </p>
-              
-              {/* Progress Bar */}
-              <div className="mt-4 w-full">
-                <div 
-                  className="pixel-progress h-4 cursor-pointer relative group" 
-                  onClick={handleProgressBarClick}
+              {/* Album Art with Visualizer */}
+              <div className="relative group">
+                <motion.div
+                  animate={{ 
+                    rotate: isPlaying ? 360 : 0,
+                    scale: isPlaying ? 1 : 0.95
+                  }}
+                  transition={{ 
+                    rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                    scale: { duration: 0.3 }
+                  }}
+                  className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden shadow-2xl"
+                  style={{
+                    boxShadow: `0 0 60px ${currentSong.color}40`
+                  }}
                 >
-                  <div 
-                    className="pixel-progress-fill h-full transition-all duration-100 relative"
-                    style={{ width: `${progress}%` }}
-                  >
-                     <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow opacity-0 group-hover:opacity-100" />
+                  <img 
+                    src={currentSong.cover} 
+                    alt={currentSong.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-black/40 to-transparent" />
+                </motion.div>
+                
+                {/* Visualizer Canvas */}
+                <canvas
+                  ref={canvasRef}
+                  width={400}
+                  height={400}
+                  className="absolute inset-0 w-full h-full pointer-events-none opacity-60 mix-blend-screen"
+                />
+                
+                {/* Play Button Overlay */}
+                <button
+                  onClick={togglePlay}
+                  className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+                    {isPlaying ? <Pause size={32} fill="white" /> : <Play size={32} fill="white" className="ml-1" />}
                   </div>
+                </button>
+              </div>
+
+              {/* Song Info */}
+              <div className="text-center space-y-2">
+                <motion.h1 
+                  key={currentSong.title}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  className="font-['Press_Start_2P'] text-2xl md:text-3xl text-white"
+                >
+                  {currentSong.title}
+                </motion.h1>
+                <motion.p 
+                  key={currentSong.artist}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="font-['VT323'] text-xl text-white/70"
+                >
+                  {currentSong.artist} • {currentSong.album}
+                </motion.p>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full max-w-md space-y-2">
+                <div 
+                  className="h-2 bg-white/10 rounded-full cursor-pointer overflow-hidden group"
+                  onClick={handleSeek}
+                >
+                  <motion.div 
+                    className="h-full rounded-full relative"
+                    style={{ backgroundColor: currentSong.color }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.1 }}
+                  >
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity scale-0 group-hover:scale-100" />
+                  </motion.div>
                 </div>
-                <div className="flex justify-between mt-1">
-                  <span className="font-['VT323'] text-sm text-black/50">
-                    {audioRef.current ? formatTime(audioRef.current.currentTime) : "0:00"}
-                  </span>
-                  <span className="font-['VT323'] text-sm text-black/50">
-                    {currentSong?.duration || '0:00'}
-                  </span>
+                <div className="flex justify-between font-['VT323'] text-sm text-white/50">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{currentSong.duration}</span>
                 </div>
               </div>
 
               {/* Controls */}
-              <div className="flex justify-center md:justify-start gap-6 mt-4 items-center">
+              <div className="flex items-center gap-6">
                 <button 
-                  onClick={() => changeSong('prev')}
-                  className="text-3xl text-white hover:text-[#FF69B4] hover:scale-110 transition-transform active:scale-95"
+                  onClick={() => setIsShuffle(!isShuffle)}
+                  className={cn(
+                    "p-3 rounded-full transition-all",
+                    isShuffle ? "text-white bg-white/20" : "text-white/40 hover:text-white"
+                  )}
                 >
-                  ⏮
+                  <Shuffle size={20} />
                 </button>
+
+                <button 
+                  onClick={handlePrev}
+                  className="p-4 text-white hover:scale-110 transition-transform active:scale-95"
+                >
+                  <SkipBack size={28} fill="currentColor" />
+                </button>
+
+                <button 
+                  onClick={togglePlay}
+                  className="w-16 h-16 rounded-full flex items-center justify-center text-black hover:scale-105 transition-transform active:scale-95 shadow-lg"
+                  style={{ backgroundColor: currentSong.color }}
+                >
+                  {isPlaying ? (
+                    <Pause size={32} fill="currentColor" />
+                  ) : (
+                    <Play size={32} fill="currentColor" className="ml-1" />
+                  )}
+                </button>
+
+                <button 
+                  onClick={handleNext}
+                  className="p-4 text-white hover:scale-110 transition-transform active:scale-95"
+                >
+                  <SkipForward size={28} fill="currentColor" />
+                </button>
+
+                <button 
+                  onClick={() => setRepeatMode(
+                    repeatMode === 'none' ? 'all' : repeatMode === 'all' ? 'one' : 'none'
+                  )}
+                  className={cn(
+                    "p-3 rounded-full transition-all relative",
+                    repeatMode !== 'none' ? "text-white bg-white/20" : "text-white/40 hover:text-white"
+                  )}
+                >
+                  <Repeat size={20} />
+                  {repeatMode === 'one' && (
+                    <span className="absolute -top-1 -right-1 text-[10px] font-bold">1</span>
+                  )}
+                </button>
+              </div>
+
+              {/* Volume & Actions */}
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => {
+                    setIsMuted(!isMuted);
+                    if (audioRef.current) audioRef.current.muted = !isMuted;
+                  }}
+                  className="text-white/60 hover:text-white transition-colors"
+                >
+                  {isMuted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                </button>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={isMuted ? 0 : volume}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    setVolume(val);
+                    if (audioRef.current) audioRef.current.volume = val;
+                    setIsMuted(val === 0);
+                  }}
+                  className="w-24 h-1 bg-white/20 rounded-full appearance-none cursor-pointer accent-white"
+                />
+                
+                <div className="w-px h-6 bg-white/20 mx-2" />
                 
                 <button 
-                  className="text-5xl text-white hover:text-[#FF69B4] hover:scale-110 transition-transform active:scale-95"
-                  onClick={handlePlayToggle}
+                  onClick={() => toggleLike(currentSong.id)}
+                  className={cn(
+                    "transition-all hover:scale-110",
+                    isLiked.has(currentSong.id) ? "text-red-500" : "text-white/40 hover:text-white"
+                  )}
                 >
-                  {isPlaying ? '⏸' : '▶'}
+                  <Heart size={22} fill={isLiked.has(currentSong.id) ? "currentColor" : "none"} />
                 </button>
                 
+                <button className="text-white/40 hover:text-white transition-colors">
+                  <Share2 size={20} />
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {viewMode === 'lyrics' && (
+            <motion.div
+              key="lyrics"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              className="flex-1 overflow-y-auto py-8 space-y-8 text-center"
+            >
+              {currentSong.lyrics ? (
+                currentSong.lyrics.map((line, index) => (
+                  <motion.p
+                    key={index}
+                    animate={{
+                      opacity: index === currentLyricIndex ? 1 : 0.3,
+                      scale: index === currentLyricIndex ? 1.1 : 1,
+                      color: index === currentLyricIndex ? currentSong.color : '#ffffff'
+                    }}
+                    className="font-['VT323'] text-2xl md:text-3xl transition-all duration-300 cursor-pointer hover:opacity-80"
+                    onClick={() => {
+                      if (audioRef.current) {
+                        audioRef.current.currentTime = line.time;
+                      }
+                    }}
+                  >
+                    {line.text}
+                  </motion.p>
+                ))
+              ) : (
+                <p className="text-white/50 font-['VT323'] text-xl">No lyrics available</p>
+              )}
+            </motion.div>
+          )}
+
+          {viewMode === 'playlist' && (
+            <motion.div
+              key="playlist"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              className="flex-1 overflow-y-auto py-4 space-y-2"
+            >
+              {playlist.map((song, index) => {
+                const isActive = currentSong.id === song.id;
+                return (
+                  <motion.div
+                    key={song.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => {
+                      setCurrentSong(song);
+                      setIsPlaying(true);
+                    }}
+                    className={cn(
+                      "group flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all",
+                      isActive 
+                        ? "bg-white/10 border border-white/20" 
+                        : "hover:bg-white/5 border border-transparent"
+                    )}
+                  >
+                    <div className="relative w-12 h-12 rounded-lg overflow-hidden">
+                      <img src={song.cover} alt={song.title} className="w-full h-full object-cover" />
+                      {isActive && isPlaying && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-0.5">
+                          {[1, 2, 3].map(i => (
+                            <motion.div
+                              key={i}
+                              className="w-1 bg-white rounded-full"
+                              animate={{ height: [4, 16, 4] }}
+                              transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <p className={cn(
+                        "font-['VT323'] text-lg truncate",
+                        isActive ? "text-white" : "text-white/70"
+                      )}>
+                        {song.title}
+                      </p>
+                      <p className="text-white/40 text-sm truncate">{song.artist}</p>
+                    </div>
+                    
+                    <span className="text-white/40 text-sm font-['VT323']">{song.duration}</span>
+                    
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleLike(song.id);
+                      }}
+                      className={cn(
+                        "opacity-0 group-hover:opacity-100 transition-all",
+                        isLiked.has(song.id) ? "text-red-500 opacity-100" : "text-white/40 hover:text-white"
+                      )}
+                    >
+                      <Heart size={18} fill={isLiked.has(song.id) ? "currentColor" : "none"} />
+                    </button>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+
+      {/* Mini Player (when scrolled) */}
+      <AnimatePresence>
+        {viewMode !== 'player' && (
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className="fixed bottom-0 left-0 right-0 bg-[#1a1a2e]/95 backdrop-blur-lg border-t border-white/10 p-4 z-50"
+          >
+            <div className="max-w-6xl mx-auto flex items-center gap-4">
+              <img 
+                src={currentSong.cover} 
+                alt={currentSong.title}
+                className="w-12 h-12 rounded-lg object-cover"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="font-['VT323'] text-white truncate">{currentSong.title}</p>
+                <p className="text-white/50 text-sm truncate">{currentSong.artist}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <button onClick={handlePrev} className="text-white/60 hover:text-white">
+                  <SkipBack size={20} fill="currentColor" />
+                </button>
                 <button 
-                  onClick={() => changeSong('next')}
-                  className="text-3xl text-white hover:text-[#FF69B4] hover:scale-110 transition-transform active:scale-95"
+                  onClick={togglePlay}
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-black"
+                  style={{ backgroundColor: currentSong.color }}
                 >
-                  ⏭
+                  {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
+                </button>
+                <button onClick={handleNext} className="text-white/60 hover:text-white">
+                  <SkipForward size={20} fill="currentColor" />
                 </button>
               </div>
             </div>
-          </div>
-
-          <canvas 
-            ref={visualizerRef}
-            width={400}
-            height={100}
-            className="w-full mt-6 rounded opacity-80"
-          />
-        </div>
-
-        {/* Playlist List */}
-        <div className="space-y-2">
-          <h3 className="font-['Press_Start_2P'] text-sm text-white mb-4">
-            PLAYLIST
-          </h3>
-          {songs.map((song, index) => {
-            // Logic pengecekan aktif/tidak
-            const isActive = currentSong?.id === song.id;
-
-            return (
-              <div
-                key={song.id}
-                onClick={() => handleSelectSong(song)}
-                className={cn(
-                  'flex items-center gap-4 p-4 cursor-pointer transition-all',
-                  'border-2 hover:scale-[1.01] active:scale-[0.99]',
-                  // Kondisional Class: Hanya yang aktif yang warnanya Pink
-                  isActive
-                    ? 'bg-[#FF69B4]/30 border-[#FF69B4]'
-                    : 'bg-[#1A1A2E] border-white/20 hover:border-white/50'
-                )}
-              >
-                <span className="font-['Press_Start_2P'] text-xs text-white/50 w-8">
-                  {(index + 1).toString().padStart(2, '0')}
-                </span>
-                <div className="flex-1">
-                  <p className={cn(
-                    'font-["VT323"] text-lg',
-                    isActive ? 'text-[#FF69B4]' : 'text-white'
-                  )}>
-                    {song.title}
-                  </p>
-                  <p className="font-['VT323'] text-sm text-white/50">
-                    {song.artist}
-                  </p>
-                </div>
-                <span className="font-['VT323'] text-sm text-white/50">
-                  {song.duration}
-                </span>
-                {isActive && isPlaying && (
-                  <span className="text-[#FF69B4] animate-pulse">♪</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
