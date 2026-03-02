@@ -22,7 +22,7 @@ interface Song {
   lyrics?: { time: number; text: string }[];
 }
 
-// Data lagu asli yang sudah disesuaikan dengan folder public
+// Data lagu asli
 const songs: Song[] = [
   {
     id: 1,
@@ -41,7 +41,7 @@ const songs: Song[] = [
     artist: "The Living Tombstone",
     album: "BGM Soundtrack",
     cover: "/covers/fnaf.jpg",
-    src: "/audio/bgm/Fnaf.mp3",
+    src: "/audio/bgm/Fnaf.mp3", // PASTIKAN HURUF BESAR/KECIL SAMA DENGAN FILE ASLI DI FOLDER
     duration: "3:00",
     durationSeconds: 180,
     color: "#4ECDC4",
@@ -52,7 +52,7 @@ const songs: Song[] = [
     artist: "wave to earth",
     album: "BGM Soundtrack",
     cover: "/covers/love.jpg",
-    src: "/audio/bgm/Love.mp3",
+    src: "/audio/bgm/Love.mp3", // PASTIKAN HURUF BESAR/KECIL SAMA DENGAN FILE ASLI DI FOLDER
     duration: "5:05",
     durationSeconds: 305,
     color: "#FFE66D",
@@ -65,7 +65,7 @@ type ViewMode = 'player' | 'playlist' | 'lyrics';
 const Music: React.FC = () => {
   const navigate = useNavigate();
   
-  // Audio refs (sudah dibersihkan dari ref yang tidak terpakai)
+  // Audio refs
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -109,6 +109,29 @@ const Music: React.FC = () => {
       console.error("Audio Context Error:", error);
     }
   }, []);
+
+  // --- LOGIK BARU YANG DITAMBAHKAN: HANDLE GANTI LAGU ---
+  useEffect(() => {
+    if (audioRef.current) {
+      // 1. Pause lagu yang sedang berjalan
+      audioRef.current.pause();
+      
+      // 2. Ganti sumber suara ke lagu baru dan paksa browser memuatnya
+      audioRef.current.src = currentSong.src;
+      audioRef.current.load();
+      
+      // 3. Jika statusnya isPlaying, otomatis putar lagu baru
+      if (isPlaying) {
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error("Playback prevented:", error);
+          });
+        }
+      }
+    }
+  }, [currentSong.src]); // Hanya dipanggil saat sumber (src) lagu berubah
+  // -----------------------------------------------------
 
   // Real Visualizer
   const drawVisualizer = useCallback(() => {
@@ -184,7 +207,7 @@ const Music: React.FC = () => {
     return () => cancelAnimationFrame(animationRef.current);
   }, [isPlaying, audioInitialized, drawVisualizer]);
 
-  // Lyrics sync dengan auto-scroll
+  // Lyrics sync
   useEffect(() => {
     if (!currentSong.lyrics || viewMode !== 'lyrics') return;
     
@@ -195,12 +218,9 @@ const Music: React.FC = () => {
     
     if (currentLyric !== -1 && currentLyric !== currentLyricIndex) {
       setCurrentLyricIndex(currentLyric);
-      
       if (lyricsRef.current) {
         const lyricElement = lyricsRef.current.children[currentLyric] as HTMLElement;
-        if (lyricElement) {
-          lyricElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        if (lyricElement) lyricElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
   }, [currentTime, currentSong.lyrics, viewMode, currentLyricIndex]);
@@ -247,13 +267,9 @@ const Music: React.FC = () => {
 
   const handleNext = useCallback(() => {
     const currentIndex = playlist.findIndex(s => s.id === currentSong.id);
-    let nextIndex: number;
-    
-    if (isShuffle) {
-      nextIndex = Math.floor(Math.random() * playlist.length);
-    } else {
-      nextIndex = (currentIndex + 1) % playlist.length;
-    }
+    let nextIndex = isShuffle 
+      ? Math.floor(Math.random() * playlist.length)
+      : (currentIndex + 1) % playlist.length;
     
     setCurrentSong(playlist[nextIndex]);
     setIsPlaying(true);
@@ -329,9 +345,7 @@ const Music: React.FC = () => {
             onClick={() => setViewMode(viewMode === 'lyrics' ? 'player' : 'lyrics')}
             className={cn(
               "p-3 rounded-full transition-all backdrop-blur-md",
-              viewMode === 'lyrics' 
-                ? "bg-white/20 text-white shadow-lg" 
-                : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
+              viewMode === 'lyrics' ? "bg-white/20 text-white shadow-lg" : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
             )}
           >
             <Mic2 size={20} />
@@ -342,9 +356,7 @@ const Music: React.FC = () => {
             onClick={() => setViewMode(viewMode === 'playlist' ? 'player' : 'playlist')}
             className={cn(
               "p-3 rounded-full transition-all backdrop-blur-md",
-              viewMode === 'playlist' 
-                ? "bg-white/20 text-white shadow-lg" 
-                : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
+              viewMode === 'playlist' ? "bg-white/20 text-white shadow-lg" : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
             )}
           >
             <ListMusic size={20} />
@@ -365,16 +377,10 @@ const Music: React.FC = () => {
             >
               <div className="relative group">
                 <motion.div
-                  animate={{ 
-                    rotate: isPlaying ? 360 : 0,
-                  }}
-                  transition={{ 
-                    rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-                  }}
+                  animate={{ rotate: isPlaying ? 360 : 0 }}
+                  transition={{ rotate: { duration: 20, repeat: Infinity, ease: "linear" } }}
                   className="relative w-48 h-48 md:w-72 md:h-72 rounded-full overflow-hidden shadow-2xl"
-                  style={{
-                    boxShadow: `0 20px 60px -10px ${currentSong.color}50`
-                  }}
+                  style={{ boxShadow: `0 20px 60px -10px ${currentSong.color}50` }}
                 >
                   <img 
                     src={currentSong.cover} 
@@ -385,14 +391,12 @@ const Music: React.FC = () => {
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-tr from-black/30 to-transparent rounded-full" />
-                  
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-16 h-16 md:w-20 md:h-20 bg-[#0f0f1e] rounded-full border-4 border-white/10 flex items-center justify-center">
                       <div className="w-3 h-3 bg-white/30 rounded-full" />
                     </div>
                   </div>
                 </motion.div>
-                
                 <canvas
                   ref={canvasRef}
                   width={400}
@@ -405,42 +409,26 @@ const Music: React.FC = () => {
               <div className="text-center space-y-1 md:space-y-2 max-w-md">
                 <motion.h1 
                   key={currentSong.title}
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
+                  initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
                   className="font-['Press_Start_2P'] text-lg md:text-2xl text-white leading-tight"
                 >
                   {currentSong.title}
                 </motion.h1>
                 <motion.p 
                   key={currentSong.artist}
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.1 }}
+                  initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
                   className="font-['VT323'] text-xl md:text-2xl text-white/60"
                 >
                   {currentSong.artist}
                 </motion.p>
-                <motion.p 
-                  key={currentSong.album}
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="font-['VT323'] text-sm md:text-base text-white/40"
-                >
-                  {currentSong.album}
-                </motion.p>
               </div>
 
               <div className="w-full max-w-lg space-y-2 px-4">
-                <div 
-                  className="h-2 bg-white/10 rounded-full cursor-pointer overflow-hidden group relative"
-                  onClick={handleSeek}
-                >
+                <div className="h-2 bg-white/10 rounded-full cursor-pointer overflow-hidden group relative" onClick={handleSeek}>
                   <motion.div 
                     className="h-full rounded-full relative"
                     style={{ backgroundColor: currentSong.color }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.1 }}
+                    animate={{ width: `${progress}%` }} transition={{ duration: 0.1 }}
                   >
                     <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 scale-0 group-hover:scale-100" />
                   </motion.div>
@@ -453,143 +441,67 @@ const Music: React.FC = () => {
 
               <div className="flex items-center gap-4 md:gap-8">
                 <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsShuffle(!isShuffle)}
-                  className={cn(
-                    "p-3 rounded-full transition-all",
-                    isShuffle ? "text-white bg-white/20" : "text-white/30 hover:text-white/60"
-                  )}
+                  whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} onClick={() => setIsShuffle(!isShuffle)}
+                  className={cn("p-3 rounded-full transition-all", isShuffle ? "text-white bg-white/20" : "text-white/30 hover:text-white/60")}
                 >
                   <Shuffle size={22} />
                 </motion.button>
-
-                <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handlePrev}
-                  className="p-3 text-white hover:text-white/80 transition-colors"
-                >
+                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handlePrev} className="p-3 text-white hover:text-white/80 transition-colors">
                   <SkipBack size={32} fill="currentColor" />
                 </motion.button>
                 
                 <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={togglePlay}
+                  whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={togglePlay}
                   className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center text-[#0f0f1e] shadow-xl transition-shadow hover:shadow-2xl"
                   style={{ backgroundColor: currentSong.color }}
                 >
-                  {isPlaying ? (
-                    <Pause size={32} fill="currentColor" />
-                  ) : (
-                    <Play size={32} fill="currentColor" className="ml-1" />
-                  )}
+                  {isPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
                 </motion.button>
                 
-                <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handleNext}
-                  className="p-3 text-white hover:text-white/80 transition-colors"
-                >
+                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handleNext} className="p-3 text-white hover:text-white/80 transition-colors">
                   <SkipForward size={32} fill="currentColor" />
                 </motion.button>
 
                 <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setRepeatMode(
-                    repeatMode === 'none' ? 'all' : repeatMode === 'all' ? 'one' : 'none'
-                  )}
-                  className={cn(
-                    "p-3 rounded-full transition-all relative",
-                    repeatMode !== 'none' ? "text-white bg-white/20" : "text-white/30 hover:text-white/60"
-                  )}
+                  whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
+                  onClick={() => setRepeatMode(repeatMode === 'none' ? 'all' : repeatMode === 'all' ? 'one' : 'none')}
+                  className={cn("p-3 rounded-full transition-all relative", repeatMode !== 'none' ? "text-white bg-white/20" : "text-white/30 hover:text-white/60")}
                 >
                   <Repeat size={22} />
-                  {repeatMode === 'one' && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-current text-[#0f0f1e] rounded-full text-[10px] font-bold flex items-center justify-center">
-                      1
-                    </span>
-                  )}
+                  {repeatMode === 'one' && <span className="absolute -top-1 -right-1 w-5 h-5 bg-current text-[#0f0f1e] rounded-full text-[10px] font-bold flex items-center justify-center">1</span>}
                 </motion.button>
               </div>
 
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-3 bg-white/5 rounded-full px-4 py-2">
-                  <button 
-                    onClick={() => {
-                      setIsMuted(!isMuted);
-                      if (audioRef.current) audioRef.current.muted = !isMuted;
-                    }}
-                    className="text-white/60 hover:text-white transition-colors"
-                  >
+                  <button onClick={() => { setIsMuted(!isMuted); if (audioRef.current) audioRef.current.muted = !isMuted; }} className="text-white/60 hover:text-white transition-colors">
                     {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
                   </button>
                   <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={isMuted ? 0 : volume}
+                    type="range" min="0" max="1" step="0.01" value={isMuted ? 0 : volume}
                     onChange={(e) => {
                       const val = parseFloat(e.target.value);
                       setVolume(val);
-                      if (audioRef.current) {
-                        audioRef.current.volume = val;
-                        audioRef.current.muted = val === 0;
-                      }
+                      if (audioRef.current) { audioRef.current.volume = val; audioRef.current.muted = val === 0; }
                       setIsMuted(val === 0);
                     }}
                     className="w-24 h-1 bg-white/20 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full"
                   />
                 </div>
-
-                <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => toggleLike(currentSong.id)}
-                  className={cn(
-                    "p-3 rounded-full transition-all",
-                    isLiked.has(currentSong.id) 
-                      ? "text-red-500 bg-red-500/20" 
-                      : "text-white/40 hover:text-white bg-white/5"
-                  )}
-                >
-                  <Heart size={22} fill={isLiked.has(currentSong.id) ? "currentColor" : "none"} />
-                </motion.button>
               </div>
             </motion.div>
           )}
 
           {viewMode === 'lyrics' && (
-            <motion.div
-              key="lyrics"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              className="flex-1 overflow-y-auto py-8 px-4"
-              ref={lyricsRef}
-            >
+            <motion.div key="lyrics" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="flex-1 overflow-y-auto py-8 px-4" ref={lyricsRef}>
               <div className="max-w-2xl mx-auto space-y-8 text-center pb-32">
                 {currentSong.lyrics ? (
                   currentSong.lyrics.map((line, index) => (
                     <motion.p
-                      key={index}
-                      initial={{ opacity: 0.3 }}
-                      animate={{
-                        opacity: index === currentLyricIndex ? 1 : 0.3,
-                        scale: index === currentLyricIndex ? 1.05 : 1,
-                        color: index === currentLyricIndex ? currentSong.color : '#ffffff'
-                      }}
-                      transition={{ duration: 0.3 }}
-                      className="font-['VT323'] text-2xl md:text-4xl cursor-pointer py-2 transition-all hover:opacity-60"
-                      onClick={() => {
-                        if (audioRef.current) {
-                          audioRef.current.currentTime = line.time;
-                        }
-                      }}
+                      key={index} initial={{ opacity: 0.3 }}
+                      animate={{ opacity: index === currentLyricIndex ? 1 : 0.3, scale: index === currentLyricIndex ? 1.05 : 1, color: index === currentLyricIndex ? currentSong.color : '#ffffff' }}
+                      transition={{ duration: 0.3 }} className="font-['VT323'] text-2xl md:text-4xl cursor-pointer py-2 transition-all hover:opacity-60"
+                      onClick={() => { if (audioRef.current) audioRef.current.currentTime = line.time; }}
                     >
                       {line.text}
                     </motion.p>
@@ -605,96 +517,36 @@ const Music: React.FC = () => {
           )}
 
           {viewMode === 'playlist' && (
-            <motion.div
-              key="playlist"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              className="flex-1 overflow-y-auto py-4 px-2 pb-24"
-            >
+            <motion.div key="playlist" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="flex-1 overflow-y-auto py-4 px-2 pb-24">
               <div className="max-w-2xl mx-auto space-y-2">
-                <h3 className="font-['Press_Start_2P'] text-sm text-white/60 mb-6 px-2">
-                  PLAYLIST ({playlist.length} songs)
-                </h3>
+                <h3 className="font-['Press_Start_2P'] text-sm text-white/60 mb-6 px-2">PLAYLIST ({playlist.length} songs)</h3>
                 {playlist.map((song, index) => {
                   const isActive = currentSong.id === song.id;
                   return (
                     <motion.div
-                      key={song.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      onClick={() => {
-                        setCurrentSong(song);
-                        setIsPlaying(true);
-                        setCurrentLyricIndex(0);
-                      }}
-                      className={cn(
-                        "group flex items-center gap-4 p-3 md:p-4 rounded-xl cursor-pointer transition-all border",
-                        isActive 
-                          ? "bg-white/10 border-white/20 shadow-lg" 
-                          : "bg-transparent border-transparent hover:bg-white/5 hover:border-white/10"
-                      )}
+                      key={song.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}
+                      onClick={() => { setCurrentSong(song); setIsPlaying(true); setCurrentLyricIndex(0); }}
+                      className={cn("group flex items-center gap-4 p-3 md:p-4 rounded-xl cursor-pointer transition-all border", isActive ? "bg-white/10 border-white/20 shadow-lg" : "bg-transparent border-transparent hover:bg-white/5 hover:border-white/10")}
                     >
                       <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-lg overflow-hidden flex-shrink-0">
                         <img 
-                          src={song.cover} 
-                          alt={song.title} 
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = `https://placehold.co/100x100/${song.color.replace('#', '')}/ffffff?text=${index + 1}`;
-                          }}
+                          src={song.cover} alt={song.title} className="w-full h-full object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/100x100/${song.color.replace('#', '')}/ffffff?text=${index + 1}`; }}
                         />
                         {isActive && isPlaying && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-0.5">
                             {[1, 2, 3].map(i => (
-                              <motion.div
-                                key={i}
-                                className="w-1 bg-white rounded-full"
-                                animate={{ height: [4, 16, 4] }}
-                                transition={{ 
-                                  repeat: Infinity, 
-                                  duration: 0.5, 
-                                  delay: i * 0.1,
-                                  ease: "easeInOut"
-                                }}
-                              />
+                              <motion.div key={i} className="w-1 bg-white rounded-full" animate={{ height: [4, 16, 4] }} transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1, ease: "easeInOut" }} />
                             ))}
                           </div>
                         )}
-                        {isActive && !isPlaying && (
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                            <Pause size={16} fill="white" />
-                          </div>
-                        )}
+                        {isActive && !isPlaying && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><Pause size={16} fill="white" /></div>}
                       </div>
-                      
                       <div className="flex-1 min-w-0">
-                        <p className={cn(
-                          "font-['VT323'] text-lg md:text-xl truncate",
-                          isActive ? "text-white" : "text-white/80"
-                        )}>
-                          {song.title}
-                        </p>
+                        <p className={cn("font-['VT323'] text-lg md:text-xl truncate", isActive ? "text-white" : "text-white/80")}>{song.title}</p>
                         <p className="text-white/40 text-sm md:text-base truncate font-['VT323']">{song.artist}</p>
                       </div>
-                      
                       <span className="text-white/30 text-sm font-['VT323'] hidden md:block">{song.duration}</span>
-                      
-                      <motion.button
-                        whileHover={{ scale: 1.2 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleLike(song.id);
-                        }}
-                        className={cn(
-                          "p-2 rounded-full transition-all opacity-0 group-hover:opacity-100",
-                          isLiked.has(song.id) ? "text-red-500 opacity-100" : "text-white/40 hover:text-white"
-                        )}
-                      >
-                        <Heart size={18} fill={isLiked.has(song.id) ? "currentColor" : "none"} />
-                      </motion.button>
                     </motion.div>
                   );
                 })}
@@ -706,72 +558,34 @@ const Music: React.FC = () => {
 
       <AnimatePresence>
         {viewMode !== 'player' && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-0 left-0 right-0 bg-[#0f0f1e]/95 backdrop-blur-xl border-t border-white/10 p-3 md:p-4 z-50"
-          >
+          <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} className="fixed bottom-0 left-0 right-0 bg-[#0f0f1e]/95 backdrop-blur-xl border-t border-white/10 p-3 md:p-4 z-50">
             <div className="max-w-6xl mx-auto flex items-center gap-3 md:gap-4">
               <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-lg overflow-hidden flex-shrink-0">
                 <img 
-                  src={currentSong.cover} 
-                  alt={currentSong.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = `https://placehold.co/100x100/${currentSong.color.replace('#', '')}/ffffff?text=♪`;
-                  }}
+                  src={currentSong.cover} alt={currentSong.title} className="w-full h-full object-cover"
+                  onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/100x100/${currentSong.color.replace('#', '')}/ffffff?text=♪`; }}
                 />
-                <div className="absolute inset-0 bg-black/20" />
               </div>
-              
               <div className="flex-1 min-w-0">
                 <p className="font-['VT323'] text-white text-lg truncate">{currentSong.title}</p>
                 <p className="text-white/50 text-sm truncate font-['VT323']">{currentSong.artist}</p>
               </div>
-
               <div className="flex items-center gap-2 md:gap-4">
-                <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handlePrev}
-                  className="p-2 text-white/60 hover:text-white transition-colors"
-                >
+                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handlePrev} className="p-2 text-white/60 hover:text-white transition-colors">
                   <SkipBack size={24} fill="currentColor" />
                 </motion.button>
-                
                 <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={togglePlay}
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-[#0f0f1e]"
-                  style={{ backgroundColor: currentSong.color }}
+                  whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={togglePlay} className="w-12 h-12 rounded-full flex items-center justify-center text-[#0f0f1e]" style={{ backgroundColor: currentSong.color }}
                 >
-                  {isPlaying ? (
-                    <Pause size={20} fill="currentColor" />
-                  ) : (
-                    <Play size={20} fill="currentColor" className="ml-0.5" />
-                  )}
+                  {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
                 </motion.button>
-                
-                <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handleNext}
-                  className="p-2 text-white/60 hover:text-white transition-colors"
-                >
+                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handleNext} className="p-2 text-white/60 hover:text-white transition-colors">
                   <SkipForward size={24} fill="currentColor" />
                 </motion.button>
               </div>
             </div>
-            
             <div className="absolute top-0 left-0 right-0 h-0.5 bg-white/10">
-              <motion.div 
-                className="h-full"
-                style={{ backgroundColor: currentSong.color }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.1 }}
-              />
+              <motion.div className="h-full" style={{ backgroundColor: currentSong.color }} animate={{ width: `${progress}%` }} transition={{ duration: 0.1 }} />
             </div>
           </motion.div>
         )}
@@ -781,5 +595,3 @@ const Music: React.FC = () => {
 };
 
 export default Music;
-
-//memperbaiki bug
