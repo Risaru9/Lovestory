@@ -22,91 +22,40 @@ interface Song {
   lyrics?: { time: number; text: string }[];
 }
 
-// Mock data yang lebih lengkap
+// Data lagu asli yang sudah disesuaikan dengan folder public
 const songs: Song[] = [
   {
     id: 1,
-    title: "Perfect",
-    artist: "Ed Sheeran",
-    album: "÷ (Divide)",
-    cover: "/covers/perfect.jpg",
-    src: "/music/perfect.mp3",
-    duration: "4:23",
-    durationSeconds: 263,
+    title: "Last Son",
+    artist: "David Fleming",
+    album: "BGM Soundtrack",
+    cover: "/covers/superman.jpg", 
+    src: "/audio/bgm/Superman.mp3", 
+    duration: "2:45",
+    durationSeconds: 165,
     color: "#FF6B6B",
-    lyrics: [
-      { time: 0, text: "I found a love for me" },
-      { time: 4, text: "Darling, just dive right in and follow my lead" },
-      { time: 10, text: "Well, I found a girl, beautiful and sweet" },
-      { time: 15, text: "Oh, I never knew you were the someone waiting for me" },
-      { time: 22, text: "'Cause we were just kids when we fell in love" },
-      { time: 27, text: "Not knowing what it was" },
-      { time: 30, text: "I will not give you up this time" },
-      { time: 35, text: "But darling, just kiss me slow, your heart is all I own" },
-      { time: 42, text: "And in your eyes you're holding mine" },
-      { time: 48, text: "Baby, I'm dancing in the dark with you between my arms" },
-      { time: 55, text: "Barefoot on the grass, listening to our favourite song" },
-      { time: 62, text: "When you said you looked a mess, I whispered underneath my breath" },
-      { time: 69, text: "But you heard it, darling, you look perfect tonight" },
-    ]
   },
   {
     id: 2,
-    title: "Photograph",
-    artist: "Ed Sheeran",
-    album: "x (Multiply)",
-    cover: "/covers/photograph.jpg",
-    src: "/music/photograph.mp3",
-    duration: "4:18",
-    durationSeconds: 258,
+    title: "Five Nights at Freddy's 2",
+    artist: "The Living Tombstone",
+    album: "BGM Soundtrack",
+    cover: "/covers/fnaf.jpg",
+    src: "/audio/bgm/Fnaf.mp3",
+    duration: "3:00",
+    durationSeconds: 180,
     color: "#4ECDC4",
-    lyrics: [
-      { time: 0, text: "Loving can hurt, loving can hurt sometimes" },
-      { time: 5, text: "But it's the only thing that I know" },
-      { time: 10, text: "When it gets hard, you know it can get hard sometimes" },
-      { time: 15, text: "It is the only thing that makes us feel alive" },
-    ]
   },
   {
     id: 3,
-    title: "Thinking Out Loud",
-    artist: "Ed Sheeran",
-    album: "x (Multiply)",
-    cover: "/covers/thinking.jpg",
-    src: "/music/thinking.mp3",
-    duration: "4:41",
-    durationSeconds: 281,
+    title: "love",
+    artist: "wave to earth",
+    album: "BGM Soundtrack",
+    cover: "/covers/love.jpg",
+    src: "/audio/bgm/Love.mp3",
+    duration: "5:05",
+    durationSeconds: 305,
     color: "#FFE66D",
-  },
-  {
-    id: 4,
-    title: "Shape of You",
-    artist: "Ed Sheeran",
-    album: "÷ (Divide)",
-    cover: "/covers/shape.jpg",
-    src: "/music/shape.mp3",
-    duration: "3:53",
-    durationSeconds: 233,
-    color: "#FF6B9D",
-  },
-  {
-    id: 5,
-    title: "All of Me",
-    artist: "John Legend",
-    album: "Love in the Future",
-    cover: "/covers/allofme.jpg",
-    src: "/music/allofme.mp3",
-    duration: "4:29",
-    durationSeconds: 269,
-    color: "#C44569",
-    lyrics: [
-      { time: 0, text: "What would I do without your smart mouth?" },
-      { time: 4, text: "Drawing me in, and you kicking me out" },
-      { time: 8, text: "You've got my head spinning, no kidding, I can't pin you down" },
-      { time: 14, text: "What's going on in that beautiful mind" },
-      { time: 18, text: "I'm on your magical mystery ride" },
-      { time: 23, text: "And I'm so dizzy, don't know what hit me, but I'll be alright" },
-    ]
   }
 ];
 
@@ -116,11 +65,10 @@ type ViewMode = 'player' | 'playlist' | 'lyrics';
 const Music: React.FC = () => {
   const navigate = useNavigate();
   
-  // Audio refs
+  // Audio refs (sudah dibersihkan dari ref yang tidak terpakai)
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const lyricsRef = useRef<HTMLDivElement>(null);
@@ -156,7 +104,6 @@ const Music: React.FC = () => {
       
       audioContextRef.current = audioContext;
       analyserRef.current = analyser;
-      sourceRef.current = source;
       setAudioInitialized(true);
     } catch (error) {
       console.error("Audio Context Error:", error);
@@ -249,7 +196,6 @@ const Music: React.FC = () => {
     if (currentLyric !== -1 && currentLyric !== currentLyricIndex) {
       setCurrentLyricIndex(currentLyric);
       
-      // Auto-scroll ke lyric yang aktif
       if (lyricsRef.current) {
         const lyricElement = lyricsRef.current.children[currentLyric] as HTMLElement;
         if (lyricElement) {
@@ -347,14 +293,12 @@ const Music: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Dynamic background gradient
   const bgGradient = useMemo(() => {
     return `radial-gradient(circle at 50% 30%, ${currentSong.color}15 0%, transparent 60%)`;
   }, [currentSong.color]);
 
   return (
     <div className="min-h-screen bg-[#0f0f1e] text-white overflow-hidden relative font-sans">
-      {/* Hidden Audio Element */}
       <audio
         ref={audioRef}
         src={currentSong.src}
@@ -363,14 +307,12 @@ const Music: React.FC = () => {
         crossOrigin="anonymous"
       />
 
-      {/* Dynamic Background */}
       <motion.div 
         className="fixed inset-0 pointer-events-none transition-all duration-1000"
         animate={{ background: bgGradient }}
       />
       <div className="fixed inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-30 pointer-events-none" />
 
-      {/* Header */}
       <motion.header 
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -410,7 +352,6 @@ const Music: React.FC = () => {
         </div>
       </motion.header>
 
-      {/* Main Content */}
       <main className="relative z-10 max-w-6xl mx-auto px-4 h-[calc(100vh-100px)] flex flex-col">
         <AnimatePresence mode="wait">
           {viewMode === 'player' && (
@@ -422,7 +363,6 @@ const Music: React.FC = () => {
               transition={{ duration: 0.3 }}
               className="flex-1 flex flex-col items-center justify-center gap-6 md:gap-8 pb-20"
             >
-              {/* Album Art with Visualizer */}
               <div className="relative group">
                 <motion.div
                   animate={{ 
@@ -446,7 +386,6 @@ const Music: React.FC = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-tr from-black/30 to-transparent rounded-full" />
                   
-                  {/* Center hole */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-16 h-16 md:w-20 md:h-20 bg-[#0f0f1e] rounded-full border-4 border-white/10 flex items-center justify-center">
                       <div className="w-3 h-3 bg-white/30 rounded-full" />
@@ -454,7 +393,6 @@ const Music: React.FC = () => {
                   </div>
                 </motion.div>
                 
-                {/* Visualizer Canvas - Overlay */}
                 <canvas
                   ref={canvasRef}
                   width={400}
@@ -464,7 +402,6 @@ const Music: React.FC = () => {
                 />
               </div>
 
-              {/* Song Info */}
               <div className="text-center space-y-1 md:space-y-2 max-w-md">
                 <motion.h1 
                   key={currentSong.title}
@@ -494,7 +431,6 @@ const Music: React.FC = () => {
                 </motion.p>
               </div>
 
-              {/* Progress Bar */}
               <div className="w-full max-w-lg space-y-2 px-4">
                 <div 
                   className="h-2 bg-white/10 rounded-full cursor-pointer overflow-hidden group relative"
@@ -515,7 +451,6 @@ const Music: React.FC = () => {
                 </div>
               </div>
 
-              {/* Main Controls */}
               <div className="flex items-center gap-4 md:gap-8">
                 <motion.button 
                   whileHover={{ scale: 1.1 }}
@@ -581,7 +516,6 @@ const Music: React.FC = () => {
                 </motion.button>
               </div>
 
-              {/* Volume & Like */}
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-3 bg-white/5 rounded-full px-4 py-2">
                   <button 
@@ -770,7 +704,6 @@ const Music: React.FC = () => {
         </AnimatePresence>
       </main>
 
-      {/* Mini Player */}
       <AnimatePresence>
         {viewMode !== 'player' && (
           <motion.div
@@ -832,7 +765,6 @@ const Music: React.FC = () => {
               </div>
             </div>
             
-            {/* Progress bar mini */}
             <div className="absolute top-0 left-0 right-0 h-0.5 bg-white/10">
               <motion.div 
                 className="h-full"
