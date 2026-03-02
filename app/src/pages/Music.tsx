@@ -32,7 +32,6 @@ const Music: React.FC = () => {
   useEffect(() => {
     if (isShuffle) {
       const indices = Array.from({ length: songs.length }, (_, i) => i);
-      // Fisher-Yates shuffle
       for (let i = indices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [indices[i], indices[j]] = [indices[j], indices[i]];
@@ -69,7 +68,6 @@ const Music: React.FC = () => {
     }
   }, [isPlaying]);
 
-  // Volume control
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume;
@@ -190,7 +188,6 @@ const Music: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Initialize pixel particles
     if (pixelParticlesRef.current.length === 0) {
       const colors = ['#FF69B4', '#FFD700', '#00CED1', '#FF6B6B', '#4ECDC4'];
       for (let i = 0; i < 50; i++) {
@@ -208,13 +205,11 @@ const Music: React.FC = () => {
     
     const animate = () => {
       if (!isPlaying) {
-        // Static pixel art display when paused
         ctx.fillStyle = '#1A1A2E';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Draw static pixel pattern
         pixelParticlesRef.current.forEach(particle => {
-          ctx.fillStyle = particle.color + '40'; // 25% opacity
+          ctx.fillStyle = particle.color + '40';
           ctx.fillRect(
             Math.floor(particle.x / 8) * 8,
             Math.floor(particle.y / 8) * 8,
@@ -228,38 +223,30 @@ const Music: React.FC = () => {
       }
 
       frameCount++;
-      // Only update every 3rd frame for retro feel (20fps effect)
       if (frameCount % 3 === 0) {
         ctx.fillStyle = '#1A1A2E';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw pixel bars with retro styling
         const bars = 16;
-        const barWidth = Math.floor(canvas.width / bars / 4) * 4; // Pixel-aligned
+        const barWidth = Math.floor(canvas.width / bars / 4) * 4;
         const gap = 4;
 
         for (let i = 0; i < bars; i++) {
-          // Generate height based on pseudo-random but smooth animation
           const time = Date.now() / 1000;
           const height = Math.abs(Math.sin(time * 2 + i * 0.5)) * canvas.height * 0.7;
-          const pixelHeight = Math.floor(height / 4) * 4; // Pixel-aligned height
+          const pixelHeight = Math.floor(height / 4) * 4;
           
           const x = i * (barWidth + gap) + gap;
           const y = canvas.height - pixelHeight;
           
-          // Pixel art color palette
-          const hue = 300 + (i / bars) * 60; // Pink to purple range
+          const hue = 300 + (i / bars) * 60;
           ctx.fillStyle = `hsl(${hue}, 100%, 60%)`;
-          
-          // Draw pixelated bar
           ctx.fillRect(x, y, barWidth - 2, pixelHeight);
           
-          // Add highlight for 3D pixel effect
           ctx.fillStyle = `hsl(${hue}, 100%, 80%)`;
           ctx.fillRect(x, y, 2, pixelHeight);
         }
 
-        // Floating pixel particles
         pixelParticlesRef.current.forEach(particle => {
           particle.y -= particle.speed;
           if (particle.y < 0) {
@@ -267,7 +254,6 @@ const Music: React.FC = () => {
             particle.x = Math.random() * canvas.width;
           }
           
-          // Snap to pixel grid
           const pixelX = Math.floor(particle.x / 4) * 4;
           const pixelY = Math.floor(particle.y / 4) * 4;
           
@@ -288,7 +274,6 @@ const Music: React.FC = () => {
     };
   }, [isPlaying]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (animationRef.current) {
@@ -324,6 +309,10 @@ const Music: React.FC = () => {
           0%, 100% { box-shadow: 0 0 0 0 rgba(255, 105, 180, 0.4); }
           50% { box-shadow: 0 0 0 8px rgba(255, 105, 180, 0); }
         }
+        @keyframes spin-pixel {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
         .pixel-shadow {
           box-shadow: 
             4px 4px 0px 0px rgba(0,0,0,0.3),
@@ -336,6 +325,9 @@ const Music: React.FC = () => {
             2px 2px 0px 0px rgba(0,0,0,0.3),
             inset -2px -2px 0px 0px rgba(0,0,0,0.2),
             inset 2px 2px 0px 0px rgba(255,255,255,0.2);
+        }
+        .vinyl-spin {
+          animation: spin-pixel 4s linear infinite;
         }
       `}</style>
 
@@ -381,40 +373,47 @@ const Music: React.FC = () => {
 
           <div className="flex flex-col md:flex-row items-center gap-6">
             
-            {/* Pixel Art Vinyl */}
-            <div className="relative group">
+            {/* Pixel Art Vinyl Record */}
+            <div className="relative flex-shrink-0">
               <div 
                 className={cn(
-                  'w-36 h-36 md:w-48 md:h-48 relative transition-all duration-300',
-                  isPlaying ? 'animate-[spin_4s_linear_infinite]' : ''
+                  'w-40 h-40 md:w-48 md:h-48 relative',
+                  isPlaying ? 'vinyl-spin' : ''
                 )}
-                style={{
-                  imageRendering: 'pixelated',
-                }}
               >
-                {/* Vinyl Record */}
-                <div className="absolute inset-0 bg-[#1a1a2e] border-4 border-[#333] relative overflow-hidden">
-                  {/* Grooves */}
-                  <div className="absolute inset-2 border-2 border-[#333] rounded-full" />
-                  <div className="absolute inset-4 border-2 border-[#333] rounded-full" />
-                  <div className="absolute inset-6 border-2 border-[#333] rounded-full" />
-                  <div className="absolute inset-8 border-2 border-[#333] rounded-full" />
+                {/* Outer Ring - Dark Vinyl */}
+                <div className="absolute inset-0 bg-[#2a2a2a] border-4 border-[#1a1a1a]">
+                  {/* Pixelated Grooves - Concentric Squares for retro feel */}
+                  <div className="absolute inset-2 border-2 border-[#3a3a3a]" />
+                  <div className="absolute inset-4 border-2 border-[#333333]" />
+                  <div className="absolute inset-6 border-2 border-[#3a3a3a]" />
+                  <div className="absolute inset-8 border-2 border-[#333333]" />
+                  <div className="absolute inset-10 border-2 border-[#3a3a3a]" />
+                  <div className="absolute inset-12 border-2 border-[#333333]" />
                   
-                  {/* Label */}
+                  {/* Label Center */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 bg-[#FF69B4] border-4 border-[#FFD700] flex items-center justify-center">
-                      <div className="w-4 h-4 bg-[#1a1a2e] rounded-full" />
+                    <div className="w-20 h-20 bg-[#FF69B4] border-4 border-[#FFD700] flex items-center justify-center relative">
+                      {/* Label Inner Detail */}
+                      <div className="absolute inset-2 border-2 border-[#FFD700] opacity-50" />
+                      <div className="w-6 h-6 bg-[#1a1a2e] border-2 border-[#333]" />
+                      
+                      {/* Label Text */}
+                      <div className="absolute top-1 text-[6px] text-[#1a1a2e] font-bold font-['Press_Start_2P']">
+                        8-BIT
+                      </div>
                     </div>
                   </div>
 
-                  {/* Shine effect */}
-                  <div className="absolute top-2 right-2 w-8 h-8 bg-white opacity-20 rotate-45" />
+                  {/* Shine/Reflection Effect - Pixel Style */}
+                  <div className="absolute top-4 right-4 w-8 h-16 bg-white opacity-10 rotate-12" />
+                  <div className="absolute top-6 right-6 w-4 h-8 bg-white opacity-20 rotate-12" />
                 </div>
               </div>
               
               {/* Floating music notes when playing */}
               {isPlaying && (
-                <div className="absolute -top-4 -right-4 text-[#FFD700] animate-[float_2s_ease-in-out_infinite]">
+                <div className="absolute -top-2 -right-2 text-[#FFD700] text-2xl animate-[float_2s_ease-in-out_infinite]">
                   ♪
                 </div>
               )}
@@ -447,7 +446,6 @@ const Music: React.FC = () => {
                     className="h-full bg-gradient-to-r from-[#FF69B4] to-[#E94560] transition-all duration-100 relative"
                     style={{ width: `${progress}%` }}
                   >
-                    {/* Pixelated progress indicator */}
                     <div className="absolute right-0 top-0 bottom-0 w-2 bg-white" />
                   </div>
                 </div>
@@ -529,7 +527,6 @@ const Music: React.FC = () => {
                     <span className="text-lg">{isMuted || volume === 0 ? '🔇' : volume < 0.5 ? '🔉' : '🔊'}</span>
                   </button>
                   
-                  {/* Volume Slider */}
                   {showVolumeSlider && (
                     <div 
                       className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#16213E] border-2 border-[#E94560] p-2 pixel-shadow"
@@ -564,7 +561,7 @@ const Music: React.FC = () => {
               ref={visualizerRef}
               width={400}
               height={80}
-              className="w-full h-20 bg-[#0F3460] border-2 border-[#E94560] image-pixelated"
+              className="w-full h-20 bg-[#0F3460] border-2 border-[#E94560]"
               style={{ imageRendering: 'pixelated' }}
             />
             <div className="absolute -bottom-2 left-0 right-0 h-1 bg-[#E94560]" />
@@ -587,13 +584,13 @@ const Music: React.FC = () => {
           <div className="space-y-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
             {songs.map((song, index) => {
               const isActive = currentSong?.id === song.id;
-              const isHovered = hoveredSong === song.id;
+              const isHovered = hoveredSong === index;
 
               return (
                 <div
                   key={song.id}
                   onClick={() => handleSelectSong(song)}
-                  onMouseEnter={() => setHoveredSong(song.id)}
+                  onMouseEnter={() => setHoveredSong(index)}
                   onMouseLeave={() => setHoveredSong(null)}
                   className={cn(
                     'flex items-center gap-4 p-3 cursor-pointer transition-all border-2 pixel-btn',
