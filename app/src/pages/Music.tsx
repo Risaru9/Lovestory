@@ -19,7 +19,7 @@ const Music: React.FC = () => {
   const [repeatMode, setRepeatMode] = useState<RepeatMode>('none');
   const [isShuffle, setIsShuffle] = useState(false);
   const [shuffledIndices, setShuffledIndices] = useState<number[]>([]);
-  const [hoveredSong, setHoveredSong] = useState<number | string | null>(null);
+  const [hoveredSong, setHoveredSong] = useState<number | null>(null);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
 
   // REF
