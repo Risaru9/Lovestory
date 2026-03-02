@@ -72,6 +72,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-05.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-05.png', caption: '', category: 'travel' },
+    ],
   },
   {
     id: 6,
@@ -84,6 +87,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-06.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-06.png', caption: '', category: 'travel' },
+    ],
   },
   {
     id: 7,
@@ -96,6 +102,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-07.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-07.png', caption: '', category: 'travel' },
+    ],
   },
   {
     id: 8,
@@ -108,6 +117,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-08.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-08.png', caption: '', category: 'travel' },
+    ],
   },
   {
     id: 9,
@@ -120,6 +132,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-09.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-09.png', caption: '', category: 'travel' },
+    ],
   },
   {
     id: 10,
@@ -132,6 +147,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-10.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-10.png', caption: '', category: 'travel' },
+    ],
   },
   {
     id: 11,
@@ -144,6 +162,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-11.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-11.png', caption: '', category: 'travel' },
+    ],
   },
   {
     id: 12,
@@ -156,6 +177,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-12.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-12.png', caption: '', category: 'travel' },
+    ],
   },
   {
     id: 13,
@@ -168,6 +192,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-13.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-13.png', caption: '', category: 'travel' },
+    ],
   },
   {
     id: 14,
@@ -180,6 +207,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-14.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-14.png', caption: '', category: 'travel' },
+    ],
   },
   {
     id: 15,
@@ -192,6 +222,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-15.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-15.png', caption: '', category: 'travel' },
+    ],
   },
   {
     id: 16,
@@ -204,6 +237,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-16.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-16.png', caption: '', category: 'travel' },
+    ],
   },
   {
     id: 17,
@@ -216,6 +252,9 @@ export const chapters: Chapter[] = [
     image: '/images/chapters/chapter-17.png',
     unlocked: true,
     completed: true,
+        photos: [
+      { id: '4-1', src: '/images/chapters/chapter-17.png', caption: '', category: 'travel' },
+    ],
   },
 ];
 
