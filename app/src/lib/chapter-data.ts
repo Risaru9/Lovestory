@@ -16,7 +16,7 @@ const chapterSeed: Array<Omit<Chapter, 'month'>> = [
   {
     id: 1,
     title: 'Pertemuan Pertama',
-    date: 'Juli 2024',
+    date: 'Juni 2024',
     description: 'Hari ketika dua jiwa bertemu untuk pertama kalinya.',
     story:
       'Aku masih mengingat waktu itu sewaktu kita pertama kali bertemu di CGV. Tatapan mata yang bertemu, senyum yang terukir, dan percakapan yang mengalir begitu canggung. Namun, momen ini menjadi awal dari perjalanan indah kita.',

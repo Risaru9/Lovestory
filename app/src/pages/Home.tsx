@@ -27,7 +27,10 @@ const STORAGE_KEYS = {
 
 const HOME_PLAYLIST: PlaylistItem[] = [
   { title: 'Pixel', src: '/audio/home/Pixelated_Reverie.mp3' },
+  { title: 'Pixel', src: '/audio/home/Midnight_Frost.mp3' },
+  { title: 'Pixel', src: '/audio/home/Pixelated_Petal_Promenade.mp3' },
   { title: 'Rainy', src: '/audio/home/Rainy_Day_Vinyl_Dreams.mp3' },
+  { title: 'Rainy', src: '/audio/home/Golden_Hour_Drift.mp3' },
 ];
 
 const createParticleId = () => {
