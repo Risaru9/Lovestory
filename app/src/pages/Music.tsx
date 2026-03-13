@@ -755,19 +755,20 @@ const Music: React.FC = () => {
                   )}
                 </ControlButton>
 
-                <div className="relative" onMouseEnter={() => setShowVolumeSlider(true)} onMouseLeave={() => setShowVolumeSlider(false)}>
-                  <ControlButton onClick={() => setIsMuted(!isMuted)} size="sm" title="Volume">
-                    {isMuted || volume === 0 ? (
-                      <VolumeMuteIcon size={16} className="text-white" />
-                    ) : volume < 0.5 ? (
-                      <VolumeLowIcon size={16} className="text-white" />
-                    ) : (
-                      <VolumeHighIcon size={16} className="text-white" />
-                    )}
-                  </ControlButton>
-                  
-                  {showVolumeSlider && (
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#16213E] border-2 border-[#E94560] p-2 pixel-shadow z-50">
+              <div className="relative" onMouseEnter={() => setShowVolumeSlider(true)} onMouseLeave={() => setShowVolumeSlider(false)}>
+                <ControlButton onClick={() => setIsMuted(!isMuted)} size="sm" title="Volume">
+                  {isMuted || volume === 0 ? (
+                    <VolumeMuteIcon size={16} className="text-white" />
+                  ) : volume < 0.5 ? (
+                    <VolumeLowIcon size={16} className="text-white" />
+                  ) : (
+                    <VolumeHighIcon size={16} className="text-white" />
+                  )}
+                </ControlButton>
+                
+                {showVolumeSlider && (
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 z-50">
+                    <div className="bg-[#16213E] border-2 border-[#E94560] p-2 pixel-shadow">
                       <input
                         type="range"
                         min="0"
@@ -785,8 +786,9 @@ const Music: React.FC = () => {
                         {Math.round((isMuted ? 0 : volume) * 100)}%
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
+              </div>
               </div>
             </div>
           </div>

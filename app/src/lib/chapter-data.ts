@@ -1,267 +1,249 @@
 import type { Chapter, Song, Character, Photo } from '@/types';
 
-export const chapters: Chapter[] = [
+const createPhoto = (
+  chapterId: number,
+  src: string,
+  caption: string,
+  category: Photo['category'] = 'date'
+): Photo => ({
+  id: `${chapterId}-1`,
+  src,
+  caption,
+  category,
+});
+
+const chapterSeed: Array<Omit<Chapter, 'month'>> = [
   {
     id: 1,
-    month: 1,
     title: 'Pertemuan Pertama',
-    date: 'juli 2024',
-    description: 'Hari ketika dua jiwa bertemu untuk pertama kalinya',
-    story: 'Aku masih mengingat waktu itu sewaktu pertama kita bertemu pertama kalinya di CGV. Tatapan mata yang bertemu, senyum yang terukir, dan percakapan yang mengalir begitu canggung. Namun momen ini menjadi awal dari perjalanan indah kita.',
+    date: 'Juli 2024',
+    description: 'Hari ketika dua jiwa bertemu untuk pertama kalinya.',
+    story:
+      'Aku masih mengingat waktu itu sewaktu kita pertama kali bertemu di CGV. Tatapan mata yang bertemu, senyum yang terukir, dan percakapan yang mengalir begitu canggung. Namun, momen ini menjadi awal dari perjalanan indah kita.',
     achievement: 'First Encounter Unlocked!',
     image: '/images/chapters/chapter-01.png',
     unlocked: true,
     completed: true,
-    photos: [
-      { id: '1-1', src: '/images/chapters/chapter-01.png', caption: 'Pertemuan pertama kita', category: 'date' },
-    ],
-  },
-  {
-    id: 2,
-    month: 2,
-    title: 'Kencan Pertama',
-    date: 'agustus 2024',
-    description: 'Kencan pertama yang penuh kegugupan dan kebahagiaan',
-    story: 'Kencan pertama resmi kita adalah sewaktu kita berdua ketemu di dinos, diawali dengan janjian dulu ke dinos lalu aku menunggu kamu di depan cafe sampai kamu datang, setelah kita berdua masuk kita menikmati gelato yang begitu dingin, manis dan begitu enak, di hari tersebut kita memulai sebuah cerita kita yang sudah sejauh ini.',
-    achievement: 'First Date Master!',
-    image: '/images/chapters/chapter-02.png',
-    unlocked: true,
-    completed: true,
-    photos: [
-      { id: '2-1', src: '/images/chapters/chapter-02.png', caption: 'Kencan di Dinos', category: 'date' },
-    ],
+    photos: [createPhoto(1, '/images/chapters/chapter-01.png', 'Pertemuan pertama kita')],
   },
   {
     id: 3,
-    month: 3,
-    title: 'Pergi ke Event bersama',
+    title: 'Pergi ke Event Bersama',
     date: 'Agustus 2024',
-    description: 'Menghadiri event bersama untuk pertama kalinya',
-    story: 'Di hari ini aku sangat excited sekali dikarenakan aku bisa melihat kamu secara langsung cosplay menjadi Ada wong, meskipun selama event kita tidak melakukan kegiatan yang mencolok dan hanya mengobrol namun aku tetap merasakan bahagia karena bisa melihat kamu seperti itu, kita menutup hari ini dengan kita berpamitan di parkiran, kamu memberikan aku sebuah hadiah yang sampai hari ini aku gunakan serta disini kita melakukan pelukan pertama ktia yang sedikit canggung itu.',
+    description: 'Menghadiri event bersama untuk pertama kalinya.',
+    story:
+      'Di hari ini aku sangat excited karena bisa melihat kamu secara langsung cosplay menjadi Ada Wong. Meskipun selama event kita tidak melakukan kegiatan yang mencolok dan hanya mengobrol, aku tetap merasakan bahagia karena bisa melihat kamu seperti itu. Kita menutup hari ini dengan berpamitan di parkiran, kamu memberikan aku sebuah hadiah yang sampai hari ini masih aku gunakan, dan di sini kita melakukan pelukan pertama kita yang sedikit canggung itu.',
     achievement: 'Event Buddy Unlocked!',
     image: '/images/chapters/chapter-03.png',
     unlocked: true,
     completed: true,
-    photos: [
-      { id: '3-1', src: '/images/chapters/chapter-03.png', caption: 'Event bersama kamu', category: 'date' },
-    ],
+    photos: [createPhoto(3, '/images/chapters/chapter-03.png', 'Event pertama kita bersama')],
   },
   {
     id: 4,
-    month: 4,
     title: 'Melukis di Taman',
     date: 'Agustus 2024',
-    description: 'Hari cerah di mana kita melukis bersama di taman',
-    story: 'Kita mengawali kegiatan hari dengan kita melakukan cfd di pare, setelah kita cfd kita pergi ke taman untuk melukis gambar tangan kita di sebuah canvas menggunakan warna pink dan biru, sebenarnya di hari ini aku mau mengungkapkan perasaanku untuk mengajak kamu membuat hubungan di antara kita namun dikarenakan aku cukup malu aku mengurungkan niat tersebut.',
+    description: 'Hari cerah ketika kita melukis bersama di taman.',
+    story:
+      'Kita mengawali hari dengan CFD di Pare. Setelah itu, kita pergi ke taman untuk melukis gambar tangan kita di sebuah kanvas menggunakan warna pink dan biru. Sebenarnya, di hari ini aku ingin mengungkapkan perasaanku dan mengajak kamu membangun hubungan yang lebih serius, tetapi karena aku cukup malu, aku mengurungkan niat tersebut.',
     achievement: 'Artistic Duo Unlocked!',
     image: '/images/chapters/chapter-04.png',
     unlocked: true,
     completed: true,
-    photos: [
-      { id: '4-1', src: '/images/chapters/chapter-04.png', caption: 'Hari di taman', category: 'travel' },
-    ],
+    photos: [createPhoto(4, '/images/chapters/chapter-04.png', 'Hari kita melukis di taman', 'travel')],
   },
   {
     id: 5,
-    month: 5,
-    title: 'Hari dimana kita resmi mengawali hubungan',
+    title: 'Hari di Mana Kita Resmi Mengawali Hubungan',
     date: 'September 2024',
-    description: 'Hari penuh cinta dan kebingungan',
-    story: 'Aku sangat ingat sekali dimana aku mengungkapkan perasaanku di malam hari, kamu merespon aku dengan sangat kebingungan dan ketakutan karena kamu merasa ragu untuk mengungkapkan perasaan kamu juga, namun di pagi hari setelahnya kamu memberanikan diri untuk menerima cintaku dan disitu aku merasakan kebahagiaan yang luar biasa, aku merasa seperti mendapatkan hadiah terindah yang pernah aku dapatkan, aku sangat bersyukur sekali bisa memilikimu.',
+    description: 'Hari penuh cinta dan kebingungan.',
+    story:
+      'Aku sangat ingat saat aku mengungkapkan perasaanku di malam hari. Kamu merespons dengan sangat bingung dan takut karena kamu juga masih ragu untuk mengungkapkan perasaanmu. Namun, di pagi hari setelahnya kamu memberanikan diri untuk menerima cintaku, dan di situ aku merasakan kebahagiaan yang luar biasa. Aku merasa seperti mendapatkan hadiah terindah yang pernah aku dapatkan, dan aku sangat bersyukur sekali bisa memilikimu.',
     achievement: 'Love Unlocked!',
     image: '/images/chapters/chapter-05.png',
     unlocked: true,
     completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-05.png', caption: '', category: 'travel' },
-    ],
+    photos: [createPhoto(5, '/images/chapters/chapter-05.png', 'Hari kita resmi bersama', 'travel')],
   },
   {
     id: 6,
-    month: 6,
-    title: 'First kiss',
+    title: 'Kencan Pertama',
+    date: 'September 2024',
+    description: 'Kencan pertama yang penuh kegugupan dan kebahagiaan.',
+    story:
+      'Kencan pertama resmi kita adalah sewaktu kita berdua ketemu di Dinos. Diawali dengan janjian dulu ke Dinos, lalu aku menunggu kamu di depan cafe sampai kamu datang. Setelah kita berdua masuk, kita menikmati gelato yang begitu dingin, manis, dan enak. Di hari tersebut, kita memulai sebuah cerita kita yang sudah sejauh ini.',
+    achievement: 'First Date Master!',
+    image: '/images/chapters/chapter-02.png',
+    unlocked: true,
+    completed: true,
+    photos: [createPhoto(2, '/images/chapters/chapter-02.png', 'Kencan pertama di Dinos')],
+  },
+  {
+    id: 7,
+    title: 'First Kiss',
     date: 'November 2024',
-    description: 'Melakukan ciuman pertama yang penuh dengan rasa gugup dan bahagia',
-    story: 'Ini adalah salah satu momen paling membahagiakan di hidup aku, aku masih ingat waktu itu kita melakukan sebuah keintiman yaitu melakukan ciuman pertama kita di sebuah biskop golden saat menonton film RED ONE pada 16 November 2024, disitu aku merasa deg deg an serta merasa sangat bahagia dikarenakan ini adalah momen pertama kali di hidup aku melakukan ciuman.',
+    description: 'Ciuman pertama yang penuh rasa gugup dan bahagia.',
+    story:
+      'Ini adalah salah satu momen paling membahagiakan di hidup aku. Aku masih ingat waktu itu kita melakukan sebuah keintiman, yaitu ciuman pertama kita di sebuah bioskop Golden saat menonton film RED ONE pada 16 November 2024. Di situ aku merasa deg-degan serta sangat bahagia karena ini adalah momen pertama kali di hidup aku melakukan ciuman.',
     achievement: 'First Kiss Unlocked!',
     image: '/images/chapters/chapter-06.png',
     unlocked: true,
     completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-06.png', caption: '', category: 'travel' },
-    ],
-  },
-  {
-    id: 7,
-    month: 7,
-    title: 'Tahun baru yang sepi',
-    date: 'Desember 2024',
-    description: 'Kita tidak bisa bertemu di tahun baru',
-    story: 'di penutup akhir tahun sayang sekali kita tidak bisa bertemu malam baru bersama dikarenakan ada halangan yang tidak bisa kita lalui :(',
-    achievement: 'tahun baru yang sepi :(',
-    image: '/images/chapters/chapter-07.png',
-    unlocked: true,
-    completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-07.png', caption: '', category: 'travel' },
-    ],
+    photos: [createPhoto(6, '/images/chapters/chapter-06.png', 'Momen first kiss kita', 'travel')],
   },
   {
     id: 8,
-    month: 8,
-    title: 'Awal tahun yang kurang semangat',
+    title: 'Tahun Baru yang Sepi',
+    date: 'Desember 2024',
+    description: 'Kita tidak bisa bertemu di malam tahun baru.',
+    story:
+      'Di penutup akhir tahun, sayang sekali kita tidak bisa bertemu di malam tahun baru karena ada halangan yang tidak bisa kita lalui :(',
+    achievement: 'Tahun Baru yang Sepi :(',
+    image: '/images/chapters/chapter-07.png',
+    unlocked: true,
+    completed: true,
+    photos: [createPhoto(7, '/images/chapters/chapter-07.png', 'Penutup tahun yang terasa sepi', 'travel')],
+  },
+  {
+    id: 9,
+    title: 'Awal Tahun yang Kurang Semangat',
     date: 'Januari 2025',
-    description: '',
-    story: 'Kita memulai tahun baru ini dengan semangat yang sedikit kurang dikarenakan kita mengalami banyak nasib yang tidak baik di tahun kemarin.',
+    description: 'Kita memulai tahun dengan perasaan yang belum sepenuhnya pulih.',
+    story:
+      'Kita memulai tahun baru ini dengan semangat yang sedikit kurang karena kita mengalami banyak hal yang tidak baik di tahun sebelumnya.',
     achievement: 'Awal Tahun yang Berat, Tapi Kita Bisa Lewati!',
     image: '/images/chapters/chapter-08.png',
     unlocked: true,
     completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-08.png', caption: '', category: 'travel' },
-    ],
+    photos: [createPhoto(8, '/images/chapters/chapter-08.png', 'Awal tahun yang terasa berat', 'travel')],
   },
   {
-    id: 9,
-    month: 9,
-    title: 'Kita memasuki fase dimana kamu berfokus kepada UTBK kamu',
-    date: 'Februari-April 2025',
-    description: '',
-    story: 'Kita lebih sedikit bertemu di bulan bulan ini dikarenakan kamu sedang fokus terhadap fokus yang ingin kamu capai yaitu utbk dan di bulan tersebut ada bulan ramadhan yang dimana kita sempat bertemu beberapa kali ketika kita berbuka di laptul',
+    id: 10,
+    title: 'Kita Memasuki Fase Kamu Berfokus pada UTBK',
+    date: 'Februari – April 2025',
+    description: 'Masa ketika kita lebih sedikit bertemu karena fokus pada tujuanmu.',
+    story:
+      'Kita lebih sedikit bertemu di bulan-bulan ini karena kamu sedang fokus pada tujuan yang ingin kamu capai, yaitu UTBK. Di bulan tersebut juga ada bulan Ramadan, di mana kita sempat bertemu beberapa kali ketika berbuka di Laptul.',
     achievement: 'Berbuka Puasa di Laptul Unlocked!',
     image: '/images/chapters/chapter-09.png',
     unlocked: true,
     completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-09.png', caption: '', category: 'travel' },
-    ],
+    photos: [createPhoto(9, '/images/chapters/chapter-09.png', 'Momen berbuka bersama di Laptul', 'travel')],
   },
   {
-    id: 10,
-    month: 10,
-    title: 'KAMU ULANG TAHUN',
-    date: 'MEI 2025',
-    description: '',
-    story: 'Di hari ini kita memulai hari dengan sangat semangat dikarenakan ini adalah HARI DIMANA KAMU ULANG TAHUN, kita merayakan ulang tahun kamu di sebuah event yang dimana kamu cosplay, AKU SANGAT SENANG BISA MERAYAKAN ULANG TAHUN KAMU SECARA LANGSUNG tapi maaf yaww jika hadiah yang aku berikan tidak seberapa ^-^`.',
+    id: 11,
+    title: 'Kamu Ulang Tahun',
+    date: 'Mei 2025',
+    description: 'Hari spesial ketika aku bisa merayakan ulang tahunmu.',
+    story:
+      'Di hari ini kita memulai hari dengan sangat semangat karena ini adalah hari di mana kamu ulang tahun. Kita merayakan ulang tahun kamu di sebuah event tempat kamu cosplay. Aku sangat senang bisa merayakan ulang tahun kamu secara langsung, dan maaf ya kalau hadiah yang aku berikan tidak seberapa ^-^',
     achievement: 'Birthday Celebration Unlocked!',
     image: '/images/chapters/chapter-10.png',
     unlocked: true,
     completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-10.png', caption: '', category: 'travel' },
-    ],
+    photos: [createPhoto(10, '/images/chapters/chapter-10.png', 'Perayaan ulang tahun kamu', 'travel')],
   },
   {
-    id: 11,
-    month: 11,
-    title: 'Bulan hilang harapan',
-    date: 'Mei 2024',
-    description: '',
-    story: 'Setelah kita merayakan kebahagiaan kamu ulang tahun, di bulan yang sama kamu mengalami kesedihan yang tidak bisa aku bayangkan yaitu kamu tidak lolos ikut snbt, di hari tersebut aku juga ikut sedih dan langsung kepikiran kemana mana karena aku takut kamu sangat sangat down, aku tau perasaan kamu bagaimana rasanya ditolak di universitas, namun aku mengingatnya kamu bisa menghadapinya dengan sangat kuat. TETAP SEMANGAT SAYANG, KAMU ADALAH ORANG YANG KUAT DAN AKU PERCAYA KAMU BISA MENGHADAPI SEMUA INI DENGAN SANGAT BAIK, AKU SELALU ADA UNTUK KAMU DAN AKU PERCAYA KAMU BISA MENGATASI SEMUA INI DENGAN SANGAT BAIK, JANGAN PERNAH MENYERAH DAN TERUSLAH BERJUANG UNTUK MENCAPAI IMPIANMU, AKU SELALU ADA UNTUK MEMBERIKAN DUKUNGAN DAN SEMANGAT UNTUK KAMU, KAMU TIDAK SENDIRI DAN AKU PERCAYA KAMU BISA MENGHADAPI SEMUA INI DENGAN SANGAT BAIK.',
+    id: 12,
+    title: 'Bulan Hilang Harapan',
+    date: 'Mei 2025',
+    description: 'Bulan yang berat, tetapi kamu berhasil melewatinya dengan kuat.',
+    story:
+      'Setelah kita merayakan kebahagiaan ulang tahun kamu, di bulan yang sama kamu mengalami kesedihan yang tidak bisa aku bayangkan, yaitu kamu tidak lolos ikut SNBT. Di hari tersebut aku juga ikut sedih dan langsung kepikiran ke mana-mana karena aku takut kamu sangat down. Aku tahu bagaimana rasanya ditolak di universitas, tetapi aku ingat kamu bisa menghadapinya dengan sangat kuat. Tetap semangat sayang, kamu adalah orang yang kuat, dan aku percaya kamu bisa menghadapi semua ini dengan sangat baik. Aku selalu ada untuk kamu.',
     achievement: 'Stay Strong, My Love!',
     image: '/images/chapters/chapter-11.png',
     unlocked: true,
     completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-11.png', caption: '', category: 'travel' },
-    ],
+    photos: [createPhoto(11, '/images/chapters/chapter-11.png', 'Masa sulit yang kamu lewati dengan kuat', 'travel')],
   },
   {
-    id: 12,
-    month: 12,
-    title: 'Bulan dimana kamu pertama kali ke rumah aku',
-    date: 'Juni-Juli 2025',
-    description: 'Kamu bermain ke rumah aku untuk pertama kalinya',
-    story: 'Di bulan ini kamu pertama kali ke rumah aku dengan perasaan yang gugup dan sangat tidak enakan namun seiring berjalannya waktu kamu terus aku paksa agar tidak usah grogi dan anggap saja di rumah sendiri, di titik tertentu kamu mulai terbiasa namun kamu masih tidak bisa menghilangkan rasa tidak enakan dan grogi dengan sepenuhnya',
+    id: 13,
+    title: 'Bulan di Mana Kamu Pertama Kali ke Rumahku',
+    date: 'Juni – Juli 2025',
+    description: 'Kamu bermain ke rumahku untuk pertama kalinya.',
+    story:
+      'Di bulan ini kamu pertama kali ke rumah aku dengan perasaan yang gugup dan sangat tidak enakan. Namun, seiring berjalannya waktu, aku terus meyakinkan kamu agar tidak usah grogi dan anggap saja seperti di rumah sendiri. Di titik tertentu kamu mulai terbiasa, walaupun rasa tidak enakan itu belum sepenuhnya hilang.',
     achievement: 'First Visit to My Home Unlocked!',
     image: '/images/chapters/chapter-12.png',
     unlocked: true,
     completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-12.png', caption: '', category: 'travel' },
-    ],
-  },
-  {
-    id: 13,
-    month: 13,
-    title: 'Aku Ulang tahun',
-    date: 'Agustus 2025',
-    description: 'Kamu merayakan ulang tahun aku',
-    story: 'Terima kasih sudah effort untuk merayakan ulang tahun aku di rumah aku, aku sangat menghargai effort kamu untuk perjalanan jauhnya dan juga usaha kamu untuk memberikan aku hadiah yang menurut aku worth lebih dari apapun di dunia ini dan lukisan itu sangat teramat berharga sampai uangpun tidak bisa menggantinya, kamu juga memberikan sebuah ucapan dan boneka buatan kamu sendiri, dan fun fact ini adalah pertama kali aku mendapatkan hadiah saat ulang tahun di usia aku yang udah 20 tahun lebih, aku sangat senang sekali bisa merayakan ulang tahun aku dengan kamu, terima kasih banyak sayang.',
-    achievement: 'MAKASIIII SAAYANGGGGG!',
-    image: '/images/chapters/chapter-13.png',
-    unlocked: true,
-    completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-13.png', caption: '', category: 'travel' },
-    ],
+    photos: [createPhoto(12, '/images/chapters/chapter-12.png', 'Pertama kali kamu datang ke rumahku', 'travel')],
   },
   {
     id: 14,
-    month: 14,
-    title: 'Bulan dimana kamu masuk BEC',
+    title: 'Aku Ulang Tahun',
+    date: 'Agustus 2025',
+    description: 'Kamu merayakan ulang tahunku dengan penuh usaha dan cinta.',
+    story:
+      'Terima kasih sudah effort untuk merayakan ulang tahun aku di rumah aku. Aku sangat menghargai effort kamu untuk perjalanan jauhnya dan juga usaha kamu untuk memberikan aku hadiah yang menurut aku lebih berharga dari apa pun di dunia ini. Lukisan itu sangat teramat berharga sampai uang pun tidak bisa menggantinya. Kamu juga memberikan sebuah ucapan dan boneka buatan kamu sendiri. Fun fact, ini adalah pertama kali aku mendapatkan hadiah saat ulang tahun di usia aku yang sudah 20 tahun lebih. Aku sangat senang sekali bisa merayakan ulang tahunku dengan kamu. Terima kasih banyak sayang.',
+    achievement: 'Makasiii Sayanggg!',
+    image: '/images/chapters/chapter-13.png',
+    unlocked: true,
+    completed: true,
+    photos: [createPhoto(13, '/images/chapters/chapter-13.png', 'Ulang tahunku yang spesial', 'travel')],
+  },
+  {
+    id: 15,
+    title: 'Bulan di Mana Kamu Masuk BEC',
     date: 'September 2025',
-    description: 'Pertama masuk bec',
-    story: 'Di bulan ini kamu pertama kali memasuki bec yang dengan semangat dan penuh harapan(di waktu itu tapi) ^-^',
+    description: 'Awal langkahmu memasuki BEC.',
+    story:
+      'Di bulan ini kamu pertama kali memasuki BEC dengan semangat dan penuh harapan (di waktu itu tapi) ^-^',
     achievement: 'Welcome to BEC, My Love!',
     image: '/images/chapters/chapter-14.png',
     unlocked: true,
     completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-14.png', caption: '', category: 'travel' },
-    ],
+    photos: [createPhoto(14, '/images/chapters/chapter-14.png', 'Awal perjalananmu di BEC', 'travel')],
   },
   {
-    id: 15,
-    month: 15,
-    title: 'Bulan dimana kita bertemu di rumah aku terus menerus',
+    id: 16,
+    title: 'Bulan di Mana Kita Sering Bertemu di Rumahku',
     date: 'Akhir 2025',
-    description: 'Di bulan ini kita mulai sering bertemu di rumah aku',
-    story: 'Di akhir tahun kemarin kamu sering sekali berkunjung ke rumah aku karena aku tidak ada uang untuk pergi ke pare, aku sangat sangat sangat sangat menghargai hal itu namun aku sedikit ketakutan karena ada hati kecil aku yang merasa aku tidak mampu apa apa saat kita ingin bermain, aku hanya bisa memberikan kamu makanan dan minuman saat kamu bermain ke rumahku, itupun terkadang kita melalui konflik yang kurang enak, tapi makasihh banget sudah effort aku berjanji akan sukses dan bisa membalah kamu dengan lebih baik lagiii love uuu sayangggggggg.',
+    description: 'Di fase ini kita mulai sering bertemu di rumahku.',
+    story:
+      'Di akhir tahun kemarin kamu sering sekali berkunjung ke rumah aku karena aku tidak ada uang untuk pergi ke Pare. Aku sangat, sangat, sangat menghargai hal itu, walaupun ada hati kecil aku yang takut karena merasa aku belum mampu memberi banyak hal saat kita ingin bermain. Aku hanya bisa memberikan kamu makanan dan minuman saat kamu bermain ke rumahku, itupun terkadang kita melalui konflik yang kurang enak. Tapi makasih banget sudah effort. Aku berjanji akan sukses dan bisa membalas kamu dengan lebih baik lagi. Love u sayang.',
     achievement: 'Homebody Couple Unlocked!',
     image: '/images/chapters/chapter-15.png',
     unlocked: true,
     completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-15.png', caption: '', category: 'travel' },
-    ],
+    photos: [createPhoto(15, '/images/chapters/chapter-15.png', 'Momen-momen sederhana di rumahku', 'travel')],
   },
   {
-    id: 16,
-    month: 16,
-    title: 'Kita merayakan tahun baru',
+    id: 17,
+    title: 'Kita Merayakan Tahun Baru',
     date: 'Desember 2025',
-    description: 'Merayakan tahun baru bersama untuk pertama kalinya',
-    story: 'Kita merayakan tahun baru bersama untuk pertama kalinya, aku ingat aku sebelum berangkat membuat makanan dulu untuk kamu karena kita tidak bisa kemana mana selain di tempat yang sederhana jadi aku membuatkan kamu makanan, waktu itu aku berangkat waktu sore dan aku sampai sana sekitar jam 5, kita menghabiskan waktu saling bercerita dan tukar makanan meskipun kita tidak sampai jam 12 aku sangat menikmati menghabiskan waktu bersama kamu waktu itu.',
+    description: 'Merayakan tahun baru bersama untuk pertama kalinya.',
+    story:
+      'Kita merayakan tahun baru bersama untuk pertama kalinya. Aku ingat sebelum berangkat aku membuat makanan dulu untuk kamu, karena kita tidak bisa ke mana-mana selain di tempat yang sederhana. Waktu itu aku berangkat sore dan sampai sekitar jam 5. Kita menghabiskan waktu dengan saling bercerita dan tukar makanan. Meskipun kita tidak sampai jam 12, aku sangat menikmati waktu bersama kamu saat itu.',
     achievement: 'New Year Celebration Unlocked!',
     image: '/images/chapters/chapter-16.png',
     unlocked: true,
     completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-16.png', caption: '', category: 'travel' },
-    ],
+    photos: [createPhoto(16, '/images/chapters/chapter-16.png', 'Tahun baru pertama kita bersama', 'travel')],
   },
   {
-    id: 17,
-    month: 17,
-    title: 'SAMPAI SAAT INI',
-    date: 'Januari 2026 sampai saat ini',
-    description: 'Perjalanan kita yang luar biasa selama 1 tahun lebih',
-    story: 'Aku sangat bersyukur bisa menjalani hubungan sudah sejauh ini meskipun banyak rintangan yang sudah kita lalui namun apakah kamu sadar banyak rintangan tersebut yang datang dari aku ketika aku tidak mempunyai uang, tidak bisa mengerti kamu, tidak bisa menahan amarah, tidak bisa menggunakan kata kata yang sopan, maaf banget ya aku masih seperti itu aku sadar aku salah untuk kedepannya doakan saja dan dukung aku biar bisa berubah, terimakasih untuk perjalanan kita selama ini aku sangat sangat sangat menikmatinya ini adalah hubungan terpanjang aku dalam hidup aku, ini adalah komitmen terpanjang dan terbesar dalam hidup aku, aku selalu berusaha untuk prioritaskan kamu over everything but i think im still not enough, untuk sekarang aku masih belum bisa cukup baik karena keuangan, mental dll aku masih dibawah rata rata saat kamu di dalam kesusahan aku tidak bisa membantu seperti kafa, aku melihat chat kamu kemarin saat motor kamu mogok dia bisa saja memberi kamu uang namun terimakasih sudah menolaknya aku menghargai hal tersebut, sekali lagi terimakasih dan maaf yang sebesar besarnya untuk perjalanan kita ya aku usahakan untuk kedepannya aku bisa berubah menjadi lebih baik lagi',
+    id: 18,
+    title: 'Sampai Saat Ini',
+    date: 'Januari 2026 – Sekarang',
+    description: 'Perjalanan kita yang luar biasa selama lebih dari satu tahun.',
+    story:
+      'Aku sangat bersyukur bisa menjalani hubungan sejauh ini. Meskipun banyak rintangan yang sudah kita lalui, aku sadar banyak di antaranya datang dari kekuranganku sendiri: saat aku tidak punya uang, tidak bisa mengerti kamu, tidak bisa menahan amarah, dan tidak bisa menggunakan kata-kata yang sopan. Maaf banget ya aku masih seperti itu. Aku sadar aku salah. Untuk ke depannya, doakan saja dan dukung aku supaya aku bisa berubah. Terima kasih untuk perjalanan kita selama ini. Ini adalah hubungan terpanjang, komitmen terpanjang, dan perjalanan terbesar dalam hidup aku. Sekali lagi, terima kasih dan maaf yang sebesar-besarnya. Aku usahakan ke depannya aku bisa berubah menjadi lebih baik lagi.',
     achievement: 'Our Journey Continues Unlocked!',
     image: '/images/chapters/chapter-17.png',
     unlocked: true,
     completed: true,
-        photos: [
-      { id: '4-1', src: '/images/chapters/chapter-17.png', caption: '', category: 'travel' },
-    ],
+    photos: [createPhoto(17, '/images/chapters/chapter-17.png', 'Perjalanan kita sampai hari ini', 'travel')],
   },
 ];
+export const chapters: Chapter[] = chapterSeed.map((chapter, index) => ({
+  ...chapter,
+  month: index + 1,
+}));
 
 export const songs: Song[] = [
   { id: 1, title: 'Last Son', artist: 'David Fleming', duration: '2:45', src: '/audio/bgm/Superman.mp3' },
-  { id: 2, title: "Five Nights at Freddy'2", artist: 'The Living Tombstone', duration: '3:00', src: '/audio/bgm/Fnaf.mp3' },
-  { id: 3, title: " love", artist: 'wave to earth', duration: '5:05', src: '/audio/bgm/Love.mp3' },
+  { id: 2, title: "Five Nights at Freddy's 2", artist: 'The Living Tombstone', duration: '3:00', src: '/audio/bgm/Fnaf.mp3' },
+  { id: 3, title: 'Love', artist: 'wave to earth', duration: '5:05', src: '/audio/bgm/Love.mp3' },
 ];
 
 export const characters: Character[] = [
@@ -515,13 +497,13 @@ export const photos: Photo[] = [
 ];
 
 export const getChapterById = (id: number): Chapter | undefined => {
-  return chapters.find(chapter => chapter.id === id);
+  return chapters.find((chapter) => chapter.id === id);
 };
 
 export const getUnlockedChapters = (): Chapter[] => {
-  return chapters.filter(chapter => chapter.unlocked);
+  return chapters.filter((chapter) => chapter.unlocked);
 };
 
 export const getCompletedChapters = (): Chapter[] => {
-  return chapters.filter(chapter => chapter.completed);
+  return chapters.filter((chapter) => chapter.completed);
 };

@@ -14,6 +14,7 @@ import Music from '@/pages/Music';
 import Game from '@/pages/Game';
 import Letter from '@/pages/Letter';
 import InvitationLetter from '@/pages/InvitationLetter';
+import Achievements from '@/pages/Achievements';
 
 function App() {
   const [rainbowMode, setRainbowMode] = useState(false);
@@ -62,6 +63,7 @@ function App() {
           <Route path="/game" element={<Game />} />
           <Route path="/letter" element={<Letter />} />
           <Route path="/invitationletter" element={<InvitationLetter />} />
+          <Route path="/achievements" element={<Achievements />} />
         </Routes>
       </div>
     </Router>
