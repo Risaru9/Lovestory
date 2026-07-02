@@ -13,7 +13,7 @@ const StatCard: React.FC<StatCardProps> = ({ character, isVisible }) => {
   if (!isVisible) return null;
 
   return (
-    <div className="stat-card animate-bounce">
+    <div className="stat-card animate-bounce absolute bottom-[105%] z-20 w-36 sm:w-40 text-left">
       <div className="text-[#FF69B4] mb-2">{character.name}</div>
       <div className="space-y-1 text-[10px]">
         <div className="flex justify-between">
@@ -69,7 +69,7 @@ const Couple: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen relative overflow-hidden"
+      className="min-h-screen relative overflow-y-auto"
       style={{
         backgroundImage: 'url(/images/backgrounds/couple-bg.png)',
         backgroundSize: 'cover',
@@ -92,7 +92,7 @@ const Couple: React.FC = () => {
         </div>
 
         {/* Characters */}
-        <div className="flex justify-center items-end gap-8 md:gap-24 mb-8">
+        <div className="flex justify-center items-end gap-3 sm:gap-8 md:gap-24 mb-8 mt-12">
           {/* Character 1 */}
           <div className="relative flex flex-col items-center">
             <StatCard character={characters[0]} isVisible={showStat1} />
@@ -103,7 +103,7 @@ const Couple: React.FC = () => {
               <img 
                 src={characters[0].sprite}
                 alt={characters[0].name}
-                className="w-32 h-32 md:w-48 md:h-48 pixel-art"
+                className="w-24 h-24 sm:w-32 md:w-48 pixel-art"
               />
             </div>
             <p className="font-['Press_Start_2P'] text-xs text-white mt-4">
@@ -112,7 +112,7 @@ const Couple: React.FC = () => {
           </div>
 
           {/* Heart between */}
-          <div className="text-4xl md:text-6xl animate-pulse">
+          <div className="text-2xl sm:text-4xl md:text-6xl animate-pulse pb-6">
             💕
           </div>
 
@@ -126,7 +126,7 @@ const Couple: React.FC = () => {
               <img 
                 src={characters[1].sprite}
                 alt={characters[1].name}
-                className="w-32 h-32 md:w-48 md:h-48 pixel-art"
+                className="w-24 h-24 sm:w-32 md:w-48 pixel-art"
               />
             </div>
             <p className="font-['Press_Start_2P'] text-xs text-white mt-4">

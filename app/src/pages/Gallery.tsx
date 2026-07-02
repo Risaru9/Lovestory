@@ -166,7 +166,7 @@ function PhotoModal({
       </button>
 
       <div
-        className="relative w-full max-w-6xl overflow-hidden rounded-3xl border border-white/10 bg-[#111827] shadow-2xl"
+        className="relative w-full max-w-6xl overflow-y-auto max-h-[90vh] rounded-3xl border border-white/10 bg-[#111827] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <button

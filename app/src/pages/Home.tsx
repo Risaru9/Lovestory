@@ -269,7 +269,7 @@ const Home: React.FC = () => {
 
   return (
     <div
-      className="relative h-screen w-full overflow-hidden bg-[#1A1A2E]"
+      className="relative h-screen w-full overflow-y-auto bg-[#1A1A2E]"
       style={{
         backgroundImage: 'url(/images/backgrounds/home-bg.png)',
         backgroundSize: 'cover',
@@ -389,7 +389,7 @@ const Home: React.FC = () => {
           </p>
         </div>
 
-        <div className="pointer-events-none absolute bottom-4 left-4 md:bottom-5 md:left-6">
+        <div className="pointer-events-none absolute bottom-4 left-4 md:bottom-5 md:left-6 hidden sm:block">
           <img
             src="/images/sprites/char-boy.png"
             alt="Character boy"
@@ -397,7 +397,7 @@ const Home: React.FC = () => {
           />
         </div>
 
-        <div className="pointer-events-none absolute bottom-4 right-4 md:bottom-5 md:right-6">
+        <div className="pointer-events-none absolute bottom-4 right-4 md:bottom-5 md:right-6 hidden sm:block">
           <img
             src="/images/sprites/char-girl.png"
             alt="Character girl"

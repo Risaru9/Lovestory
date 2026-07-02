@@ -105,8 +105,8 @@ const InvitationLetter: React.FC = () => {
   };
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-[#16142b]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,182,193,0.10),transparent_30%),linear-gradient(to_bottom,rgba(16,14,31,0.25),rgba(16,14,31,0.50))]" />
+    <div className="relative h-screen w-full overflow-y-auto bg-[#16142b]">
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(255,182,193,0.10),transparent_30%),linear-gradient(to_bottom,rgba(16,14,31,0.25),rgba(16,14,31,0.50))]" />
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {[...Array(5)].map((_, index) => (
@@ -142,7 +142,7 @@ const InvitationLetter: React.FC = () => {
         </div>
       )}
 
-      <div className="relative z-10 flex h-full items-center justify-center px-4 py-4">
+      <div className="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
         <div
           className={`relative w-full max-w-6xl transition-all duration-700 ${
             isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.98] translate-y-4'

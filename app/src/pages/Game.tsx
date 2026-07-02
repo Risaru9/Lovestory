@@ -223,7 +223,9 @@ const Game: React.FC<GameProps> = ({ initialMode }) => {
 
       {/* Game Container */}
       <div 
-        className="flex-1 relative max-w-4xl mx-auto w-full border-x-2 border-[#FF69B4]/30"
+        className={`flex-1 relative max-w-4xl mx-auto w-full border-x-2 border-[#FF69B4]/30 ${
+          gameStatus === 'playing' ? 'overflow-hidden' : 'overflow-y-auto'
+        }`}
         style={{
           backgroundImage: gameStatus === 'playing' ? `url(${getBackground()})` : 'none',
           backgroundSize: 'cover',

@@ -534,7 +534,7 @@ const Music: React.FC = () => {
   }, [currentSong, isPlaying]);
 
   return (
-    <div className="min-h-screen bg-[#1A1A2E] relative overflow-hidden flex flex-col items-center py-4">
+    <div className="min-h-screen bg-[#1A1A2E] relative overflow-y-auto flex flex-col items-center py-4">
       {/* Inline Styles for Animation to ensure they work without separate CSS files */}
       <style>{`
         @keyframes breathe {
@@ -559,7 +559,7 @@ const Music: React.FC = () => {
 
       {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center"
+        className="fixed inset-0 bg-cover bg-center"
         style={{ 
           backgroundImage: 'url(/images/backgrounds/music-room-bg.png)',
           imageRendering: 'pixelated'

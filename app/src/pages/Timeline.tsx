@@ -261,14 +261,14 @@ const Timeline: React.FC = () => {
               </div>
             </div>
 
-            <div className="absolute left-1/2 top-[17rem] md:top-[15rem] bottom-28 w-[6px] bg-white/10 rounded-full -translate-x-1/2" />
+            <div className="absolute md:left-1/2 left-8 top-[17rem] md:top-[15rem] bottom-28 w-[6px] bg-white/10 rounded-full -translate-x-1/2" />
             <div
-              className="absolute left-1/2 top-[17rem] md:top-[15rem] w-[6px] bg-gradient-to-b from-[#FFD700] via-[#FF69B4] to-[#00FFFF] rounded-full -translate-x-1/2 transition-all duration-300"
+              className="absolute md:left-1/2 left-8 top-[17rem] md:top-[15rem] w-[6px] bg-gradient-to-b from-[#FFD700] via-[#FF69B4] to-[#00FFFF] rounded-full -translate-x-1/2 transition-all duration-300"
               style={{ height: progressHeight }}
             />
 
             <div
-              className="absolute left-1/2 -translate-x-1/2 z-20 transition-all duration-300"
+              className="absolute md:left-1/2 left-8 -translate-x-1/2 z-20 transition-all duration-300"
               style={{ top: `${characterY}%` }}
             >
               <div className="relative">
@@ -290,9 +290,11 @@ const Timeline: React.FC = () => {
                 return (
                   <div
                     key={chapter.id}
-                    className={`flex items-center gap-5 md:gap-8 ${isEven ? 'flex-row' : 'flex-row-reverse'}`}
+                    className={`flex items-center gap-4 md:gap-8 flex-row-reverse md:flex-row ${
+                      isEven ? '' : 'md:flex-row-reverse'
+                    }`}
                   >
-                    <div className={`flex-1 ${isEven ? 'text-right' : 'text-left'}`}>
+                    <div className={`flex-1 ${isEven ? 'md:text-right' : 'md:text-left'} text-left`}>
                       <div
                         className={[
                           'inline-block w-full max-w-[280px] md:max-w-sm rounded-xl px-4 py-4 cursor-pointer transition-all duration-300',
@@ -305,7 +307,7 @@ const Timeline: React.FC = () => {
                         onClick={(event) => handleChapterClick(chapter, event)}
                       >
                         <div
-                          className={`flex items-center gap-2 mb-2 ${isEven ? 'justify-end' : 'justify-start'}`}
+                          className={`flex items-center gap-2 mb-2 ${isEven ? 'md:justify-end' : 'md:justify-start'} justify-start`}
                         >
                           <span className="font-['Press_Start_2P'] text-[10px] text-[#FFD700]">
                             MONTH {chapter.month}
@@ -338,7 +340,7 @@ const Timeline: React.FC = () => {
                           </p>
                         )}
 
-                        <div className={`mt-3 flex ${isEven ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`mt-3 flex ${isEven ? 'md:justify-end' : 'md:justify-start'} justify-start`}>
                           {chapter.completed ? (
                             <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 bg-[#32CD32]/15 border border-[#32CD32]/40">
                               <span className="text-[#32CD32] text-sm">✓</span>
@@ -397,7 +399,7 @@ const Timeline: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="flex-1" />
+                    <div className="hidden md:block flex-1" />
                   </div>
                 );
               })}
