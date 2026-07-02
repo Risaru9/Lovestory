@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { PixelButton } from '@/components/custom/PixelButton';
 import { songs } from '@/lib/chapter-data';
 import { cn } from '@/lib/utils';
+import { getSongs, addSong } from '@/lib/db';
 
 // Types
 type Song = typeof songs[0];
@@ -229,6 +230,7 @@ const Music: React.FC = () => {
   const navigate = useNavigate();
 
   // STATE
+  const [allSongs, setAllSongs] = useState<Song[]>(songs);
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -242,6 +244,96 @@ const Music: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
+  // Upload modal state
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadTitle, setUploadTitle] = useState('');
+  const [uploadArtist, setUploadArtist] = useState('');
+  const [uploadDuration, setUploadDuration] = useState('0:00');
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Load custom songs from DB
+  useEffect(() => {
+    const loadCustomSongs = async () => {
+      try {
+        const dbSongs = await getSongs();
+        const formattedCustom = dbSongs.map((s) => ({
+          id: s.id,
+          title: s.title,
+          artist: s.artist,
+          duration: s.duration,
+          src: s.src || '',
+        }));
+        setAllSongs([...songs, ...formattedCustom]);
+      } catch (err) {
+        console.error("Gagal memuat lagu kustom:", err);
+      }
+    };
+    loadCustomSongs();
+  }, []);
+
+  const handleAudioFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setUploadFile(file);
+      
+      const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+      const parts = nameWithoutExt.split('-');
+      if (parts.length > 1) {
+        setUploadTitle(parts[1].trim());
+        setUploadArtist(parts[0].trim());
+      } else {
+        setUploadTitle(nameWithoutExt);
+        setUploadArtist('Kustom');
+      }
+
+      const audioUrl = URL.createObjectURL(file);
+      const tempAudio = new Audio(audioUrl);
+      tempAudio.addEventListener('loadedmetadata', () => {
+        const mins = Math.floor(tempAudio.duration / 60);
+        const secs = Math.floor(tempAudio.duration % 60);
+        setUploadDuration(`${mins}:${secs.toString().padStart(2, '0')}`);
+        URL.revokeObjectURL(audioUrl);
+      });
+    }
+  };
+
+  const handleUploadSong = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!uploadFile) return;
+
+    setIsUploading(true);
+    try {
+      const added = await addSong(
+        uploadFile,
+        uploadTitle,
+        uploadArtist,
+        uploadDuration
+      );
+      
+      const formatted = {
+        id: added.id,
+        title: added.title,
+        artist: added.artist,
+        duration: added.duration,
+        src: added.src || '',
+      };
+      
+      setAllSongs((prev) => [...prev, formatted]);
+      
+      setUploadFile(null);
+      setUploadTitle('');
+      setUploadArtist('');
+      setUploadDuration('0:00');
+      setShowUploadModal(false);
+    } catch (err) {
+      console.error("Gagal mengunggah musik:", err);
+      alert("Gagal mengunggah musik, silakan coba lagi.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // REF
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const visualizerRef = useRef<HTMLCanvasElement | null>(null);
@@ -251,14 +343,14 @@ const Music: React.FC = () => {
   // Initialize shuffle
   useEffect(() => {
     if (isShuffle) {
-      const indices = Array.from({ length: songs.length }, (_, i) => i);
+      const indices = Array.from({ length: allSongs.length }, (_, i) => i);
       for (let i = indices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [indices[i], indices[j]] = [indices[j], indices[i]];
       }
       setShuffledIndices(indices);
     }
-  }, [isShuffle]);
+  }, [isShuffle, allSongs]);
 
   // --- AUDIO LOGIC ---
   useEffect(() => {
@@ -301,8 +393,8 @@ const Music: React.FC = () => {
       const nextShuffledPos = (shuffledPos + 1) % shuffledIndices.length;
       return shuffledIndices[nextShuffledPos];
     }
-    return (currentIndex + 1) % songs.length;
-  }, [isShuffle, shuffledIndices]);
+    return (currentIndex + 1) % allSongs.length;
+  }, [isShuffle, shuffledIndices, allSongs.length]);
 
   const getPrevIndex = useCallback((currentIndex: number) => {
     if (isShuffle && shuffledIndices.length > 0) {
@@ -310,32 +402,32 @@ const Music: React.FC = () => {
       const prevShuffledPos = (shuffledPos - 1 + shuffledIndices.length) % shuffledIndices.length;
       return shuffledIndices[prevShuffledPos];
     }
-    return (currentIndex - 1 + songs.length) % songs.length;
-  }, [isShuffle, shuffledIndices]);
+    return (currentIndex - 1 + allSongs.length) % allSongs.length;
+  }, [isShuffle, shuffledIndices, allSongs.length]);
 
   const changeSong = (direction: 'next' | 'prev') => {
     if (!currentSong) {
-      setCurrentSong(songs[0]);
+      setCurrentSong(allSongs[0]);
       setIsPlaying(true);
       return;
     }
 
-    const currentIndex = songs.findIndex((s) => s.id === currentSong.id);
+    const currentIndex = allSongs.findIndex((s) => s.id === currentSong.id);
     const newIndex = direction === 'next' ? getNextIndex(currentIndex) : getPrevIndex(currentIndex);
     
-    setCurrentSong(songs[newIndex]);
+    setCurrentSong(allSongs[newIndex]);
     setIsPlaying(true);
   };
 
   const handleSongEnd = () => {
     if (repeatMode === 'one') {
       if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current.play();
+         audioRef.current.currentTime = 0;
+         audioRef.current.play();
       }
     } else {
-      const currentIndex = songs.findIndex((s) => s.id === currentSong?.id);
-      const isLastSong = currentIndex === songs.length - 1;
+      const currentIndex = allSongs.findIndex((s) => s.id === currentSong?.id);
+      const isLastSong = currentIndex === allSongs.length - 1;
       
       if (isLastSong && repeatMode === 'none') {
         setIsPlaying(false);
@@ -347,7 +439,7 @@ const Music: React.FC = () => {
 
   const handlePlayToggle = () => {
     if (!currentSong) {
-      setCurrentSong(songs[0]);
+      setCurrentSong(allSongs[0]);
       setIsPlaying(true);
     } else {
       setIsPlaying(!isPlaying);
@@ -634,20 +726,30 @@ const Music: React.FC = () => {
               <div className="w-2.5 h-2.5 bg-[#FFD700] animate-pulse" style={{ animationDelay: '0.5s' }} />
             </div>
             
-            <div className="hidden md:flex items-center gap-1 h-5 w-16 justify-end">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "w-1 bg-[#FF69B4] transition-all duration-150",
-                    isPlaying ? "equalizer-bar" : "h-1"
-                  )}
-                  style={{ 
-                    height: isPlaying ? undefined : '3px',
-                    animationDelay: `${i * 0.1}s`
-                  }}
-                />
-              ))}
+            <div className="flex items-center gap-2">
+              <PixelButton 
+                onClick={() => setShowUploadModal(true)} 
+                size="sm"
+                className="pixel-btn text-[10px] md:text-xs"
+              >
+                + MUSIC
+              </PixelButton>
+              
+              <div className="hidden md:flex items-center gap-1 h-5 w-16 justify-end">
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "w-1 bg-[#FF69B4] transition-all duration-150",
+                      isPlaying ? "equalizer-bar" : "h-1"
+                    )}
+                    style={{ 
+                      height: isPlaying ? undefined : '3px',
+                      animationDelay: `${i * 0.1}s`
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -809,24 +911,24 @@ const Music: React.FC = () => {
         <div className="bg-[#16213E]/95 backdrop-blur-md border-4 border-[#0F3460] p-3 md:p-4 pixel-shadow">
           <div className="flex items-center justify-between mb-3 border-b-2 border-[#E94560] pb-2">
             <h3 className="font-pixel text-[10px] md:text-xs text-[#FFD700]">
-              PLAYLIST ({songs.length} TRACKS)
+              PLAYLIST ({allSongs.length} TRACKS)
             </h3>
             <div className="flex items-center gap-3">
               {isShuffle && (
                 <span className="font-retro text-xs text-[#FF69B4] animate-pulse">
                   SHUFFLE ON
                 </span>
-              )}
-              {repeatMode !== 'none' && (
+               )}
+               {repeatMode !== 'none' && (
                 <span className="font-retro text-xs text-[#FFD700]">
                   REPEAT: {repeatMode.toUpperCase()}
                 </span>
-              )}
+               )}
             </div>
           </div>
           
           <div className="space-y-2 max-h-56 overflow-y-auto pr-2 custom-scrollbar">
-            {songs.map((song, index) => {
+            {allSongs.map((song, index) => {
               const isActive = currentSong?.id === song.id;
               const isHovered = hoveredSong === index;
 
@@ -895,6 +997,98 @@ const Music: React.FC = () => {
             for volume
           </p>
         </div>
+        {/* Retro Upload Modal */}
+        {showUploadModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-2xl border-4 border-[#E94560] bg-[#111327] p-6 shadow-[0_0_30px_rgba(233,69,96,0.3)]">
+              <h2 className="font-pixel text-xs md:text-sm text-white mb-6 text-center">
+                ADD NEW MUSIC
+              </h2>
+              
+              <form onSubmit={handleUploadSong} className="space-y-4 font-retro text-lg">
+                <div>
+                  <label className="block text-[#FFD700] mb-2 font-pixel text-[8px] tracking-wider">
+                    CHOOSE AUDIO FILE (.MP3)
+                  </label>
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleAudioFileChange}
+                    required
+                    className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-pixel file:bg-[#E94560] file:text-white file:cursor-pointer hover:file:brightness-110"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[#FFD700] mb-2 font-pixel text-[8px] tracking-wider">
+                    SONG TITLE
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Masukkan judul lagu..."
+                    value={uploadTitle}
+                    onChange={(e) => setUploadTitle(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white focus:outline-none focus:border-[#E94560] text-base"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[#FFD700] mb-2 font-pixel text-[8px] tracking-wider">
+                    ARTIST
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Masukkan nama penyanyi..."
+                    value={uploadArtist}
+                    onChange={(e) => setUploadArtist(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white focus:outline-none focus:border-[#E94560] text-base"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[#FFD700] mb-2 font-pixel text-[8px] tracking-wider">
+                    DURATION
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 3:45"
+                    value={uploadDuration}
+                    onChange={(e) => setUploadDuration(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white focus:outline-none focus:border-[#E94560] text-base"
+                  />
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <PixelButton
+                    type="button"
+                    onClick={() => {
+                      setShowUploadModal(false);
+                      setUploadFile(null);
+                      setUploadTitle('');
+                      setUploadArtist('');
+                      setUploadDuration('0:00');
+                    }}
+                    variant="secondary"
+                    className="flex-1 text-[10px]"
+                  >
+                    CANCEL
+                  </PixelButton>
+                  
+                  <PixelButton
+                    type="submit"
+                    disabled={isUploading || !uploadFile}
+                    className="flex-1 text-[10px]"
+                  >
+                    {isUploading ? 'SAVING...' : 'UPLOAD'}
+                  </PixelButton>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

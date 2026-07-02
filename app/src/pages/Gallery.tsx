@@ -5,6 +5,7 @@ import { X, Heart, Camera, ImageIcon, ChevronLeft, ChevronRight } from 'lucide-r
 import { PixelButton } from '@/components/custom/PixelButton';
 import { photos } from '@/lib/chapter-data';
 import { cn } from '@/lib/utils';
+import { getPhotos, addPhoto } from '@/lib/db';
 
 type PhotoItemType = (typeof photos)[number];
 type FilterType = 'all' | 'date' | 'travel' | 'food' | 'selfie';
@@ -77,6 +78,12 @@ const GalleryCard = memo(function GalleryCard({
       type="button"
       onClick={onClick}
       className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 text-left shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-[#FF69B4]/40 hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]"
+      style={{
+        contentVisibility: 'auto',
+        containIntrinsicSize: '0 300px',
+        transform: 'translateZ(0)',
+        willChange: 'transform'
+      }}
       aria-label={`Open photo ${label}`}
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-[#111827]">
@@ -230,21 +237,88 @@ const Gallery: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  
+  // Custom Photos state
+  const [allPhotos, setAllPhotos] = useState<PhotoItemType[]>(photos);
+
+  // Form upload state
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadCaption, setUploadCaption] = useState('');
+  const [uploadCategory, setUploadCategory] = useState<FilterType>('date');
+  const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    const loadCustomPhotos = async () => {
+      try {
+        const customPhotos = await getPhotos();
+        const formattedCustom = customPhotos.map((p) => ({
+          id: p.id,
+          src: p.src || '',
+          caption: p.caption,
+          category: p.category,
+        }));
+        setAllPhotos([...formattedCustom, ...photos]);
+      } catch (err) {
+        console.error("Gagal memuat foto kustom:", err);
+      }
+    };
+    loadCustomPhotos();
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setUploadFile(e.target.files[0]);
+    }
+  };
+
+  const handleUploadPhoto = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!uploadFile) return;
+
+    setIsUploading(true);
+    try {
+      const added = await addPhoto(
+        uploadFile,
+        uploadCaption,
+        uploadCategory === 'all' ? 'date' : (uploadCategory as any)
+      );
+      
+      const formatted = {
+        id: added.id,
+        src: added.src || '',
+        caption: added.caption,
+        category: added.category,
+      };
+      
+      setAllPhotos((prev) => [formatted, ...prev]);
+      
+      setUploadFile(null);
+      setUploadCaption('');
+      setUploadCategory('date');
+      setShowUploadModal(false);
+    } catch (err) {
+      console.error("Gagal mengunggah foto:", err);
+      alert("Gagal mengunggah foto, silakan coba lagi.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const filterCounts = useMemo(() => {
     return {
-      all: photos.length,
-      date: photos.filter((photo) => photo.category === 'date').length,
-      travel: photos.filter((photo) => photo.category === 'travel').length,
-      food: photos.filter((photo) => photo.category === 'food').length,
-      selfie: photos.filter((photo) => photo.category === 'selfie').length,
+      all: allPhotos.length,
+      date: allPhotos.filter((photo) => photo.category === 'date').length,
+      travel: allPhotos.filter((photo) => photo.category === 'travel').length,
+      food: allPhotos.filter((photo) => photo.category === 'food').length,
+      selfie: allPhotos.filter((photo) => photo.category === 'selfie').length,
     };
-  }, []);
+  }, [allPhotos]);
 
   const filteredPhotos = useMemo(() => {
-    if (activeFilter === 'all') return photos;
-    return photos.filter((photo) => photo.category === activeFilter);
-  }, [activeFilter]);
+    if (activeFilter === 'all') return allPhotos;
+    return allPhotos.filter((photo) => photo.category === activeFilter);
+  }, [activeFilter, allPhotos]);
 
   const displayedPhotos = useMemo(() => {
     return filteredPhotos.slice(0, visibleCount);
@@ -334,10 +408,15 @@ const Gallery: React.FC = () => {
             </p>
           </div>
 
-          <div className="min-w-[72px] text-right">
-            <span className="font-['VT323'] text-lg text-[#00CED1]">
-              {filteredPhotos.length} pics
-            </span>
+          <div className="flex items-center gap-2">
+            <PixelButton onClick={() => setShowUploadModal(true)} size="sm" className="text-[10px] md:text-xs">
+              + PHOTO
+            </PixelButton>
+            <div className="hidden sm:block min-w-[64px] text-right">
+              <span className="font-['VT323'] text-lg text-[#00CED1]">
+                {filteredPhotos.length} pics
+              </span>
+            </div>
           </div>
         </div>
       </header>
@@ -398,7 +477,7 @@ const Gallery: React.FC = () => {
             <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-6">
               {displayedPhotos.map((photo, index) => (
                 <GalleryCard
-                  key={`${photo.id}-${activeFilter}`}
+                  key={photo.id}
                   photo={photo}
                   onClick={() => setSelectedIndex(index)}
                 />
@@ -446,6 +525,84 @@ const Gallery: React.FC = () => {
           onPrev={handlePrevPhoto}
           onNext={handleNextPhoto}
         />
+      )}
+
+      {/* Retro Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border-4 border-[#FF69B4] bg-[#111327] p-6 shadow-[0_0_30px_rgba(255,105,180,0.3)]">
+            <h2 className="font-['Press_Start_2P'] text-sm md:text-base text-white mb-6 text-center">
+              ADD NEW MEMORY
+            </h2>
+            
+            <form onSubmit={handleUploadPhoto} className="space-y-4 font-['VT323'] text-xl">
+              <div>
+                <label className="block text-[#FFD700] mb-2 font-['Press_Start_2P'] text-[10px]">
+                  CHOOSE IMAGE FILE
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  required
+                  className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white text-base file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-['Press_Start_2P'] file:bg-[#FF69B4] file:text-white file:cursor-pointer hover:file:brightness-110"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[#FFD700] mb-2 font-['Press_Start_2P'] text-[10px]">
+                  CAPTION / MEMORY INFO
+                </label>
+                <input
+                  type="text"
+                  placeholder="Tulis caption memori kencan kita..."
+                  value={uploadCaption}
+                  onChange={(e) => setUploadCaption(e.target.value)}
+                  className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white focus:outline-none focus:border-[#FF69B4] text-lg"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[#FFD700] mb-2 font-['Press_Start_2P'] text-[10px]">
+                  CATEGORY
+                </label>
+                <select
+                  value={uploadCategory}
+                  onChange={(e) => setUploadCategory(e.target.value as FilterType)}
+                  className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white focus:outline-none focus:border-[#FF69B4] text-lg"
+                >
+                  <option value="date" className="bg-[#111327]">💕 DATE</option>
+                  <option value="travel" className="bg-[#111327]">✈️ TRAVEL</option>
+                  <option value="food" className="bg-[#111327]">🍜 FOOD</option>
+                  <option value="selfie" className="bg-[#111327]">📸 SELFIE</option>
+                </select>
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <PixelButton
+                  type="button"
+                  onClick={() => {
+                    setShowUploadModal(false);
+                    setUploadFile(null);
+                    setUploadCaption('');
+                  }}
+                  variant="secondary"
+                  className="flex-1 text-xs"
+                >
+                  CANCEL
+                </PixelButton>
+                
+                <PixelButton
+                  type="submit"
+                  disabled={isUploading || !uploadFile}
+                  className="flex-1 text-xs"
+                >
+                  {isUploading ? 'SAVING...' : 'UPLOAD'}
+                </PixelButton>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

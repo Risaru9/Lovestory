@@ -20,7 +20,7 @@ export interface Photo {
 }
 
 export interface Song {
-  id: number;
+  id: number | string;
   title: string;
   artist: string;
   duration: string;
