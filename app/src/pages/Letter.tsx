@@ -4,6 +4,7 @@ import { Heart, MailOpen, PenSquare, CheckCircle2, Sparkles } from 'lucide-react
 
 import { PixelButton } from '@/components/custom/PixelButton';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { saveLetterReply, getLetterReply } from '@/lib/db';
 
 interface GameState {
   replyLetter: string;
@@ -42,6 +43,25 @@ const Letter: React.FC = () => {
   const [visibleChars, setVisibleChars] = useState(0);
   const [skipTyping, setSkipTyping] = useState(false);
 
+  // Sync letter reply from Supabase on mount
+  useEffect(() => {
+    const syncReply = async () => {
+      try {
+        const cloudReply = await getLetterReply();
+        if (cloudReply) {
+          setGameState((prev) => ({
+            ...prev,
+            replyLetter: cloudReply,
+          }));
+          setReply(cloudReply);
+        }
+      } catch (err) {
+        console.error("Gagal sinkronisasi balasan surat:", err);
+      }
+    };
+    syncReply();
+  }, [setGameState]);
+
   const displayedText = skipTyping
     ? LETTER_TEXT
     : LETTER_TEXT.slice(0, visibleChars);
@@ -68,7 +88,7 @@ const Letter: React.FC = () => {
     };
   }, []);
 
-  const handleSubmitReply = () => {
+  const handleSubmitReply = async () => {
     if (!trimmedReply) return;
 
     setGameState({
@@ -78,6 +98,12 @@ const Letter: React.FC = () => {
 
     setReply(trimmedReply);
     setIsSubmitted(true);
+
+    try {
+      await saveLetterReply(trimmedReply);
+    } catch (err) {
+      console.error("Gagal menyimpan balasan surat:", err);
+    }
 
     if (successTimeoutRef.current) {
       window.clearTimeout(successTimeoutRef.current);
