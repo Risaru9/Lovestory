@@ -7,7 +7,7 @@ const SONG_STORE = 'songs';
 
 export interface DBPhoto {
   id: string;
-  blob?: Blob; // Optional when using Supabase
+  blob?: Blob;
   caption: string;
   category: 'date' | 'travel' | 'food' | 'selfie';
   src: string;
@@ -18,220 +18,129 @@ export interface DBSong {
   title: string;
   artist: string;
   duration: string;
-  blob?: Blob; // Optional when using Supabase
+  blob?: Blob;
   src: string;
 }
 
 let dbInstance: IDBDatabase | null = null;
 
 // =========================================================================
-// INDEXEDDB LOCAL BACKUP ENGINE
+// INDEXEDDB LOCAL ENGINE (Fallback tanpa Supabase)
 // =========================================================================
 export const initDB = (): Promise<IDBDatabase> => {
   if (dbInstance) return Promise.resolve(dbInstance);
-
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-    request.onerror = () => {
-      reject(request.error);
-    };
-
-    request.onsuccess = () => {
-      dbInstance = request.result;
-      resolve(request.result);
-    };
-
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => { dbInstance = request.result; resolve(request.result); };
     request.onupgradeneeded = () => {
       const db = request.result;
-      if (!db.objectStoreNames.contains(PHOTO_STORE)) {
-        db.createObjectStore(PHOTO_STORE, { keyPath: 'id' });
-      }
-      if (!db.objectStoreNames.contains(SONG_STORE)) {
-        db.createObjectStore(SONG_STORE, { keyPath: 'id' });
-      }
+      if (!db.objectStoreNames.contains(PHOTO_STORE)) db.createObjectStore(PHOTO_STORE, { keyPath: 'id' });
+      if (!db.objectStoreNames.contains(SONG_STORE)) db.createObjectStore(SONG_STORE, { keyPath: 'id' });
     };
   });
 };
 
-const addPhotoLocal = async (
-  blob: Blob,
-  caption: string,
-  category: 'date' | 'travel' | 'food' | 'selfie'
-): Promise<DBPhoto> => {
+const addPhotoLocal = async (blob: Blob, caption: string, category: 'date' | 'travel' | 'food' | 'selfie'): Promise<DBPhoto> => {
   const db = await initDB();
   const id = `custom-photo-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-  const photoItem = {
-    id,
-    blob,
-    caption,
-    category,
-  };
-
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(PHOTO_STORE, 'readwrite');
-    const store = transaction.objectStore(PHOTO_STORE);
-    const request = store.add(photoItem);
-
-    request.onsuccess = () => {
-      resolve({
-        id,
-        caption,
-        category,
-        src: URL.createObjectURL(blob),
-      });
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
+    const tx = db.transaction(PHOTO_STORE, 'readwrite');
+    const req = tx.objectStore(PHOTO_STORE).add({ id, blob, caption, category });
+    req.onsuccess = () => resolve({ id, caption, category, src: URL.createObjectURL(blob) });
+    req.onerror = () => reject(req.error);
   });
 };
 
 const getPhotosLocal = async (): Promise<DBPhoto[]> => {
   const db = await initDB();
-
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(PHOTO_STORE, 'readonly');
-    const store = transaction.objectStore(PHOTO_STORE);
-    const request = store.getAll();
-
-    request.onsuccess = () => {
-      const results: any[] = request.result || [];
-      const mapped = results.map((item) => ({
-        id: item.id,
-        caption: item.caption,
-        category: item.category,
-        src: URL.createObjectURL(item.blob),
-      }));
-      resolve(mapped);
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
+    const req = db.transaction(PHOTO_STORE, 'readonly').objectStore(PHOTO_STORE).getAll();
+    req.onsuccess = () => resolve((req.result || []).map((item: any) => ({ ...item, src: URL.createObjectURL(item.blob) })));
+    req.onerror = () => reject(req.error);
   });
 };
 
-const addSongLocal = async (
-  blob: Blob,
-  title: string,
-  artist: string,
-  duration: string
-): Promise<DBSong> => {
+const addSongLocal = async (blob: Blob, title: string, artist: string, duration: string): Promise<DBSong> => {
   const db = await initDB();
   const id = `custom-song-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-  const songItem = {
-    id,
-    title,
-    artist,
-    duration,
-    blob,
-  };
-
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(SONG_STORE, 'readwrite');
-    const store = transaction.objectStore(SONG_STORE);
-    const request = store.add(songItem);
-
-    request.onsuccess = () => {
-      resolve({
-        id,
-        title,
-        artist,
-        duration,
-        src: URL.createObjectURL(blob),
-      });
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
+    const tx = db.transaction(SONG_STORE, 'readwrite');
+    const req = tx.objectStore(SONG_STORE).add({ id, blob, title, artist, duration });
+    req.onsuccess = () => resolve({ id, title, artist, duration, src: URL.createObjectURL(blob) });
+    req.onerror = () => reject(req.error);
   });
 };
 
 const getSongsLocal = async (): Promise<DBSong[]> => {
   const db = await initDB();
-
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(SONG_STORE, 'readonly');
-    const store = transaction.objectStore(SONG_STORE);
-    const request = store.getAll();
-
-    request.onsuccess = () => {
-      const results: any[] = request.result || [];
-      const mapped = results.map((item) => ({
-        id: item.id,
-        title: item.title,
-        artist: item.artist,
-        duration: item.duration,
-        src: URL.createObjectURL(item.blob),
-      }));
-      resolve(mapped);
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
+    const req = db.transaction(SONG_STORE, 'readonly').objectStore(SONG_STORE).getAll();
+    req.onsuccess = () => resolve((req.result || []).map((item: any) => ({ ...item, src: URL.createObjectURL(item.blob) })));
+    req.onerror = () => reject(req.error);
   });
 };
 
 // =========================================================================
-// SUPABASE CLOUD HYBRID ENGINE
+// CURRENT USER HELPER
 // =========================================================================
+const getCurrentUserId = async (): Promise<string | null> => {
+  if (!supabase) return null;
+  const { data: { user } } = await supabase.auth.getUser();
+  return user?.id ?? null;
+};
 
+const getCoupleId = async (): Promise<string | null> => {
+  if (!supabase) return null;
+  const userId = await getCurrentUserId();
+  if (!userId) return null;
+
+  const { data } = await supabase
+    .from('couples')
+    .select('id')
+    .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
+    .not('connected_at', 'is', null)
+    .maybeSingle();
+
+  return data?.id ?? null;
+};
+
+// =========================================================================
+// PUBLIC API - PHOTOS
+// =========================================================================
 export const addPhoto = async (
   blob: Blob,
   caption: string,
   category: 'date' | 'travel' | 'food' | 'selfie'
 ): Promise<DBPhoto> => {
   if (!isSupabaseConfigured() || !supabase) {
-    console.log('[LovestoryDB] Menggunakan IndexedDB Lokal untuk upload foto.');
     return addPhotoLocal(blob, caption, category);
   }
 
-  console.log('[LovestoryDB] Menggunakan Supabase Cloud untuk upload foto.');
-  const fileExt = blob.type.split('/')[1] || 'png';
-  const id = `photo-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-  const fileName = `${id}.${fileExt}`;
-
-  // 1. Upload ke Supabase Storage
-  const { error: uploadError } = await supabase.storage
-    .from('photos')
-    .upload(fileName, blob, {
-      contentType: blob.type,
-      cacheControl: '3600',
-      upsert: false,
-    });
-
-  if (uploadError) {
-    throw new Error(`Gagal mengunggah berkas ke storage: ${uploadError.message}`);
+  const coupleId = await getCoupleId();
+  if (!coupleId) {
+    console.warn('[db] Tidak ada couple_id, fallback ke lokal');
+    return addPhotoLocal(blob, caption, category);
   }
 
-  // 2. Ambil URL Publik
-  const { data: urlData } = supabase.storage.from('photos').getPublicUrl(fileName);
+  const fileExt = blob.type.split('/')[1] || 'jpg';
+  const id = `photo-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  const fileName = `couples/${coupleId}/photos/${id}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage.from('media').upload(fileName, blob, {
+    contentType: blob.type,
+    cacheControl: '3600',
+    upsert: false,
+  });
+  if (uploadError) throw new Error(`Gagal upload foto: ${uploadError.message}`);
+
+  const { data: urlData } = supabase.storage.from('media').getPublicUrl(fileName);
   const publicUrl = urlData.publicUrl;
 
-  // 3. Simpan baris data ke tabel PostgreSQL
-  const { error: dbError } = await supabase.from('photos').insert([
-    {
-      id,
-      caption,
-      category,
-      url: publicUrl,
-    },
-  ]);
+  const { error: dbError } = await supabase.from('photos').insert([{ id, couple_id: coupleId, url: publicUrl, caption, category }]);
+  if (dbError) throw new Error(`Gagal simpan metadata foto: ${dbError.message}`);
 
-  if (dbError) {
-    throw new Error(`Gagal menyimpan data foto ke database: ${dbError.message}`);
-  }
-
-  return {
-    id,
-    caption,
-    category,
-    src: publicUrl,
-  };
+  return { id, caption, category, src: publicUrl };
 };
 
 export const getPhotos = async (): Promise<DBPhoto[]> => {
@@ -239,14 +148,17 @@ export const getPhotos = async (): Promise<DBPhoto[]> => {
     return getPhotosLocal();
   }
 
-  console.log('[LovestoryDB] Memuat foto dari Supabase Cloud.');
+  const coupleId = await getCoupleId();
+  if (!coupleId) return getPhotosLocal();
+
   const { data, error } = await supabase
     .from('photos')
     .select('*')
+    .eq('couple_id', coupleId)
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Gagal mengambil foto dari Supabase, kembali ke lokal:', error.message);
+    console.error('Gagal ambil foto dari Supabase:', error.message);
     return getPhotosLocal();
   }
 
@@ -258,6 +170,9 @@ export const getPhotos = async (): Promise<DBPhoto[]> => {
   }));
 };
 
+// =========================================================================
+// PUBLIC API - SONGS
+// =========================================================================
 export const addSong = async (
   blob: Blob,
   title: string,
@@ -265,54 +180,33 @@ export const addSong = async (
   duration: string
 ): Promise<DBSong> => {
   if (!isSupabaseConfigured() || !supabase) {
-    console.log('[LovestoryDB] Menggunakan IndexedDB Lokal untuk upload lagu.');
     return addSongLocal(blob, title, artist, duration);
   }
 
-  console.log('[LovestoryDB] Menggunakan Supabase Cloud untuk upload lagu.');
+  const coupleId = await getCoupleId();
+  if (!coupleId) {
+    console.warn('[db] Tidak ada couple_id, fallback ke lokal');
+    return addSongLocal(blob, title, artist, duration);
+  }
+
   const fileExt = blob.type.split('/')[1] || 'mp3';
   const id = `song-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-  const fileName = `${id}.${fileExt}`;
+  const fileName = `couples/${coupleId}/songs/${id}.${fileExt}`;
 
-  // 1. Upload ke Supabase Storage
-  const { error: uploadError } = await supabase.storage
-    .from('songs')
-    .upload(fileName, blob, {
-      contentType: blob.type,
-      cacheControl: '3600',
-      upsert: false,
-    });
+  const { error: uploadError } = await supabase.storage.from('media').upload(fileName, blob, {
+    contentType: blob.type,
+    cacheControl: '3600',
+    upsert: false,
+  });
+  if (uploadError) throw new Error(`Gagal upload lagu: ${uploadError.message}`);
 
-  if (uploadError) {
-    throw new Error(`Gagal mengunggah berkas musik ke storage: ${uploadError.message}`);
-  }
-
-  // 2. Ambil URL Publik
-  const { data: urlData } = supabase.storage.from('songs').getPublicUrl(fileName);
+  const { data: urlData } = supabase.storage.from('media').getPublicUrl(fileName);
   const publicUrl = urlData.publicUrl;
 
-  // 3. Simpan baris data ke tabel PostgreSQL
-  const { error: dbError } = await supabase.from('songs').insert([
-    {
-      id,
-      title,
-      artist,
-      duration,
-      url: publicUrl,
-    },
-  ]);
+  const { error: dbError } = await supabase.from('songs').insert([{ id, couple_id: coupleId, url: publicUrl, title, artist, duration }]);
+  if (dbError) throw new Error(`Gagal simpan metadata lagu: ${dbError.message}`);
 
-  if (dbError) {
-    throw new Error(`Gagal menyimpan data lagu ke database: ${dbError.message}`);
-  }
-
-  return {
-    id,
-    title,
-    artist,
-    duration,
-    src: publicUrl,
-  };
+  return { id, title, artist, duration, src: publicUrl };
 };
 
 export const getSongs = async (): Promise<DBSong[]> => {
@@ -320,14 +214,17 @@ export const getSongs = async (): Promise<DBSong[]> => {
     return getSongsLocal();
   }
 
-  console.log('[LovestoryDB] Memuat lagu dari Supabase Cloud.');
+  const coupleId = await getCoupleId();
+  if (!coupleId) return getSongsLocal();
+
   const { data, error } = await supabase
     .from('songs')
     .select('*')
+    .eq('couple_id', coupleId)
     .order('created_at', { ascending: true });
 
   if (error) {
-    console.error('Gagal mengambil lagu dari Supabase, kembali ke lokal:', error.message);
+    console.error('Gagal ambil lagu dari Supabase:', error.message);
     return getSongsLocal();
   }
 
@@ -341,67 +238,41 @@ export const getSongs = async (): Promise<DBSong[]> => {
 };
 
 // =========================================================================
-// SYNCHRONIZATION FOR LOVE LETTER REPLIES
+// PUBLIC API - LETTER REPLY
 // =========================================================================
-
 export const saveLetterReply = async (replyText: string): Promise<void> => {
-  // Selalu simpan di LocalStorage bawaan dulu
   localStorage.setItem('journey-reply-letter', replyText);
 
-  if (!isSupabaseConfigured() || !supabase) {
-    return;
-  }
+  if (!isSupabaseConfigured() || !supabase) return;
 
-  try {
-    console.log('[LovestoryDB] Menyinkronkan balasan surat ke Supabase Cloud.');
-    // Kita gunakan ID tetap 'love-letter-reply' agar baris data selalu diperbarui (upsert)
-    const { error } = await supabase.from('replies').upsert(
-      {
-        id: 'love-letter-reply',
-        reply_text: replyText,
-        created_at: new Date().toISOString(),
-      },
-      { onConflict: 'id' }
-    );
+  const coupleId = await getCoupleId();
+  if (!coupleId) return;
 
-    if (error) {
-      console.error('Gagal sinkronisasi balasan surat ke cloud:', error.message);
-    }
-  } catch (err) {
-    console.error('Koneksi database gagal:', err);
-  }
+  const { error } = await supabase.from('replies').upsert(
+    { id: `reply-${coupleId}`, couple_id: coupleId, reply_text: replyText, updated_at: new Date().toISOString() },
+    { onConflict: 'id' }
+  );
+  if (error) console.error('Gagal sync balasan surat:', error.message);
 };
 
 export const getLetterReply = async (): Promise<string> => {
-  const localReply = localStorage.getItem('journey-reply-letter') || '';
+  const local = localStorage.getItem('journey-reply-letter') || '';
+  if (!isSupabaseConfigured() || !supabase) return local;
 
-  if (!isSupabaseConfigured() || !supabase) {
-    return localReply;
+  const coupleId = await getCoupleId();
+  if (!coupleId) return local;
+
+  const { data, error } = await supabase
+    .from('replies')
+    .select('reply_text')
+    .eq('couple_id', coupleId)
+    .maybeSingle();
+
+  if (error || !data) return local;
+
+  if (data.reply_text) {
+    localStorage.setItem('journey-reply-letter', data.reply_text);
+    return data.reply_text;
   }
-
-  try {
-    const { data, error } = await supabase
-      .from('replies')
-      .select('reply_text')
-      .eq('id', 'love-letter-reply')
-      .single();
-
-    if (error) {
-      // Jika data tidak ditemukan (kosong), itu normal
-      if (error.code !== 'PGRST116') {
-        console.error('Gagal membaca balasan surat dari cloud:', error.message);
-      }
-      return localReply;
-    }
-
-    if (data && data.reply_text) {
-      // Sinkronkan ke local storage juga agar terbaru
-      localStorage.setItem('journey-reply-letter', data.reply_text);
-      return data.reply_text;
-    }
-  } catch (err) {
-    console.error('Gagal mengambil balasan dari cloud:', err);
-  }
-
-  return localReply;
+  return local;
 };

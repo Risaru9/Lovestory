@@ -1,0 +1,282 @@
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
+import type { User, Session } from '@supabase/supabase-js';
+
+// ============================================================
+// TYPES
+// ============================================================
+export interface Profile {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  couple_id: string | null;
+}
+
+export interface CoupleInfo {
+  id: string;
+  couple_code: string;
+  user_a_id: string;
+  user_b_id: string | null;
+  connected_at: string | null;
+}
+
+interface AuthContextType {
+  user: User | null;
+  session: Session | null;
+  profile: Profile | null;
+  partner: Profile | null;
+  coupleInfo: CoupleInfo | null;
+  isLoading: boolean;
+  isConnected: boolean;
+  signUp: (email: string, password: string, name: string) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signOut: () => Promise<void>;
+  generateCoupleCode: () => Promise<{ code: string | null; error: string | null }>;
+  connectWithCode: (code: string) => Promise<{ error: string | null }>;
+  refreshCouple: () => Promise<void>;
+}
+
+// ============================================================
+// CONTEXT
+// ============================================================
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth harus digunakan di dalam AuthProvider');
+  return ctx;
+};
+
+// ============================================================
+// PROVIDER
+// ============================================================
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [partner, setPartner] = useState<Profile | null>(null);
+  const [coupleInfo, setCoupleInfo] = useState<CoupleInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const isConnected = !!(coupleInfo?.user_b_id && coupleInfo.connected_at);
+
+  // -----------------------------------------------------------
+  // Ambil profil user dari tabel profiles
+  // -----------------------------------------------------------
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
+    if (!supabase) return null;
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    if (error) { console.error('Gagal memuat profil:', error.message); return null; }
+    return data as Profile;
+  };
+
+  // -----------------------------------------------------------
+  // Ambil data couple dan profil pasangan
+  // -----------------------------------------------------------
+  const fetchCouple = async (userId: string) => {
+    if (!supabase) return;
+
+    const { data: coupleData, error } = await supabase
+      .from('couples')
+      .select('*')
+      .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
+      .maybeSingle();
+
+    if (error || !coupleData) {
+      setCoupleInfo(null);
+      setPartner(null);
+      return;
+    }
+
+    setCoupleInfo(coupleData as CoupleInfo);
+
+    // Ambil profil pasangan
+    const partnerId = coupleData.user_a_id === userId
+      ? coupleData.user_b_id
+      : coupleData.user_a_id;
+
+    if (partnerId) {
+      const partnerProfile = await fetchProfile(partnerId);
+      setPartner(partnerProfile);
+    }
+  };
+
+  // -----------------------------------------------------------
+  // Refresh data couple (dipanggil setelah pairing)
+  // -----------------------------------------------------------
+  const refreshCouple = async () => {
+    if (user) await fetchCouple(user.id);
+  };
+
+  // -----------------------------------------------------------
+  // Init: load session dari Supabase
+  // -----------------------------------------------------------
+  useEffect(() => {
+    if (!isSupabaseConfigured() || !supabase) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Load session awal
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+      setSession(s);
+      setUser(s?.user ?? null);
+      if (s?.user) {
+        const p = await fetchProfile(s.user.id);
+        setProfile(p);
+        await fetchCouple(s.user.id);
+      }
+      setIsLoading(false);
+    });
+
+    // Langganan perubahan auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, s) => {
+      setSession(s);
+      setUser(s?.user ?? null);
+      if (s?.user) {
+        const p = await fetchProfile(s.user.id);
+        setProfile(p);
+        await fetchCouple(s.user.id);
+      } else {
+        setProfile(null);
+        setCoupleInfo(null);
+        setPartner(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // -----------------------------------------------------------
+  // SIGN UP
+  // -----------------------------------------------------------
+  const signUp = async (email: string, password: string, name: string): Promise<{ error: string | null }> => {
+    if (!supabase) return { error: 'Supabase belum dikonfigurasi.' };
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } },
+    });
+
+    if (error) return { error: error.message };
+    if (!data.user) return { error: 'Gagal membuat akun.' };
+
+    return { error: null };
+  };
+
+  // -----------------------------------------------------------
+  // SIGN IN
+  // -----------------------------------------------------------
+  const signIn = async (email: string, password: string): Promise<{ error: string | null }> => {
+    if (!supabase) return { error: 'Supabase belum dikonfigurasi.' };
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { error: error.message };
+    return { error: null };
+  };
+
+  // -----------------------------------------------------------
+  // SIGN OUT
+  // -----------------------------------------------------------
+  const signOut = async () => {
+    if (!supabase) return;
+    await supabase.auth.signOut();
+    setUser(null);
+    setProfile(null);
+    setCoupleInfo(null);
+    setPartner(null);
+  };
+
+  // -----------------------------------------------------------
+  // GENERATE COUPLE CODE
+  // -----------------------------------------------------------
+  const generateCoupleCode = async (): Promise<{ code: string | null; error: string | null }> => {
+    if (!supabase || !user) return { code: null, error: 'Anda harus login terlebih dahulu.' };
+
+    // Cek apakah sudah punya couple
+    const { data: existing } = await supabase
+      .from('couples')
+      .select('couple_code')
+      .eq('user_a_id', user.id)
+      .maybeSingle();
+
+    if (existing) return { code: existing.couple_code, error: null };
+
+    // Buat kode baru
+    const adjectives = ['SWEET', 'HEART', 'LOVE', 'PINK', 'CUTE', 'DEAR', 'WARM', 'MOON', 'STAR', 'ROSE'];
+    const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const num = Math.floor(1000 + Math.random() * 9000);
+    const code = `${adj}-${num}`;
+
+    const { error } = await supabase.from('couples').insert({
+      user_a_id: user.id,
+      couple_code: code,
+    });
+
+    if (error) return { code: null, error: `Gagal membuat kode: ${error.message}` };
+
+    await refreshCouple();
+    return { code, error: null };
+  };
+
+  // -----------------------------------------------------------
+  // CONNECT WITH CODE (User B memasukkan kode dari User A)
+  // -----------------------------------------------------------
+  const connectWithCode = async (code: string): Promise<{ error: string | null }> => {
+    if (!supabase || !user) return { error: 'Anda harus login terlebih dahulu.' };
+
+    // Cari couple berdasarkan kode
+    const { data: coupleData, error: findError } = await supabase
+      .from('couples')
+      .select('*')
+      .eq('couple_code', code.toUpperCase().trim())
+      .maybeSingle();
+
+    if (findError || !coupleData) return { error: 'Kode tidak ditemukan. Periksa kembali kode yang dimasukkan.' };
+    if (coupleData.user_a_id === user.id) return { error: 'Anda tidak bisa terhubung dengan kode Anda sendiri.' };
+    if (coupleData.user_b_id) return { error: 'Kode ini sudah digunakan oleh orang lain.' };
+
+    // Hubungkan User B ke couple
+    const { error: updateError } = await supabase
+      .from('couples')
+      .update({
+        user_b_id: user.id,
+        connected_at: new Date().toISOString(),
+      })
+      .eq('id', coupleData.id);
+
+    if (updateError) return { error: `Gagal terhubung: ${updateError.message}` };
+
+    // Update couple_id di profil keduanya
+    await supabase.from('profiles').update({ couple_id: coupleData.id }).eq('id', user.id);
+    await supabase.from('profiles').update({ couple_id: coupleData.id }).eq('id', coupleData.user_a_id);
+
+    await refreshCouple();
+    return { error: null };
+  };
+
+  return (
+    <AuthContext.Provider value={{
+      user,
+      session,
+      profile,
+      partner,
+      coupleInfo,
+      isLoading,
+      isConnected,
+      signUp,
+      signIn,
+      signOut,
+      generateCoupleCode,
+      connectWithCode,
+      refreshCouple,
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
