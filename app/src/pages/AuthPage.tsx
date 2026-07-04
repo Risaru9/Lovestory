@@ -51,7 +51,7 @@ const AuthPage: React.FC = () => {
     } else {
       const { error: signInError } = await signIn(email, password);
       if (signInError) {
-        setError('Email atau password salah. Coba lagi!');
+        setError(signInError);
       }
     }
     setIsSubmitting(false);
