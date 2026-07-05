@@ -15,6 +15,10 @@ DROP POLICY IF EXISTS "User terautentikasi dapat mencari couple code" ON public.
 DROP POLICY IF EXISTS "User terautentikasi dapat membaca couple" ON public.couples;
 DROP POLICY IF EXISTS "Anggota couple dapat memperbarui" ON public.couples;
 DROP POLICY IF EXISTS "User dapat membuat couple baru" ON public.couples;
+DROP POLICY IF EXISTS "couples_select_authenticated" ON public.couples;
+DROP POLICY IF EXISTS "couples_insert_own" ON public.couples;
+DROP POLICY IF EXISTS "couples_update_member" ON public.couples;
+DROP POLICY IF EXISTS "couples_delete_own" ON public.couples;
 
 -- ============================================================
 -- 2. BUAT POLICY BARU YANG BENAR
