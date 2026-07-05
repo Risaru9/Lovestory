@@ -32,7 +32,7 @@ interface ToastMessage {
 const MapTracker: React.FC = () => {
   const navigate = useNavigate();
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
+  const [map, setMap] = useState<L.Map | null>(null);
 
   // Markers
   const myMarkerRef = useRef<L.Marker | null>(null);
@@ -198,7 +198,8 @@ const MapTracker: React.FC = () => {
   // MAP INITIALIZATION
   // =========================================================================
   useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) return;
+    if (isLoading) return;
+    if (!mapContainerRef.current || map) return;
 
     // Default center at Indonesia
     const defaultCenter: L.LatLngExpression = [-2.5489, 118.0149];
@@ -213,34 +214,32 @@ const MapTracker: React.FC = () => {
       }
     );
 
-    const map = L.map(mapContainerRef.current, {
+    const initializedMap = L.map(mapContainerRef.current, {
       center: defaultCenter,
       zoom: initialZoom,
       layers: [cartoDBVoyagerDark],
     });
 
-    mapRef.current = map;
-
     // Click map to prefill geofence coordinates
-    map.on('click', (e: L.LeafletMouseEvent) => {
+    initializedMap.on('click', (e: L.LeafletMouseEvent) => {
       setGfLat(e.latlng.lat.toFixed(6));
       setGfLng(e.latlng.lng.toFixed(6));
       showToast('Titik koordinat terpilih dari peta!', '📍');
     });
 
+    setMap(initializedMap);
+
     return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
+      initializedMap.remove();
+      setMap(null);
     };
-  }, []);
+  }, [isLoading, map]);
 
   // =========================================================================
   // GEOLOCATION MONITORING (MY LOCATION WATCHER)
   // =========================================================================
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!map) return;
 
     if (!('geolocation' in navigator)) {
       showToast('Geolocation tidak didukung oleh browser Anda.', '⚠');
@@ -269,13 +268,12 @@ const MapTracker: React.FC = () => {
     return () => {
       navigator.geolocation.clearWatch(watchId);
     };
-  }, []);
+  }, [map]);
 
   // =========================================================================
   // RENDER / UPDATE MY MARKER
   // =========================================================================
   useEffect(() => {
-    const map = mapRef.current;
     if (!map || !myCoords) return;
 
     const latLng = L.latLng(myCoords.latitude, myCoords.longitude);
@@ -304,13 +302,12 @@ const MapTracker: React.FC = () => {
     } else {
       myMarkerRef.current.setLatLng(latLng);
     }
-  }, [myCoords]);
+  }, [map, myCoords]);
 
   // =========================================================================
   // RENDER / UPDATE PARTNER MARKER
   // =========================================================================
   useEffect(() => {
-    const map = mapRef.current;
     if (!map || !partnerCoords) return;
 
     const latLng = L.latLng(partnerCoords.latitude, partnerCoords.longitude);
@@ -336,13 +333,12 @@ const MapTracker: React.FC = () => {
     } else {
       partnerMarkerRef.current.setLatLng(latLng);
     }
-  }, [partnerCoords]);
+  }, [map, partnerCoords]);
 
   // =========================================================================
   // RENDER / UPDATE GEOFENCES CIRCLES
   // =========================================================================
   useEffect(() => {
-    const map = mapRef.current;
     if (!map) return;
 
     // Clear old circles first
@@ -364,7 +360,7 @@ const MapTracker: React.FC = () => {
 
       geofenceCirclesRef.current[gf.id] = circle;
     });
-  }, [geofences]);
+  }, [map, geofences]);
 
   // =========================================================================
   // ADD GEOFENCE ACTION
@@ -419,14 +415,14 @@ const MapTracker: React.FC = () => {
 
   // Center Map to Partner Coords
   const centerToPartner = () => {
-    if (!mapRef.current || !partnerCoords) return;
-    mapRef.current.setView([partnerCoords.latitude, partnerCoords.longitude], 16);
+    if (!map || !partnerCoords) return;
+    map.setView([partnerCoords.latitude, partnerCoords.longitude], 16);
   };
 
   // Center Map to My Coords
   const centerToMe = () => {
-    if (!mapRef.current || !myCoords) return;
-    mapRef.current.setView([myCoords.latitude, myCoords.longitude], 16);
+    if (!map || !myCoords) return;
+    map.setView([myCoords.latitude, myCoords.longitude], 16);
   };
 
   if (isLoading) {
@@ -484,9 +480,9 @@ const MapTracker: React.FC = () => {
       </header>
 
       {/* Map & Sidebar Wrapper */}
-      <div className="flex-1 flex flex-col lg:flex-row relative">
+      <div className="flex-1 flex flex-col lg:flex-row lg:h-[calc(100vh-76px)] lg:overflow-hidden relative">
         {/* Map Container */}
-        <div className="flex-1 h-[45vh] lg:h-auto relative z-10">
+        <div className="flex-1 h-[45vh] lg:h-full relative z-10">
           <div ref={mapContainerRef} className="w-full h-full" />
           
           {/* Instructions Overlay */}
@@ -497,7 +493,7 @@ const MapTracker: React.FC = () => {
         </div>
 
         {/* Sidebar Controls */}
-        <div className="w-full lg:w-96 bg-[#111327]/95 border-t-4 lg:border-t-0 lg:border-l-4 border-[#FF69B4]/60 z-20 flex flex-col max-h-[55vh] lg:max-h-none overflow-y-auto">
+        <div className="w-full lg:w-96 bg-[#111327]/95 border-t-4 lg:border-t-0 lg:border-l-4 border-[#FF69B4]/60 z-20 flex flex-col max-h-[55vh] lg:max-h-full overflow-y-auto">
           {/* Section: Tambah Geofence */}
           <section className="p-4 border-b border-white/10">
             <h3 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-3 flex items-center gap-2">
