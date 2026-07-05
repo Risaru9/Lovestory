@@ -270,7 +270,7 @@ const Home: React.FC = () => {
 
   return (
     <div
-      className="relative h-screen w-full overflow-y-auto bg-[#1A1A2E]"
+      className="relative h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-[#0c0a18]"
       style={{
         backgroundImage: 'url(/images/backgrounds/home-bg.png)',
         backgroundSize: 'cover',
@@ -279,9 +279,11 @@ const Home: React.FC = () => {
     >
       <audio ref={audioRef} preload="auto" />
 
-      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(12,10,24,0.34),rgba(12,10,24,0.56))]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,192,203,0.08),transparent_45%)]" />
+      {/* Retro background filters */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(12,10,24,0.4),rgba(12,10,24,0.65))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,105,180,0.06),transparent_50%)]" />
 
+      {/* Floating hearts */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {hearts.map((heart) => (
           <div
@@ -292,53 +294,53 @@ const Home: React.FC = () => {
               top: heart.y,
             }}
           >
-            <span className="text-xl">💕</span>
+            <span className="text-lg">💕</span>
           </div>
         ))}
       </div>
 
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 py-5">
-        <div className="mb-4 text-center">
-          <p className="mb-2 font-['VT323'] text-base md:text-lg text-[#FFD700]">
-            Press Start to Continue Our Journey
-          </p>
+      <div className="relative z-10 flex h-full flex-col items-center justify-between px-4 py-6 md:py-8">
+        
+        {/* Top bar: Title & Music Control */}
+        <div className="w-full flex flex-col items-center gap-3">
+          <div className="text-center">
+            <p className="mb-1.5 font-['VT323'] text-base md:text-lg text-[#FFD700] tracking-widest uppercase">
+              Press Start to Continue Our Journey
+            </p>
+            <h1 className="font-['Press_Start_2P'] text-xl sm:text-2xl md:text-3xl leading-none text-white drop-shadow-[2.5px_2.5px_0_#FF69B4] tracking-wider">
+              OUR LOVE STORY
+            </h1>
+          </div>
 
-          <h1 className="font-['Press_Start_2P'] text-2xl md:text-3xl leading-relaxed text-white drop-shadow-[3px_3px_0_#FF69B4]">
-            OUR LOVE STORY
-          </h1>
-        </div>
-
-        <div className="mb-4 flex items-center justify-center">
           <button
             type="button"
             onClick={handleToggleMusic}
-            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/30 px-4 py-2 text-white/85 backdrop-blur-sm transition hover:bg-black/40"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3.5 py-1.5 text-white/80 backdrop-blur-sm transition hover:bg-black/60 active:scale-95 text-xs"
             aria-label={musicEnabled ? 'Turn music off' : 'Turn music on'}
           >
             {musicEnabled ? (
-              <Volume2 className="h-4 w-4 text-[#FFD700]" />
+              <Volume2 className="h-3.5 w-3.5 text-[#FFD700] animate-pulse" />
             ) : (
-              <VolumeX className="h-4 w-4 text-white/70" />
+              <VolumeX className="h-3.5 w-3.5 text-white/40" />
             )}
-
-            <span className="font-['VT323'] text-lg">
-              {musicEnabled ? 'Music On' : 'Music Off'}
+            <span className="font-['VT323'] text-base tracking-wide">
+              {musicEnabled ? 'BGM ON' : 'BGM OFF'}
             </span>
           </button>
         </div>
 
-        <div className="w-full max-w-[390px] rounded-[22px] border border-[#FF69B4]/45 bg-[rgba(255,250,255,0.88)] p-4 shadow-[0_0_24px_rgba(255,105,180,0.16)] backdrop-blur-md">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="font-['Press_Start_2P'] text-[10px] text-[#1A1A2E]">
+        {/* Center: Main Menu Retro Console Board */}
+        <div className="w-full max-w-[340px] sm:max-w-[360px] bg-[#090b1e]/90 border-4 border-[#1a1a2e] rounded-2xl p-4 shadow-[4px_4px_0_#FF69B4,inset_-4px_-4px_0_rgba(0,0,0,0.3)] backdrop-blur-md">
+          <div className="mb-3.5 flex items-center justify-between border-b border-white/[0.08] pb-2">
+            <span className="font-['Press_Start_2P'] text-[9px] text-[#FF69B4] tracking-widest">
               MAIN MENU
             </span>
-
-            <span className="font-['VT323'] text-lg text-[#1A1A2E]/60">
+            <span className="font-['VT323'] text-base text-white/40">
               {selectedIndex + 1} / {menuItems.length}
             </span>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5 max-h-[35vh] sm:max-h-none overflow-y-auto pr-0.5">
             {menuItems.map((item, index) => {
               const isSelected = selectedIndex === index;
               const isEnabled = item.enabled !== false;
@@ -352,29 +354,27 @@ const Home: React.FC = () => {
                   onClick={(event) => handleMenuClick(item, event)}
                   disabled={!isEnabled}
                   className={[
-                    'w-full rounded-xl border px-4 py-3 text-left transition-all duration-200',
-                    'flex items-center gap-3',
-                    'font-["Press_Start_2P"] text-[11px]',
+                    'w-full px-3.5 py-2.5 text-left transition-all duration-100 flex items-center gap-3 font-["Press_Start_2P"] text-[9px] border-2 rounded-xl',
                     isEnabled
                       ? isSelected
-                        ? 'border-[#FF69B4] bg-[#1A1A2E] text-[#FF69B4] shadow-[0_0_12px_rgba(255,105,180,0.14)]'
-                        : 'border-[#1A1A2E]/10 bg-white text-[#1A1A2E] hover:border-[#FF69B4]/30 hover:bg-[#fff8fc]'
-                      : 'cursor-not-allowed border-gray-300 bg-gray-100 text-gray-400',
+                        ? 'border-[#FF69B4] bg-[#FF69B4]/15 text-[#FF69B4] shadow-[2px_2px_0_#1a1a2e] translate-x-0.5 translate-y-0.5'
+                        : 'border-transparent bg-[#111327]/60 text-white/70 hover:bg-[#181a33] hover:text-white'
+                      : 'cursor-not-allowed border-transparent bg-white/[0.02] text-white/20',
                   ].join(' ')}
                   aria-label={item.label}
                 >
-                  <span className="w-5 text-center text-sm">{item.icon}</span>
+                  <span className="w-5 text-center text-xs shrink-0">{item.icon}</span>
 
                   <span className={isSelected ? 'animate-pulse' : ''}>
                     {item.label}
                   </span>
 
                   {isSelected && isEnabled && (
-                    <span className="ml-auto text-[#FF69B4]">◀</span>
+                    <span className="ml-auto text-[#FF69B4] animate-bounce-horizontal">◀</span>
                   )}
 
                   {!isEnabled && (
-                    <span className="ml-auto font-['VT323'] text-base text-gray-400">
+                    <span className="ml-auto font-['VT323'] text-xs text-white/20">
                       Soon
                     </span>
                   )}
@@ -384,25 +384,44 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-4 text-center">
-          <p className="font-['VT323'] text-base text-white/65">
-            Use ↑ ↓ to navigate, ENTER to select
-          </p>
+        {/* Bottom bar: Instruction & Walking Character Sprites */}
+        <div className="w-full flex flex-col items-center gap-3">
+          <div className="text-center">
+            <p className="font-['VT323'] text-sm md:text-base text-white/50 tracking-wider">
+              Use ↑ ↓ key to navigate · ENTER to select
+            </p>
+          </div>
+
+          {/* Mobile Character Deck (Side-by-side sprites below console card) */}
+          <div className="flex gap-8 items-center justify-center lg:hidden pointer-events-none">
+            <img
+              src="/images/sprites/char-boy.png"
+              alt="Character boy"
+              className="h-16 w-16 pixel-art animate-character-left"
+            />
+            <span className="text-sm animate-pulse">💕</span>
+            <img
+              src="/images/sprites/char-girl.png"
+              alt="Character girl"
+              className="h-16 w-16 pixel-art animate-character-right"
+            />
+          </div>
         </div>
 
-        <div className="pointer-events-none absolute bottom-4 left-4 md:bottom-5 md:left-6 hidden sm:block">
+        {/* Desktop Corner Sprites */}
+        <div className="pointer-events-none absolute bottom-5 left-8 hidden lg:block">
           <img
             src="/images/sprites/char-boy.png"
             alt="Character boy"
-            className="h-24 w-24 md:h-32 md:w-32 pixel-art animate-character-left"
+            className="h-32 w-32 pixel-art animate-character-left"
           />
         </div>
 
-        <div className="pointer-events-none absolute bottom-4 right-4 md:bottom-5 md:right-6 hidden sm:block">
+        <div className="pointer-events-none absolute bottom-5 right-8 hidden lg:block">
           <img
             src="/images/sprites/char-girl.png"
             alt="Character girl"
-            className="h-24 w-24 md:h-32 md:w-32 pixel-art animate-character-right"
+            className="h-32 w-32 pixel-art animate-character-right"
           />
         </div>
       </div>
@@ -447,6 +466,15 @@ const Home: React.FC = () => {
           75% {
             transform: translateY(-3px) translateX(-2px);
           }
+        }
+
+        @keyframes bounce-horiz {
+          0%, 100% { transform: translateX(0); }
+          50% { transform: translateX(-4px); }
+        }
+
+        .animate-bounce-horizontal {
+          animation: bounce-horiz 0.8s infinite;
         }
 
         .animate-float-heart {
