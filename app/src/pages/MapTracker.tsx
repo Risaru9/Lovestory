@@ -30,7 +30,6 @@ interface ToastMessage {
 
 const MapTracker: React.FC = () => {
   const navigate = useNavigate();
-  const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
@@ -253,55 +252,54 @@ const MapTracker: React.FC = () => {
   }, []);
 
   // =========================================================================
-  // MAP INITIALIZATION
+  // MAP INITIALIZATION (CALLBACK REF FOR ROBUST LIFECYCLE)
   // =========================================================================
-  useEffect(() => {
-    if (isLoading) return;
-    if (!mapContainerRef.current || mapInstanceRef.current) return;
+  const mapContainerCallbackRef = React.useCallback((node: HTMLDivElement | null) => {
+    if (node !== null) {
+      if (mapInstanceRef.current) return;
 
-    try {
-      // Default center at Indonesia
-      const defaultCenter: L.LatLngExpression = [-2.5489, 118.0149];
-      const initialZoom = 5;
+      try {
+        // Default center at Indonesia
+        const defaultCenter: L.LatLngExpression = [-2.5489, 118.0149];
+        const initialZoom = 5;
 
-      // OpenStreetMap Tile Layer (Never blocked by adblockers or privacy protection)
-      const openStreetMap = L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        {
-          attribution: '&copy; OpenStreetMap contributors',
-          maxZoom: 19,
-        }
-      );
+        // OpenStreetMap Tile Layer (Never blocked by adblockers or privacy protection)
+        const openStreetMap = L.tileLayer(
+          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19,
+          }
+        );
 
-      const initializedMap = L.map(mapContainerRef.current, {
-        center: defaultCenter,
-        zoom: initialZoom,
-        layers: [openStreetMap],
-      });
+        const initializedMap = L.map(node, {
+          center: defaultCenter,
+          zoom: initialZoom,
+          layers: [openStreetMap],
+        });
 
-      // Click map to prefill geofence coordinates
-      initializedMap.on('click', (e: L.LeafletMouseEvent) => {
-        setGfLat(e.latlng.lat.toFixed(6));
-        setGfLng(e.latlng.lng.toFixed(6));
-        showToast('Titik koordinat terpilih dari peta!', '📍');
-      });
+        // Click map to prefill geofence coordinates
+        initializedMap.on('click', (e: L.LeafletMouseEvent) => {
+          setGfLat(e.latlng.lat.toFixed(6));
+          setGfLng(e.latlng.lng.toFixed(6));
+          showToast('Titik koordinat terpilih dari peta!', '📍');
+        });
 
-      mapInstanceRef.current = initializedMap;
-      setMap(initializedMap);
-      setInitError(null);
+        mapInstanceRef.current = initializedMap;
+        setMap(initializedMap);
+        setInitError(null);
 
-      // Force recalculation of map size after layout is fully rendered
-      setTimeout(() => {
-        if (initializedMap) {
-          initializedMap.invalidateSize();
-        }
-      }, 300);
-    } catch (err: any) {
-      console.error('Leaflet initialization error:', err);
-      setInitError(err.message || String(err));
-    }
-
-    return () => {
+        // Force recalculation of map size after layout is fully rendered
+        setTimeout(() => {
+          if (initializedMap) {
+            initializedMap.invalidateSize();
+          }
+        }, 300);
+      } catch (err: any) {
+        console.error('Leaflet initialization error:', err);
+        setInitError(err.message || String(err));
+      }
+    } else {
       if (mapInstanceRef.current) {
         try {
           mapInstanceRef.current.remove();
@@ -311,8 +309,8 @@ const MapTracker: React.FC = () => {
         mapInstanceRef.current = null;
       }
       setMap(null);
-    };
-  }, [isLoading]);
+    }
+  }, []);
 
   // =========================================================================
   // GEOLOCATION MONITORING (MY LOCATION WATCHER)
@@ -562,7 +560,7 @@ const MapTracker: React.FC = () => {
       <div className="flex-1 flex flex-col lg:flex-row lg:h-[calc(100vh-76px)] lg:overflow-hidden relative">
         {/* Map Container */}
         <div className="flex-1 h-[45vh] lg:h-full relative z-10">
-          <div ref={mapContainerRef} className="w-full h-full" />
+          <div ref={mapContainerCallbackRef} className="w-full h-full" />
 
           {permissionStatus !== 'granted' && (
             <div className="absolute inset-0 bg-[#0c0a18]/95 flex flex-col items-center justify-center p-6 text-center z-[20]">
