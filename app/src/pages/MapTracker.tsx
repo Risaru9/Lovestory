@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
-import { Plus, Trash2, Clock, Navigation, History } from 'lucide-react';
-import { PixelButton } from '@/components/custom/PixelButton';
+import { Plus, Trash2, Clock, Navigation, History, Info, Settings, Compass, ChevronDown, ChevronUp } from 'lucide-react';
 import {
   updateLocation,
   getPartnerLocation,
@@ -58,6 +57,7 @@ const MapTracker: React.FC = () => {
   const [permissionStatus, setPermissionStatus] = useState<'granted' | 'prompt' | 'denied'>('prompt');
   const [diagInfo, setDiagInfo] = useState<{ width: number; height: number; active: boolean } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isDiagOpen, setIsDiagOpen] = useState(false);
   const [myAddressData, setMyAddressData] = useState<AddressData | null>(null);
   const [partnerAddressData, setPartnerAddressData] = useState<AddressData | null>(null);
   const geocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -705,54 +705,67 @@ const MapTracker: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0c0a18] flex items-center justify-center">
-        <p className="font-['Press_Start_2P'] text-xs text-[#FF69B4] animate-pulse">
-          MEMBUKA SATELIT PETA...
-        </p>
+      <div className="h-screen bg-[#080b18] flex flex-col items-center justify-center gap-4">
+        <div className="w-8 h-8 rounded-full border-2 border-[#F472B6] border-t-transparent animate-spin" />
+        <p className="text-sm text-white/50 tracking-widest uppercase">Memuat peta...</p>
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-[#0c0a18] text-white flex flex-col relative overflow-hidden">
-      {/* Live Toasts container */}
-      <div className="fixed top-20 right-4 z-[9999] space-y-2 pointer-events-none max-w-sm w-full">
+    <div className="h-screen bg-[#080b18] text-white flex flex-col relative overflow-hidden">
+      {/* Toast Notifications */}
+      <div className="fixed top-16 right-4 z-[9999] space-y-2 pointer-events-none max-w-xs w-full">
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="p-4 bg-[#111327]/95 border-2 border-[#FF69B4] rounded-xl shadow-[0_0_24px_rgba(255,105,180,0.3)] flex items-center gap-3 animate-slide-in pointer-events-auto"
+            className="px-4 py-3 bg-[#0f1223]/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg flex items-center gap-3 animate-slide-in pointer-events-auto"
           >
-            <span className="text-2xl shrink-0">{t.emoji}</span>
-            <p className="font-['VT323'] text-lg text-white leading-tight">{t.message}</p>
+            <span className="text-xl shrink-0">{t.emoji}</span>
+            <p className="text-sm text-white/90 leading-snug">{t.message}</p>
           </div>
         ))}
       </div>
 
-      {/* Header Sticky */}
-      <header className="relative z-25 border-b-4 border-[#FF69B4] bg-[#1a172e]/90 backdrop-blur-sm p-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center gap-4">
-          <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm">
-            ← MENU
-          </PixelButton>
+      {/* Header */}
+      <header className="relative z-25 border-b border-white/[0.07] bg-[#080b18]/90 backdrop-blur-md px-4 py-3">
+        <div className="max-w-7xl mx-auto flex justify-between items-center gap-3">
 
+          {/* Back button */}
+          <button
+            onClick={() => navigate('/home')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-sm transition-all"
+          >
+            <span className="text-base">←</span>
+            <span className="hidden sm:inline text-xs tracking-wide">Menu</span>
+          </button>
+
+          {/* Title */}
           <div className="text-center">
-            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-sm text-white">
-              LOCATION TRACKER
+            <h1 className="text-sm sm:text-base font-semibold tracking-tight text-white">
+              Location Tracker
             </h1>
-            <p className="font-['VT323'] text-sm md:text-base text-[#FFD700] mt-1">
-              Live Map & Realtime Geofencing
-            </p>
+            <p className="text-[10px] text-white/40 mt-0.5 hidden sm:block">Live Map · Geofencing</p>
           </div>
 
+          {/* Nav buttons */}
           <div className="flex gap-2">
             {partnerCoords && (
-              <PixelButton onClick={centerToPartner} size="sm">
-                🔍 DIA
-              </PixelButton>
+              <button
+                onClick={centerToPartner}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F472B6]/15 hover:bg-[#F472B6]/25 border border-[#F472B6]/30 text-[#F472B6] text-xs transition-all"
+              >
+                <span>♥</span>
+                <span className="hidden sm:inline">Dia</span>
+              </button>
             )}
-            <PixelButton onClick={centerToMe} size="sm" variant="secondary">
-              🛰 AKU
-            </PixelButton>
+            <button
+              onClick={centerToMe}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-xs transition-all"
+            >
+              <span>◎</span>
+              <span className="hidden sm:inline">Aku</span>
+            </button>
           </div>
         </div>
       </header>
@@ -764,61 +777,71 @@ const MapTracker: React.FC = () => {
           <div ref={mapContainerCallbackRef} className="w-full h-full" />
 
           {permissionStatus !== 'granted' && (
-            <div className="absolute inset-0 bg-[#0c0a18]/95 flex flex-col items-center justify-center p-6 text-center z-[20]">
-              <div className="p-6 max-w-sm bg-[#111327] border-4 border-[#FF69B4] shadow-[0_0_24px_rgba(255,105,180,0.3)] rounded-xl relative">
-                <span className="text-4xl mb-3 block animate-bounce">🛰</span>
-                <h4 className="font-['Press_Start_2P'] text-[10px] text-[#FFD700] mb-3">IZIN LOKASI DIBUTUHKAN</h4>
+            <div className="absolute inset-0 bg-[#080b18]/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-[20]">
+              <div className="p-6 max-w-sm bg-[#11142b]/85 border border-white/10 shadow-2xl rounded-2xl relative">
+                <span className="text-3xl mb-3 block animate-bounce">🛰</span>
+                <h4 className="text-xs font-semibold text-[#F472B6] tracking-wider uppercase mb-3">Izin Lokasi Dibutuhkan</h4>
                 
                 {permissionStatus === 'denied' ? (
-                  <p className="font-['VT323'] text-lg text-white/80 leading-snug mb-4">
+                  <p className="text-xs text-white/70 leading-normal mb-4">
                     Akses GPS diblokir oleh peramban Anda. Silakan klik ikon gembok di sebelah kiri bilah alamat URL untuk mengizinkan akses lokasi.
                   </p>
                 ) : (
-                  <p className="font-['VT323'] text-lg text-white/80 leading-snug mb-4">
+                  <p className="text-xs text-white/70 leading-normal mb-4">
                     Aplikasi memerlukan izin GPS agar kalian dapat saling melacak lokasi masing-masing di peta secara real-time.
                   </p>
                 )}
 
                 {permissionStatus !== 'denied' ? (
-                  <PixelButton onClick={requestLocationPermission} className="w-full">
-                    ▶ IZINKAN AKSES GPS
-                  </PixelButton>
+                  <button
+                    onClick={requestLocationPermission}
+                    className="w-full py-2.5 bg-[#F472B6] hover:bg-[#EC4899] active:translate-y-0.5 rounded-xl text-xs font-semibold text-white transition-all shadow-[0_2px_10px_rgba(244,114,182,0.3)]"
+                  >
+                    Izinkan Akses GPS
+                  </button>
                 ) : (
-                  <PixelButton onClick={checkLocationPermission} variant="secondary" className="w-full">
-                    🔄 PERIKSA ULANG IZIN
-                  </PixelButton>
+                  <button
+                    onClick={checkLocationPermission}
+                    className="w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 active:translate-y-0.5 rounded-xl text-xs font-semibold text-white/80 transition-all"
+                  >
+                    Periksa Ulang Izin
+                  </button>
                 )}
               </div>
             </div>
           )}
 
           {initError && (
-            <div className="absolute inset-0 bg-red-950/90 border border-red-500/50 flex flex-col items-center justify-center p-6 text-center z-50">
-              <span className="text-4xl mb-4">⚠</span>
-              <h4 className="font-['Press_Start_2P'] text-xs text-red-400 mb-2">GAGAL MEMULAI PETA</h4>
-              <p className="font-['VT323'] text-lg text-white max-w-md">{initError}</p>
+            <div className="absolute inset-0 bg-[#080b18]/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-50">
+              <div className="p-6 max-w-sm bg-red-950/20 border border-red-500/20 shadow-2xl rounded-2xl relative">
+                <span className="text-3xl mb-3 block">⚠</span>
+                <h4 className="text-xs font-semibold text-red-400 tracking-wider uppercase mb-2">Gagal Memulai Peta</h4>
+                <p className="text-xs text-white/80 leading-normal">{initError}</p>
+              </div>
             </div>
           )}
 
           {/* Instructions Overlay */}
-          <div className="absolute bottom-4 left-4 bg-[#111327]/90 border border-white/10 rounded-xl px-4 py-2 pointer-events-none z-[1000] shadow-lg max-w-[280px]">
-            <p className="font-['VT323'] text-sm text-[#FFD700]">💡 Tips:</p>
-            <p className="font-['VT323'] text-xs text-white/70 leading-snug">Klik sembarang tempat pada peta untuk mengambil koordinat Latitude & Longitude otomatis.</p>
+          <div className="absolute bottom-4 left-4 bg-[#0a0d1f]/90 backdrop-blur-sm border border-white/10 rounded-2xl px-4 py-2.5 pointer-events-none z-[1000] shadow-lg max-w-[280px]">
+            <p className="text-xs font-semibold text-[#F472B6] flex items-center gap-1.5 mb-1">
+              <Info className="w-3.5 h-3.5" /> Tips
+            </p>
+            <p className="text-[11px] text-white/60 leading-normal">Klik tempat pada peta untuk menyalin koordinat secara otomatis ke form.</p>
           </div>
 
           {/* Address Overlay — Compact summary pinned top-left */}
           {myCoords && myAddressData && (
-            <div className="absolute top-3 left-3 bg-[#111327]/92 border border-[#FF69B4]/50 rounded-xl px-3 py-2 pointer-events-none z-[1000] shadow-lg max-w-[280px]">
-              <p className="font-['Press_Start_2P'] text-[7px] text-[#FF69B4] mb-0.5">📍 LOKASIKU</p>
-              <p className="font-['VT323'] text-sm text-white leading-tight">
+            <div className="absolute top-3 left-3 bg-[#0a0d1f]/90 backdrop-blur-sm border border-white/10 rounded-2xl px-3.5 py-2.5 pointer-events-none z-[1000] shadow-lg max-w-[280px]">
+              <p className="text-[9px] font-bold text-[#F472B6] tracking-wider uppercase mb-0.5">📍 LOKASIKU</p>
+              <p className="text-xs text-white/90 leading-snug">
                 {myAddressData.road ?? myAddressData.suburb ?? 'Lokasi ditemukan'}
                 {myAddressData.city ? `, ${myAddressData.city}` : ''}
               </p>
               {partnerCoords && partnerAddressData && (
                 <>
-                  <div className="my-1.5 border-t border-white/10" />
-                  <p className="font-['Press_Start_2P'] text-[7px] text-[#00FFFF] mb-0.5">💙 LOKASI DIA</p>
-                  <p className="font-['VT323'] text-sm text-white leading-tight">
+                  <div className="my-2 border-t border-white/5" />
+                  <p className="text-[9px] font-bold text-[#06B6D4] tracking-wider uppercase mb-0.5">💙 LOKASI DIA</p>
+                  <p className="text-xs text-white/90 leading-snug">
                     {partnerAddressData.road ?? partnerAddressData.suburb ?? 'Lokasi ditemukan'}
                     {partnerAddressData.city ? `, ${partnerAddressData.city}` : ''}
                   </p>
@@ -826,98 +849,102 @@ const MapTracker: React.FC = () => {
               )}
               {partnerCoords && !partnerAddressData && (
                 <>
-                  <div className="my-1.5 border-t border-white/10" />
-                  <p className="font-['Press_Start_2P'] text-[7px] text-[#00FFFF] mb-0.5">💙 LOKASI DIA</p>
-                  <p className="font-['VT323'] text-xs text-white/50 animate-pulse">Mengambil alamat...</p>
+                  <div className="my-2 border-t border-white/5" />
+                  <p className="text-[9px] font-bold text-[#06B6D4] tracking-wider uppercase mb-0.5">💙 LOKASI DIA</p>
+                  <p className="text-xs text-white/50 animate-pulse">Mengambil alamat...</p>
                 </>
-              )}
-              {myCoords && !myAddressData && (
-                <p className="font-['VT323'] text-xs text-white/50 animate-pulse">Mengambil alamat...</p>
               )}
             </div>
           )}
           {myCoords && !myAddressData && (
-            <div className="absolute top-3 left-3 bg-[#111327]/92 border border-[#FF69B4]/50 rounded-xl px-3 py-2 pointer-events-none z-[1000] shadow-lg">
-              <p className="font-['Press_Start_2P'] text-[7px] text-[#FF69B4] mb-0.5">📍 LOKASIKU</p>
-              <p className="font-['VT323'] text-xs text-white/50 animate-pulse">Mengambil alamat...</p>
+            <div className="absolute top-3 left-3 bg-[#0a0d1f]/90 backdrop-blur-sm border border-white/10 rounded-2xl px-3.5 py-2.5 pointer-events-none z-[1000] shadow-lg">
+              <p className="text-[9px] font-bold text-[#F472B6] tracking-wider uppercase mb-0.5">📍 LOKASIKU</p>
+              <p className="text-xs text-white/50 animate-pulse">Mengambil alamat...</p>
             </div>
           )}
         </div>
 
-        {/* Sidebar Controls */}
-        <div className={`w-full bg-[#111327]/95 border-t-4 lg:border-t-0 lg:border-l-4 border-[#FF69B4]/60 z-20 flex flex-col transition-all duration-300 ease-in-out ${
+        {/* Sidebar */}
+        <div className={`w-full bg-[#0a0d1f]/95 backdrop-blur-sm border-t border-white/[0.07] lg:border-t-0 lg:border-l lg:border-white/[0.07] z-20 flex flex-col transition-all duration-300 ease-in-out ${
           isSidebarOpen
-            ? 'lg:w-96 max-h-[55vh] lg:max-h-full overflow-y-auto'
-            : 'lg:w-12 max-h-12 lg:max-h-full overflow-hidden'
+            ? 'lg:w-96 max-h-[55vh] lg:max-h-full'
+            : 'lg:w-11 max-h-10 lg:max-h-full overflow-hidden'
         }`}>
-          {/* Sidebar Toggle Button */}
-          <div className={`flex items-center border-b border-white/10 bg-[#0c0a18]/60 flex-shrink-0 ${
-            isSidebarOpen ? 'justify-between px-4 py-2' : 'justify-center py-3'
+          {/* Toggle Header */}
+          <div className={`flex items-center flex-shrink-0 border-b border-white/[0.06] px-3 py-2.5 ${
+            isSidebarOpen ? 'justify-between' : 'justify-center'
           }`}>
             {isSidebarOpen && (
-              <span className="font-['Press_Start_2P'] text-[8px] text-[#FF69B4]">⚙ PANEL KONTROL</span>
+              <span className="text-[10px] font-medium text-white/40 tracking-widest uppercase">Panel</span>
             )}
             <button
               onClick={() => {
                 const next = !isSidebarOpen;
                 setIsSidebarOpen(next);
-                // Allow CSS transition to finish then recalculate map size
                 setTimeout(() => { map?.invalidateSize(); }, 320);
               }}
-              className="p-1.5 rounded-lg bg-white/5 hover:bg-[#FF69B4]/20 border border-white/10 text-white/70 hover:text-white transition-all"
+              className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white/10 text-white/40 hover:text-white/80 transition-all"
               title={isSidebarOpen ? 'Sembunyikan Panel' : 'Tampilkan Panel'}
             >
-              <span className="text-sm">{isSidebarOpen ? '▶' : '◀'}</span>
+              <span className="text-xs">{isSidebarOpen ? '❯' : '❮'}</span>
             </button>
           </div>
 
-          {/* Collapsible Content */}
+          {/* Scrollable Content */}
           <div className={`flex flex-col overflow-y-auto transition-all duration-300 ${
             isSidebarOpen ? 'flex-1 opacity-100' : 'h-0 opacity-0 pointer-events-none'
           }`}>
 
           {/* Section: INFO LOKASI — Full Address & Nearby Places */}
           {(myAddressData || partnerAddressData) && (
-            <section className="p-4 border-b border-white/10 bg-[#0a0818]/40">
-              <h3 className="font-['Press_Start_2P'] text-[9px] text-[#FF69B4] mb-3 flex items-center gap-2">
-                <span>📍</span> INFO LOKASI
-              </h3>
+            <section className="p-5 border-b border-white/[0.06]">
+              <div className="flex items-center gap-2 mb-4">
+                <Compass className="w-4 h-4 text-[#F472B6]" />
+                <h3 className="text-xs font-semibold text-white/70 tracking-widest uppercase">
+                  Info Lokasi
+                </h3>
+              </div>
 
               {/* My full address */}
               {myAddressData && (
-                <div className="mb-3">
-                  <p className="font-['Press_Start_2P'] text-[7px] text-[#FF69B4] mb-1">📌 LOKASIKU</p>
-                  <div className="bg-black/30 rounded-lg p-2.5 space-y-0.5">
+                <div className="mb-4">
+                  <p className="text-[10px] font-bold text-[#F472B6] tracking-wider uppercase mb-1.5 flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-[#F472B6]" /> Lokasiku
+                  </p>
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 space-y-1">
                     {myAddressData.road && (
-                      <p className="font-['VT323'] text-base text-white leading-tight">
-                        🛣 {myAddressData.houseNumber ? `No. ${myAddressData.houseNumber}, ` : ''}{myAddressData.road}
+                      <p className="text-xs text-white/90 font-medium leading-relaxed">
+                        {myAddressData.houseNumber ? `${myAddressData.houseNumber}, ` : ''}{myAddressData.road}
                       </p>
                     )}
-                    {myAddressData.suburb && <p className="font-['VT323'] text-sm text-white/80">🏘 {myAddressData.suburb}</p>}
-                    {myAddressData.district && <p className="font-['VT323'] text-sm text-white/80">🏙 Kec. {myAddressData.district}</p>}
-                    {myAddressData.city && <p className="font-['VT323'] text-sm text-white/80">🌆 {myAddressData.city}</p>}
-                    {myAddressData.state && <p className="font-['VT323'] text-sm text-white/80">🗺 {myAddressData.state}</p>}
+                    {(myAddressData.suburb || myAddressData.district) && (
+                      <p className="text-xs text-white/60">
+                        {[myAddressData.suburb, myAddressData.district].filter(Boolean).join(', ')}
+                      </p>
+                    )}
+                    {myAddressData.city && <p className="text-xs text-white/50">{myAddressData.city}</p>}
+                    {myAddressData.state && <p className="text-xs text-white/40">{myAddressData.state}</p>}
                     {(myAddressData.postcode || myAddressData.country) && (
-                      <p className="font-['VT323'] text-sm text-white/60">
-                        {myAddressData.postcode && `📮 ${myAddressData.postcode}`}{myAddressData.postcode && myAddressData.country && ' · '}{myAddressData.country && `🌏 ${myAddressData.country}`}
+                      <p className="text-xs text-white/30">
+                        {myAddressData.postcode && `Postal ${myAddressData.postcode}`}{myAddressData.postcode && myAddressData.country && ' · '}{myAddressData.country}
                       </p>
                     )}
                   </div>
 
                   {/* Nearby Places for Me */}
                   {myAddressData.nearbyPlaces.length > 0 && (
-                    <div className="mt-2">
-                      <p className="font-['Press_Start_2P'] text-[6px] text-[#FFD700] mb-1">📍 SEKITAR LOKASIKU</p>
-                      <div className="space-y-1">
+                    <div className="mt-3">
+                      <p className="text-[9px] font-bold text-white/40 tracking-wider uppercase mb-1.5">Sekitar Lokasiku</p>
+                      <div className="space-y-1.5">
                         {myAddressData.nearbyPlaces.map((place, i) => (
-                          <div key={i} className="flex items-start gap-1.5 bg-black/20 rounded px-2 py-1">
-                            <span className="font-['VT323'] text-base text-[#FFD700] shrink-0">◆</span>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-['VT323'] text-sm text-white leading-tight truncate">{place.name}</p>
-                              <p className="font-['VT323'] text-xs text-white/50 leading-none">
-                                {place.type} · ~{place.distanceM}m ke {place.bearing}
-                              </p>
+                          <div key={i} className="flex justify-between items-start bg-white/[0.01] border border-white/[0.04] rounded-lg px-2.5 py-1.5 text-xs text-white/80">
+                            <div className="min-w-0">
+                              <p className="font-medium truncate">{place.name}</p>
+                              <p className="text-[10px] text-white/40">{place.type}</p>
                             </div>
+                            <span className="text-[10px] text-white/50 shrink-0 font-mono">
+                              ~{place.distanceM}m {place.bearing}
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -928,39 +955,44 @@ const MapTracker: React.FC = () => {
 
               {/* Partner full address */}
               {partnerAddressData && (
-                <div>
-                  <p className="font-['Press_Start_2P'] text-[7px] text-[#00FFFF] mb-1">💙 LOKASI DIA</p>
-                  <div className="bg-black/30 rounded-lg p-2.5 space-y-0.5">
+                <div className="mb-4">
+                  <p className="text-[10px] font-bold text-[#06B6D4] tracking-wider uppercase mb-1.5 flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-[#06B6D4]" /> Lokasi Dia
+                  </p>
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 space-y-1">
                     {partnerAddressData.road && (
-                      <p className="font-['VT323'] text-base text-white leading-tight">
-                        🛣 {partnerAddressData.houseNumber ? `No. ${partnerAddressData.houseNumber}, ` : ''}{partnerAddressData.road}
+                      <p className="text-xs text-white/90 font-medium leading-relaxed">
+                        {partnerAddressData.houseNumber ? `${partnerAddressData.houseNumber}, ` : ''}{partnerAddressData.road}
                       </p>
                     )}
-                    {partnerAddressData.suburb && <p className="font-['VT323'] text-sm text-white/80">🏘 {partnerAddressData.suburb}</p>}
-                    {partnerAddressData.district && <p className="font-['VT323'] text-sm text-white/80">🏙 Kec. {partnerAddressData.district}</p>}
-                    {partnerAddressData.city && <p className="font-['VT323'] text-sm text-white/80">🌆 {partnerAddressData.city}</p>}
-                    {partnerAddressData.state && <p className="font-['VT323'] text-sm text-white/80">🗺 {partnerAddressData.state}</p>}
+                    {(partnerAddressData.suburb || partnerAddressData.district) && (
+                      <p className="text-xs text-white/60">
+                        {[partnerAddressData.suburb, partnerAddressData.district].filter(Boolean).join(', ')}
+                      </p>
+                    )}
+                    {partnerAddressData.city && <p className="text-xs text-white/50">{partnerAddressData.city}</p>}
+                    {partnerAddressData.state && <p className="text-xs text-white/40">{partnerAddressData.state}</p>}
                     {(partnerAddressData.postcode || partnerAddressData.country) && (
-                      <p className="font-['VT323'] text-sm text-white/60">
-                        {partnerAddressData.postcode && `📮 ${partnerAddressData.postcode}`}{partnerAddressData.postcode && partnerAddressData.country && ' · '}{partnerAddressData.country && `🌏 ${partnerAddressData.country}`}
+                      <p className="text-xs text-white/30">
+                        {partnerAddressData.postcode && `Postal ${partnerAddressData.postcode}`}{partnerAddressData.postcode && partnerAddressData.country && ' · '}{partnerAddressData.country}
                       </p>
                     )}
                   </div>
 
                   {/* Nearby Places for Partner */}
                   {partnerAddressData.nearbyPlaces.length > 0 && (
-                    <div className="mt-2">
-                      <p className="font-['Press_Start_2P'] text-[6px] text-[#FFD700] mb-1">📍 SEKITAR LOKASINYA</p>
-                      <div className="space-y-1">
+                    <div className="mt-3">
+                      <p className="text-[9px] font-bold text-white/40 tracking-wider uppercase mb-1.5">Sekitar Lokasinya</p>
+                      <div className="space-y-1.5">
                         {partnerAddressData.nearbyPlaces.map((place, i) => (
-                          <div key={i} className="flex items-start gap-1.5 bg-black/20 rounded px-2 py-1">
-                            <span className="font-['VT323'] text-base text-[#00FFFF] shrink-0">◆</span>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-['VT323'] text-sm text-white leading-tight truncate">{place.name}</p>
-                              <p className="font-['VT323'] text-xs text-white/50 leading-none">
-                                {place.type} · ~{place.distanceM}m ke {place.bearing}
-                              </p>
+                          <div key={i} className="flex justify-between items-start bg-white/[0.01] border border-white/[0.04] rounded-lg px-2.5 py-1.5 text-xs text-white/80">
+                            <div className="min-w-0">
+                              <p className="font-medium truncate">{place.name}</p>
+                              <p className="text-[10px] text-white/40">{place.type}</p>
                             </div>
+                            <span className="text-[10px] text-white/50 shrink-0 font-mono">
+                              ~{place.distanceM}m {place.bearing}
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -969,16 +1001,16 @@ const MapTracker: React.FC = () => {
                 </div>
               )}
 
-              {/* Distance between both */}
+              {/* Distance badge */}
               {myCoords && partnerCoords && (() => {
                 const dm = Math.round(calcDistanceM(myCoords.latitude, myCoords.longitude, partnerCoords.latitude, partnerCoords.longitude));
                 const label = dm >= 1000 ? `${(dm / 1000).toFixed(2)} km` : `${dm} m`;
                 const bearing = calcBearingLabel(myCoords.latitude, myCoords.longitude, partnerCoords.latitude, partnerCoords.longitude);
                 return (
-                  <div className="mt-3 p-2.5 bg-[#FF69B4]/10 border border-[#FF69B4]/30 rounded-lg text-center">
-                    <p className="font-['Press_Start_2P'] text-[7px] text-[#FF69B4] mb-1">💕 JARAK KALIAN</p>
-                    <p className="font-['VT323'] text-2xl text-white font-bold">{label}</p>
-                    <p className="font-['VT323'] text-xs text-white/60">Dia berada di arah {bearing} dari kamu</p>
+                  <div className="mt-4 p-3 bg-[#F472B6]/5 border border-[#F472B6]/20 rounded-xl text-center">
+                    <p className="text-[9px] font-bold text-[#F472B6] tracking-widest uppercase mb-1">💕 Jarak Kalian</p>
+                    <p className="text-xl font-semibold text-white tracking-wide">{label}</p>
+                    <p className="text-[10px] text-white/50 mt-0.5">Dia berada di sebelah {bearing} dari posisi Anda</p>
                   </div>
                 );
               })()}
@@ -986,12 +1018,15 @@ const MapTracker: React.FC = () => {
           )}
 
           {/* Section: Tambah Geofence */}
-          <section className="p-4 border-b border-white/10">
-            <h3 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-1 flex items-center gap-2">
-              <Plus className="w-4 h-4" /> TEMPAT PENTING (OPSIONAL)
-            </h3>
-            <p className="font-['VT323'] text-sm text-white/50 mb-3 leading-tight">
-              Daftarkan lokasi (e.g. Rumah/Kampus) untuk memicu notifikasi otomatis saat pasangan tiba/pergi.
+          <section className="p-5 border-b border-white/[0.06]">
+            <div className="flex items-center gap-2 mb-2">
+              <Plus className="w-4 h-4 text-[#F472B6]" />
+              <h3 className="text-xs font-semibold text-white/70 tracking-widest uppercase">
+                Tempat Penting
+              </h3>
+            </div>
+            <p className="text-[11px] text-white/40 leading-normal mb-4">
+              Daftarkan koordinat penting agar mendapatkan pemberitahuan kedatangan/kepergian.
             </p>
 
             <form onSubmit={handleAddGeofenceSubmit} className="space-y-3">
@@ -1002,7 +1037,7 @@ const MapTracker: React.FC = () => {
                   placeholder="Nama Tempat (e.g. Rumah Ogin)"
                   value={gfName}
                   onChange={(e) => setGfName(e.target.value)}
-                  className="w-full px-3 py-1.5 bg-black/40 border border-white/15 rounded text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4]"
+                  className="w-full px-3.5 py-2 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-xs placeholder-white/30 focus:outline-none focus:border-[#F472B6] focus:bg-white/[0.05] transition-all"
                 />
               </div>
 
@@ -1013,7 +1048,7 @@ const MapTracker: React.FC = () => {
                   placeholder="Latitude"
                   value={gfLat}
                   onChange={(e) => setGfLat(e.target.value)}
-                  className="px-3 py-1.5 bg-black/40 border border-white/15 rounded text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4]"
+                  className="w-full px-3.5 py-2 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-xs placeholder-white/30 focus:outline-none focus:border-[#F472B6] focus:bg-white/[0.05] transition-all"
                 />
                 <input
                   type="text"
@@ -1021,64 +1056,67 @@ const MapTracker: React.FC = () => {
                   placeholder="Longitude"
                   value={gfLng}
                   onChange={(e) => setGfLng(e.target.value)}
-                  className="px-3 py-1.5 bg-black/40 border border-white/15 rounded text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4]"
+                  className="w-full px-3.5 py-2 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-xs placeholder-white/30 focus:outline-none focus:border-[#F472B6] focus:bg-white/[0.05] transition-all"
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <label className="font-['VT323'] text-white/50 text-base shrink-0">Radius:</label>
+              <div className="flex items-center gap-2 text-xs">
+                <label className="text-white/40">Radius:</label>
                 <input
                   type="number"
                   required
                   value={gfRadius}
                   onChange={(e) => setGfRadius(e.target.value)}
-                  className="w-20 px-3 py-1 bg-black/40 border border-white/15 rounded text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4]"
+                  className="w-20 px-3 py-1.5 bg-white/[0.03] border border-white/[0.08] rounded-lg text-white text-xs focus:outline-none focus:border-[#F472B6] text-center"
                 />
-                <span className="font-['VT323'] text-white/50 text-base">meter</span>
+                <span className="text-white/40">meter</span>
               </div>
 
               {formError && (
-                <p className="font-['VT323'] text-red-400 text-sm">⚠ {formError}</p>
+                <p className="text-xs text-red-400">⚠ {formError}</p>
               )}
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-2 bg-[#FF69B4] hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed rounded font-['Press_Start_2P'] text-[9px] text-white transition-all shadow-[0_3px_0_#c0486f] active:translate-y-0.5 active:shadow-none"
+                className="w-full py-2.5 bg-[#F472B6] hover:bg-[#EC4899] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-semibold text-white transition-all shadow-[0_2px_10px_rgba(244,114,182,0.15)] active:translate-y-0.5"
               >
-                {isSubmitting ? 'MENYIMPAN...' : '▶ SIMPAN LOKASI'}
+                {isSubmitting ? 'Menyimpan...' : 'Simpan Tempat'}
               </button>
             </form>
           </section>
 
           {/* Section: List Geofence */}
-          <section className="p-4 border-b border-white/10 flex-1 min-h-[150px]">
-            <h3 className="font-['Press_Start_2P'] text-[9px] text-[#00FFFF] mb-3 flex items-center gap-2">
-              <Navigation className="w-4 h-4" /> LOKASI TERDAFTAR ({geofences.length})
-            </h3>
+          <section className="p-5 border-b border-white/[0.06]">
+            <div className="flex items-center gap-2 mb-3">
+              <Navigation className="w-4 h-4 text-[#F472B6]" />
+              <h3 className="text-xs font-semibold text-white/70 tracking-widest uppercase">
+                Tempat Terdaftar ({geofences.length})
+              </h3>
+            </div>
 
             {geofences.length === 0 ? (
-              <p className="font-['VT323'] text-base text-white/40 italic">Belum ada lokasi yang didaftarkan.</p>
+              <p className="text-xs text-white/30 italic">Belum ada lokasi yang didaftarkan.</p>
             ) : (
               <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                 {geofences.map((gf) => (
                   <div
                     key={gf.id}
-                    className="flex justify-between items-center p-2 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                    className="flex justify-between items-center p-2.5 bg-white/[0.02] border border-white/[0.05] rounded-xl hover:bg-white/[0.04] transition-colors"
                   >
-                    <div>
-                      <p className="font-['VT323'] text-lg text-white font-bold leading-tight">{gf.name}</p>
-                      <p className="font-['VT323'] text-xs text-white/50 leading-none mt-1">
-                        Radius: {gf.radius_meters}m | {gf.latitude.toFixed(4)}, {gf.longitude.toFixed(4)}
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-white truncate">{gf.name}</p>
+                      <p className="text-[10px] text-white/40 mt-0.5">
+                        R: {gf.radius_meters}m · {gf.latitude.toFixed(4)}, {gf.longitude.toFixed(4)}
                       </p>
                     </div>
 
                     <button
                       onClick={() => handleDeleteGeofence(gf.id)}
-                      className="p-1.5 text-white/60 hover:text-red-400 rounded transition-colors"
+                      className="p-1.5 text-white/40 hover:text-red-400 rounded-lg hover:bg-white/5 transition-colors shrink-0"
                       title="Hapus"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}
@@ -1087,13 +1125,16 @@ const MapTracker: React.FC = () => {
           </section>
 
           {/* Section: Logs Kehadiran */}
-          <section className="p-4">
-            <h3 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-3 flex items-center gap-2">
-              <History className="w-4 h-4" /> LOG KEHADIRAN TERAKHIR
-            </h3>
+          <section className="p-5 border-b border-white/[0.06]">
+            <div className="flex items-center gap-2 mb-3">
+              <History className="w-4 h-4 text-[#F472B6]" />
+              <h3 className="text-xs font-semibold text-white/70 tracking-widest uppercase">
+                Aktivitas Kehadiran
+              </h3>
+            </div>
 
             {logs.length === 0 ? (
-              <p className="font-['VT323'] text-base text-white/40 italic text-center py-4">Belum ada aktivitas terdeteksi.</p>
+              <p className="text-xs text-white/30 italic text-center py-4">Belum ada aktivitas terdeteksi.</p>
             ) : (
               <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                 {logs.map((log) => {
@@ -1106,16 +1147,16 @@ const MapTracker: React.FC = () => {
                   return (
                     <div
                       key={log.id}
-                      className="p-2.5 bg-black/30 border border-white/5 rounded-lg text-sm flex items-start gap-2 font-['VT323'] text-lg"
+                      className="p-2.5 bg-white/[0.02] border border-white/[0.04] rounded-xl flex items-start gap-2.5"
                     >
-                      <span className="text-xl mt-0.5">{isArrival ? '📥' : '📤'}</span>
-                      <div className="flex-1">
-                        <p className="text-white leading-tight">
-                          <b className="text-[#FF69B4]">{log.profile_name}</b>{' '}
+                      <span className="text-base mt-0.5">{isArrival ? '📥' : '📤'}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-white/80 leading-normal">
+                          <span className="font-semibold text-[#F472B6]">{log.profile_name}</span>{' '}
                           {isArrival ? 'tiba di' : 'pergi dari'}{' '}
-                          <b className="text-[#FFD700]">{log.geofence_name}</b>
+                          <span className="font-semibold text-white">{log.geofence_name}</span>
                         </p>
-                        <p className="text-white/40 text-xs mt-1 flex items-center gap-1">
+                        <p className="text-[10px] text-white/35 mt-1 flex items-center gap-1">
                           <Clock className="w-3 h-3" /> {logTime}
                         </p>
                       </div>
@@ -1126,21 +1167,51 @@ const MapTracker: React.FC = () => {
             )}
           </section>
 
-          {/* Section: Panel Diagnostik (Layout Verification) */}
-          <section className="p-4 border-t border-white/10 bg-black/25">
-            <h3 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-2">
-              🛠 SYSTEM DIAGNOSTICS
-            </h3>
-            <div className="font-['VT323'] text-base space-y-1 text-white/70">
-              <p>Map Container: <span className={diagInfo ? 'text-green-400' : 'text-red-400'}>{diagInfo ? 'FOUND' : 'NOT FOUND'}</span></p>
-              {diagInfo && (
-                <>
-                  <p>Dimensions: <b className="text-white">{diagInfo.width}px x {diagInfo.height}px</b></p>
-                  <p>Layout Status: <span className={diagInfo.height > 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold animate-pulse'}>{diagInfo.height > 0 ? 'OK (READY)' : 'COLLAPSED (0px height)'}</span></p>
-                  <p>Leaflet State: <span className={diagInfo.active ? 'text-green-400' : 'text-red-400'}>{diagInfo.active ? 'ACTIVE' : 'INACTIVE'}</span></p>
-                </>
-              )}
-            </div>
+          {/* Section: Panel Diagnostik (Accordion Collapsible) */}
+          <section className="border-t border-white/[0.06]">
+            <button
+              onClick={() => setIsDiagOpen(!isDiagOpen)}
+              className="w-full p-4 flex justify-between items-center text-left hover:bg-white/[0.02] transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Settings className="w-3.5 h-3.5 text-white/40" />
+                <span className="text-[10px] font-medium text-white/40 tracking-wider uppercase">System Diagnostics</span>
+              </div>
+              <span className="text-white/30 transition-transform duration-200">
+                {isDiagOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </span>
+            </button>
+
+            {isDiagOpen && (
+              <div className="px-4 pb-4 font-mono text-[10px] space-y-1.5 text-white/50 border-t border-white/[0.04] pt-3 bg-black/20">
+                <p className="flex justify-between">
+                  <span>Map Container:</span>
+                  <span className={diagInfo ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
+                    {diagInfo ? 'FOUND' : 'NOT FOUND'}
+                  </span>
+                </p>
+                {diagInfo && (
+                  <>
+                    <p className="flex justify-between">
+                      <span>Dimensions:</span>
+                      <span className="text-white font-semibold">{diagInfo.width}px x {diagInfo.height}px</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span>Layout Status:</span>
+                      <span className={diagInfo.height > 0 ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold animate-pulse'}>
+                        {diagInfo.height > 0 ? 'OK (READY)' : 'COLLAPSED (0px height)'}
+                      </span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span>Leaflet State:</span>
+                      <span className={diagInfo.active ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
+                        {diagInfo.active ? 'ACTIVE' : 'INACTIVE'}
+                      </span>
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
           </section>
           </div>{/* end collapsible content */}
         </div>{/* end sidebar */}
@@ -1163,35 +1234,39 @@ const MapTracker: React.FC = () => {
         }
         /* Leaflet theme overrides */
         .leaflet-container {
-          background: #0c0a18 !important;
+          background: #080b18 !important;
           font-family: inherit;
         }
         .leaflet-bar {
-          border: 2px solid #FF69B4 !important;
-          background-color: #111327 !important;
-          box-shadow: none !important;
-          border-radius: 6px !important;
+          border: 1px solid rgba(255, 255, 255, 0.08) !important;
+          background-color: rgba(10, 13, 31, 0.9) !important;
+          backdrop-filter: blur(8px);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+          border-radius: 12px !important;
           overflow: hidden;
         }
         .leaflet-bar a {
-          background-color: #111327 !important;
-          color: white !important;
-          border-bottom: 1px solid rgba(255, 105, 180, 0.3) !important;
-          transition: background-color 0.2s;
+          background-color: transparent !important;
+          color: rgba(255, 255, 255, 0.7) !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+          transition: all 0.2s;
         }
         .leaflet-bar a:hover {
-          background-color: #FF69B4 !important;
+          background-color: rgba(255, 255, 255, 0.08) !important;
           color: white !important;
         }
         .leaflet-popup-content-wrapper {
-          background: #111327 !important;
-          border: 2px solid #FF69B4 !important;
+          background: rgba(10, 13, 31, 0.95) !important;
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.08) !important;
           color: white !important;
-          border-radius: 12px !important;
-          box-shadow: 0 4px 20px rgba(255, 105, 180, 0.15) !important;
+          border-radius: 16px !important;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
         }
         .leaflet-popup-tip {
-          background: #FF69B4 !important;
+          background: rgba(10, 13, 31, 0.95) !important;
+          border-left: 1px solid rgba(255, 255, 255, 0.08);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
         .leaflet-div-icon {
           background: transparent !important;
@@ -1203,14 +1278,17 @@ const MapTracker: React.FC = () => {
         }
         /* Pink polyline distance tooltip */
         .polyline-distance-label {
-          background: rgba(17, 19, 39, 0.92) !important;
-          border: 1.5px solid #FF69B4 !important;
-          border-radius: 8px !important;
+          background: rgba(10, 13, 31, 0.92) !important;
+          backdrop-filter: blur(4px);
+          border: 1.5px solid #F472B6 !important;
+          border-radius: 10px !important;
           color: #fff !important;
-          font-family: 'VT323', monospace !important;
-          font-size: 14px !important;
-          padding: 2px 8px !important;
-          box-shadow: 0 0 10px rgba(255, 105, 180, 0.3) !important;
+          font-family: inherit !important;
+          font-size: 11px !important;
+          font-weight: 600;
+          letter-spacing: 0.025em;
+          padding: 3px 10px !important;
+          box-shadow: 0 4px 15px rgba(244, 114, 182, 0.2) !important;
           white-space: nowrap;
         }
         .polyline-distance-label::before {
