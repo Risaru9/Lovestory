@@ -35,6 +35,11 @@ const MapTracker: React.FC = () => {
   const [initError, setInitError] = useState<string | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<'granted' | 'prompt' | 'denied'>('prompt');
   const [diagInfo, setDiagInfo] = useState<{ width: number; height: number; active: boolean } | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [myAddress, setMyAddress] = useState<string | null>(null);
+  const [partnerAddress, setPartnerAddress] = useState<string | null>(null);
+  const geocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const partnerGeocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Markers
   const myMarkerRef = useRef<L.Marker | null>(null);
@@ -369,6 +374,43 @@ const MapTracker: React.FC = () => {
   }, [map]);
 
   // =========================================================================
+  // REVERSE GEOCODING (NOMINATIM OSM — NO API KEY REQUIRED)
+  // =========================================================================
+  const reverseGeocode = (lat: number, lng: number, setAddress: (addr: string) => void, timerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=id`,
+          { headers: { 'User-Agent': 'LovestoryApp/1.0' } }
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        const addr = data.display_name as string;
+        // Shorten: take first 2-3 parts before the country
+        const parts = addr.split(',').slice(0, 3).map((s: string) => s.trim());
+        setAddress(parts.join(', '));
+      } catch (e) {
+        console.warn('Reverse geocode failed:', e);
+      }
+    }, 3000);
+  };
+
+  // Trigger reverse geocoding when my coords change
+  useEffect(() => {
+    if (!myCoords) return;
+    setMyAddress('Sedang mengambil alamat...');
+    reverseGeocode(myCoords.latitude, myCoords.longitude, setMyAddress, geocodeTimerRef);
+  }, [myCoords]);
+
+  // Trigger reverse geocoding when partner coords change
+  useEffect(() => {
+    if (!partnerCoords) return;
+    setPartnerAddress('Sedang mengambil alamat...');
+    reverseGeocode(partnerCoords.latitude, partnerCoords.longitude, setPartnerAddress, partnerGeocodeTimerRef);
+  }, [partnerCoords]);
+
+  // =========================================================================
   // RENDER / UPDATE MY MARKER
   // =========================================================================
   useEffect(() => {
@@ -534,7 +576,7 @@ const MapTracker: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0c0a18] text-white flex flex-col relative overflow-hidden">
+    <div className="h-screen bg-[#0c0a18] text-white flex flex-col relative overflow-hidden">
       {/* Live Toasts container */}
       <div className="fixed top-20 right-4 z-[9999] space-y-2 pointer-events-none max-w-sm w-full">
         {toasts.map((t) => (
@@ -578,7 +620,7 @@ const MapTracker: React.FC = () => {
       </header>
 
       {/* Map & Sidebar Wrapper */}
-      <div className="flex-1 flex flex-col lg:flex-row lg:h-[calc(100vh-76px)] lg:overflow-hidden relative">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative min-h-0">
         {/* Map Container */}
         <div className="w-full h-[45vh] lg:flex-1 lg:h-full relative z-10">
           <div ref={mapContainerCallbackRef} className="w-full h-full" />
@@ -625,10 +667,54 @@ const MapTracker: React.FC = () => {
             <p className="font-['VT323'] text-sm text-[#FFD700]">💡 Tips:</p>
             <p className="font-['VT323'] text-xs text-white/70 leading-snug">Klik sembarang tempat pada peta untuk mengambil koordinat Latitude & Longitude otomatis.</p>
           </div>
+
+          {/* Address Overlay — My Location */}
+          {myCoords && (
+            <div className="absolute top-3 left-3 right-3 lg:right-auto lg:max-w-sm bg-[#111327]/90 border border-[#FF69B4]/40 rounded-xl px-3 py-2 pointer-events-none z-[1000] shadow-lg">
+              <p className="font-['Press_Start_2P'] text-[8px] text-[#FF69B4] mb-0.5">📍 LOKASIKU</p>
+              <p className="font-['VT323'] text-sm text-white/90 leading-tight">{myAddress ?? 'Sedang mengambil alamat...'}</p>
+              {partnerCoords && (
+                <>
+                  <div className="my-1.5 border-t border-white/10" />
+                  <p className="font-['Press_Start_2P'] text-[8px] text-[#00FFFF] mb-0.5">💙 LOKASI DIA</p>
+                  <p className="font-['VT323'] text-sm text-white/90 leading-tight">{partnerAddress ?? 'Sedang mengambil alamat...'}</p>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Sidebar Controls */}
-        <div className="w-full lg:w-96 bg-[#111327]/95 border-t-4 lg:border-t-0 lg:border-l-4 border-[#FF69B4]/60 z-20 flex flex-col max-h-[55vh] lg:max-h-full overflow-y-auto">
+        <div className={`w-full bg-[#111327]/95 border-t-4 lg:border-t-0 lg:border-l-4 border-[#FF69B4]/60 z-20 flex flex-col transition-all duration-300 ease-in-out ${
+          isSidebarOpen
+            ? 'lg:w-96 max-h-[55vh] lg:max-h-full overflow-y-auto'
+            : 'lg:w-12 max-h-12 lg:max-h-full overflow-hidden'
+        }`}>
+          {/* Sidebar Toggle Button */}
+          <div className={`flex items-center border-b border-white/10 bg-[#0c0a18]/60 flex-shrink-0 ${
+            isSidebarOpen ? 'justify-between px-4 py-2' : 'justify-center py-3'
+          }`}>
+            {isSidebarOpen && (
+              <span className="font-['Press_Start_2P'] text-[8px] text-[#FF69B4]">⚙ PANEL KONTROL</span>
+            )}
+            <button
+              onClick={() => {
+                const next = !isSidebarOpen;
+                setIsSidebarOpen(next);
+                // Allow CSS transition to finish then recalculate map size
+                setTimeout(() => { map?.invalidateSize(); }, 320);
+              }}
+              className="p-1.5 rounded-lg bg-white/5 hover:bg-[#FF69B4]/20 border border-white/10 text-white/70 hover:text-white transition-all"
+              title={isSidebarOpen ? 'Sembunyikan Panel' : 'Tampilkan Panel'}
+            >
+              <span className="text-sm">{isSidebarOpen ? '▶' : '◀'}</span>
+            </button>
+          </div>
+
+          {/* Collapsible Content */}
+          <div className={`flex flex-col overflow-y-auto transition-all duration-300 ${
+            isSidebarOpen ? 'flex-1 opacity-100' : 'h-0 opacity-0 pointer-events-none'
+          }`}>
           {/* Section: Tambah Geofence */}
           <section className="p-4 border-b border-white/10">
             <h3 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-1 flex items-center gap-2">
@@ -786,7 +872,8 @@ const MapTracker: React.FC = () => {
               )}
             </div>
           </section>
-        </div>
+          </div>{/* end collapsible content */}
+        </div>{/* end sidebar */}
       </div>
 
       <style>{`

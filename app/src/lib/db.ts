@@ -681,26 +681,36 @@ export const getPartnerLocation = async (): Promise<{ name: string; latitude: nu
   const userId = await getCurrentUserId();
   if (!userId) return null;
 
-  const coupleId = await getCoupleId();
-  if (!coupleId) return null;
-
-  const { data: profiles, error } = await supabase
-    .from('profiles')
-    .select('name, latitude, longitude, avatar_url, location_updated_at')
-    .eq('couple_id', coupleId)
-    .neq('id', userId)
+  // Step 1: Find the couple row to determine partnerId
+  const { data: couple, error: coupleError } = await supabase
+    .from('couples')
+    .select('user_a_id, user_b_id')
+    .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
+    .not('connected_at', 'is', null)
     .maybeSingle();
 
-  if (error || !profiles) return null;
+  if (coupleError || !couple) return null;
 
-  if (profiles.latitude === null || profiles.longitude === null) return null;
+  // Step 2: Determine partner's user ID
+  const partnerId = couple.user_a_id === userId ? couple.user_b_id : couple.user_a_id;
+  if (!partnerId) return null;
+
+  // Step 3: Fetch partner's profile directly by their user ID
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('name, latitude, longitude, avatar_url, location_updated_at')
+    .eq('id', partnerId)
+    .maybeSingle();
+
+  if (profileError || !profile) return null;
+  if (profile.latitude === null || profile.longitude === null) return null;
 
   return {
-    name: profiles.name,
-    latitude: profiles.latitude,
-    longitude: profiles.longitude,
-    avatar_url: profiles.avatar_url,
-    location_updated_at: profiles.location_updated_at,
+    name: profile.name,
+    latitude: profile.latitude,
+    longitude: profile.longitude,
+    avatar_url: profile.avatar_url,
+    location_updated_at: profile.location_updated_at,
   };
 };
 
