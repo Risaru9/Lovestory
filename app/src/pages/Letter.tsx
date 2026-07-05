@@ -1,31 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, MailOpen, PenSquare, CheckCircle2, Sparkles } from 'lucide-react';
-
 import { PixelButton } from '@/components/custom/PixelButton';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { saveLetterReply, getLetterReply } from '@/lib/db';
+import { getLoveLetter, saveLoveLetter } from '@/lib/db';
+import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
 
-interface GameState {
-  replyLetter: string;
-}
-
-const LETTER_TEXT = `Sayangku,
-
-Tidak terasa kita sudah menjalani hubungan sejauh ini. Rasanya seperti baru kemarin kita bertemu, tapi sekaligus rasanya sudah mengenalmu seumur hidup.
-
-Setiap hari bersamamu adalah berkat. Setiap tawa yang kita bagikan adalah harta yang tak ternilai. Setiap momen, baik suka maupun duka, telah membuat kita semakin kuat.
-
-Terima kasih untuk cinta kamu yang memang terkadang naik turun, tapi aku memahaminya karena keadaan terkadang tidak selalu seperti yang kita inginkan. Namun, aku tetap berterima kasih dan sangat menghargainya.
-
-Terima kasih untuk dukunganmu di saat-saat sulit. Terima kasih untuk setiap senyum, pelukan, dan kata-kata manis yang selalu membuat hariku lebih cerah.
-
-Aku berjanji akan terus mencintaimu, menghargaimu, dan berusaha menjadi yang terbaik untukmu. Ini bukan akhir, melainkan awal dari perjalanan yang lebih panjang.
-
-Sayang, aku mencintaimu hari ini, besok, dan selamanya.
-
-Dengan segenap cintaku,
-Aku 💕`;
+const DEFAULT_PARTNER_TEXT = `Sayangku,
+Aku belum menulis surat cintaku untukmu di sini...
+Tunggu sebentar ya, aku akan segera menuliskan segenap isi hatiku untukmu di kolom bawah layar HP-ku! 💕`;
 
 const LETTER_SPEED = 18;
 
@@ -33,52 +15,90 @@ const Letter: React.FC = () => {
   const navigate = useNavigate();
   const successTimeoutRef = useRef<number | null>(null);
 
-  const [gameState, setGameState] = useLocalStorage<GameState>('gameState', {
-    replyLetter: '',
-  });
-
-  const [reply, setReply] = useState(gameState.replyLetter || '');
+  const [partnerLetter, setPartnerLetter] = useState(DEFAULT_PARTNER_TEXT);
+  const [myLetter, setMyLetter] = useState('');
+  
+  const [replyInput, setReplyInput] = useState('');
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [visibleChars, setVisibleChars] = useState(0);
   const [skipTyping, setSkipTyping] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Sync letter reply from Supabase on mount
-  useEffect(() => {
-    const syncReply = async () => {
-      try {
-        const cloudReply = await getLetterReply();
-        if (cloudReply) {
-          setGameState((prev) => ({
-            ...prev,
-            replyLetter: cloudReply,
-          }));
-          setReply(cloudReply);
-        }
-      } catch (err) {
-        console.error("Gagal sinkronisasi balasan surat:", err);
+  // Load awal
+  const loadLetterData = async () => {
+    try {
+      const { myLetter: mine, partnerLetter: partner } = await getLoveLetter();
+      setMyLetter(mine);
+      setReplyInput(mine);
+      if (partner.trim()) {
+        setPartnerLetter(partner);
+      } else {
+        setPartnerLetter(DEFAULT_PARTNER_TEXT);
       }
+    } catch (err) {
+      console.error('Error load love letters:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadLetterData();
+  }, []);
+
+  // Realtime subscription agar surat terupdate instan saat pasangan menyimpan surat baru
+  useEffect(() => {
+    if (!isSupabaseConfigured() || !supabase) return;
+
+    const channel = supabase
+      .channel('public:letters:realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'letters',
+        },
+        async () => {
+          console.log('[Realtime] Perubahan surat cinta terdeteksi, memuat ulang...');
+          const { myLetter: mine, partnerLetter: partner } = await getLoveLetter();
+          setMyLetter(mine);
+          if (partner.trim()) {
+            setPartnerLetter(partner);
+            // Reset typing animation agar mengetik ulang jika ada surat baru
+            setVisibleChars(0);
+            setSkipTyping(false);
+          } else {
+            setPartnerLetter(DEFAULT_PARTNER_TEXT);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase?.removeChannel(channel);
     };
-    syncReply();
-  }, [setGameState]);
+  }, []);
 
+  // Animasi Mengetik Surat
   const displayedText = skipTyping
-    ? LETTER_TEXT
-    : LETTER_TEXT.slice(0, visibleChars);
+    ? partnerLetter
+    : partnerLetter.slice(0, visibleChars);
 
-  const isTypingFinished = displayedText.length >= LETTER_TEXT.length;
-  const trimmedReply = reply.trim();
+  const isTypingFinished = displayedText.length >= partnerLetter.length;
+  const trimmedReply = replyInput.trim();
 
   useEffect(() => {
     if (skipTyping) return;
-    if (visibleChars >= LETTER_TEXT.length) return;
+    if (visibleChars >= partnerLetter.length) return;
 
     const timeoutId = window.setTimeout(() => {
       setVisibleChars((prev) => prev + 1);
     }, LETTER_SPEED);
 
     return () => window.clearTimeout(timeoutId);
-  }, [visibleChars, skipTyping]);
+  }, [visibleChars, skipTyping, partnerLetter]);
 
   useEffect(() => {
     return () => {
@@ -88,21 +108,19 @@ const Letter: React.FC = () => {
     };
   }, []);
 
+  // Simpan Surat Kita
   const handleSubmitReply = async () => {
     if (!trimmedReply) return;
 
-    setGameState({
-      ...gameState,
-      replyLetter: trimmedReply,
-    });
-
-    setReply(trimmedReply);
     setIsSubmitted(true);
-
     try {
-      await saveLetterReply(trimmedReply);
+      await saveLoveLetter(trimmedReply);
+      setMyLetter(trimmedReply);
     } catch (err) {
-      console.error("Gagal menyimpan balasan surat:", err);
+      console.error('Gagal menyimpan surat cinta:', err);
+      alert('Gagal menyimpan surat. Silakan coba lagi.');
+      setIsSubmitted(false);
+      return;
     }
 
     if (successTimeoutRef.current) {
@@ -116,16 +134,26 @@ const Letter: React.FC = () => {
   };
 
   const handleEditReply = () => {
-    setReply(gameState.replyLetter || '');
+    setReplyInput(myLetter);
     setIsSubmitted(false);
     setShowReplyForm(true);
   };
 
   const handleCancelReply = () => {
-    setReply(gameState.replyLetter || '');
+    setReplyInput(myLetter);
     setIsSubmitted(false);
     setShowReplyForm(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#16142b] flex items-center justify-center">
+        <p className="font-['Press_Start_2P'] text-xs text-[#FF69B4] animate-pulse">
+          MEMBUKA SEGEL SURAT...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#16142b] text-white">
@@ -142,7 +170,7 @@ const Letter: React.FC = () => {
               LOVE LETTER
             </h1>
             <p className="font-['VT323'] text-base text-white/60 mt-1">
-              A letter from the heart
+              Surat dari lubuk hati terdalam
             </p>
           </div>
 
@@ -155,7 +183,7 @@ const Letter: React.FC = () => {
           <div className="inline-flex items-center gap-2 rounded-full border border-[#FFD700]/20 bg-[#FFD700]/10 px-4 py-2 mb-4">
             <MailOpen className="w-4 h-4 text-[#FFD700]" />
             <span className="font-['VT323'] text-lg text-[#FFD700]">
-              Personal Letter
+              Couple Envelope
             </span>
           </div>
 
@@ -163,11 +191,12 @@ const Letter: React.FC = () => {
             <div className="text-5xl md:text-6xl animate-letter-float">💌</div>
           </div>
 
-          <h2 className="font-['Press_Start_2P'] text-lg md:text-2xl text-white leading-relaxed">
-            A little piece of my heart
+          <h2 className="font-['Press_Start_2P'] text-sm md:text-base text-white leading-relaxed">
+            Surat Cinta Dari Pasanganmu
           </h2>
         </section>
 
+        {/* Kotak Surat dari Pasangan (Mengetik Dinamis) */}
         <section className="relative rounded-[28px] border-4 border-[#8b5a2b] bg-[#f5e9cf] text-[#4a2c11] shadow-[10px_10px_0px_0px_rgba(0,0,0,0.28)] overflow-hidden mb-8">
           <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.12),rgba(255,255,255,0.03))]" />
           <div className="absolute top-5 right-5 flex items-center gap-2 rounded-full border border-[#ff69b4]/20 bg-[#ff69b4]/10 px-3 py-1">
@@ -178,13 +207,13 @@ const Letter: React.FC = () => {
           <div className="relative px-5 py-6 md:px-8 md:py-8">
             <div className="text-center mb-6">
               <h3 className="font-['Press_Start_2P'] text-sm md:text-base text-[#8b5a2b] mb-3">
-                SURAT CINTA
+                SURAT CINTA UNTUKKU
               </h3>
               <div className="w-28 h-[3px] bg-[#8b5a2b]/35 mx-auto rounded-full" />
             </div>
 
             <div className="rounded-2xl border border-[#8b5a2b]/15 bg-[#fff9ee]/45 px-4 py-5 md:px-6 md:py-6">
-              <div className="font-['VT323'] text-xl md:text-2xl leading-relaxed whitespace-pre-line text-[#4a2c11] min-h-[350px]">
+              <div className="font-['VT323'] text-xl md:text-2xl leading-relaxed whitespace-pre-line text-[#4a2c11] min-h-[300px]">
                 {displayedText}
                 {!isTypingFinished && (
                   <span className="inline-block ml-1 animate-caret text-[#8b5a2b]">▌</span>
@@ -210,19 +239,10 @@ const Letter: React.FC = () => {
                 </button>
               )}
             </div>
-
-            <div className="flex justify-center gap-2 mt-6">
-              <span className="text-[#FF69B4] animate-pulse">💕</span>
-              <span className="text-[#FF69B4] animate-pulse" style={{ animationDelay: '0.2s' }}>
-                💕
-              </span>
-              <span className="text-[#FF69B4] animate-pulse" style={{ animationDelay: '0.4s' }}>
-                💕
-              </span>
-            </div>
           </div>
         </section>
 
+        {/* Kotak Menulis Surat Kita */}
         <section className="rounded-[24px] border border-[#FF69B4]/25 bg-[#241f3d]/90 p-5 md:p-6 shadow-[0_0_22px_rgba(255,105,180,0.08)] mb-8">
           <div className="flex items-center gap-3 mb-5">
             <div className="rounded-xl bg-[#FF69B4]/12 p-2 border border-[#FF69B4]/20">
@@ -231,10 +251,10 @@ const Letter: React.FC = () => {
 
             <div>
               <h3 className="font-['Press_Start_2P'] text-xs md:text-sm text-white">
-                BALAS SURAT INI
+                SURAT CINTAKU UNTUKNYA
               </h3>
               <p className="font-['VT323'] text-lg text-white/60 mt-1">
-                Tulis isi hatimu untukku
+                Tuliskan seluruh isi hati terdalammu untuk pasanganmu
               </p>
             </div>
           </div>
@@ -249,7 +269,7 @@ const Letter: React.FC = () => {
                 }}
                 className="rounded-2xl border-2 border-[#FF69B4] bg-[#FF69B4]/10 px-5 py-3 font-['Press_Start_2P'] text-xs md:text-sm text-white hover:bg-[#FF69B4] hover:text-white transition-all duration-200 shadow-[0_0_14px_rgba(255,105,180,0.12)]"
               >
-                💌 TULIS BALASAN
+                💌 {myLetter ? 'EDIT SURAT CINTAKU' : 'TULIS SURAT CINTA'}
               </button>
             </div>
           ) : (
@@ -257,23 +277,22 @@ const Letter: React.FC = () => {
               {!isSubmitted ? (
                 <>
                   <label className="block font-['Press_Start_2P'] text-[10px] md:text-xs text-[#FFD700] mb-3">
-                    BALASANMU
+                    ISI SURATMU
                   </label>
 
                   <textarea
-                    value={reply}
-                    onChange={(e) => setReply(e.target.value)}
-                    placeholder="Tulis isi hatimu di sini..."
-                    className="w-full h-40 rounded-2xl border-2 border-[#FF69B4]/35 bg-[#fff9ee] px-4 py-4 text-[#4a2c11] font-['VT323'] text-xl resize-none focus:outline-none focus:border-[#FFD700] leading-relaxed"
+                    value={replyInput}
+                    onChange={(e) => setReplyInput(e.target.value)}
+                    placeholder="Sayangku... (Tulis surat cintamu di sini)"
+                    className="w-full h-60 rounded-2xl border-2 border-[#FF69B4]/35 bg-[#fff9ee] px-4 py-4 text-[#4a2c11] font-['VT323'] text-xl resize-none focus:outline-none focus:border-[#FFD700] leading-relaxed"
                   />
 
                   <div className="mt-3 flex items-center justify-between gap-4">
                     <p className="font-['VT323'] text-base text-white/50">
-                      {reply.length} karakter
+                      {replyInput.length} karakter
                     </p>
-
                     <p className="font-['VT323'] text-base text-white/50">
-                      {trimmedReply ? 'Siap disimpan' : 'Tulis dulu sebelum kirim'}
+                      {trimmedReply ? 'Siap dikirim' : 'Formulir kosong'}
                     </p>
                   </div>
 
@@ -304,11 +323,11 @@ const Letter: React.FC = () => {
               ) : (
                 <div className="text-center py-3 animate-soft-pop">
                   <CheckCircle2 className="w-10 h-10 text-[#FFD700] mx-auto mb-3" />
-                  <p className="font-['Press_Start_2P'] text-sm md:text-base text-[#FFD700]">
-                    BALASAN TERSIMPAN!
+                  <p className="font-['Press_Start_2P'] text-xs md:text-sm text-[#FFD700]">
+                    SURAT BERHASIL DIKIRIM!
                   </p>
                   <p className="font-['VT323'] text-xl text-white mt-2">
-                    Terima kasih untuk balasannya sayang 💕
+                    Surat cintamu telah disegel dan siap dibaca oleh pasanganmu 💕
                   </p>
                 </div>
               )}
@@ -316,15 +335,15 @@ const Letter: React.FC = () => {
           )}
         </section>
 
-        {gameState.replyLetter && !showReplyForm && (
+        {myLetter && !showReplyForm && (
           <section className="rounded-[24px] border border-[#FF69B4]/30 bg-[#2a2346]/90 p-5 md:p-6 shadow-[0_0_20px_rgba(255,105,180,0.08)]">
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
                 <h3 className="font-['Press_Start_2P'] text-xs md:text-sm text-[#FF69B4]">
-                  PESAN DARIMU
+                  SURAT YANG KU-KIRIM
                 </h3>
                 <p className="font-['VT323'] text-lg text-white/55 mt-1">
-                  Balasan yang sudah tersimpan
+                  Draft surat cinta aktif yang bisa dibaca pasanganmu
                 </p>
               </div>
 
@@ -333,13 +352,13 @@ const Letter: React.FC = () => {
                 onClick={handleEditReply}
                 className="rounded-xl border border-[#FF69B4]/30 bg-[#FF69B4]/10 px-4 py-2 font-['Press_Start_2P'] text-[10px] md:text-xs text-white hover:bg-[#FF69B4] transition-all duration-200"
               >
-                EDIT
+                EDIT SURAT
               </button>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-[#fff9ee] px-4 py-4">
               <p className="font-['VT323'] text-xl text-[#4a2c11] whitespace-pre-line leading-relaxed">
-                {gameState.replyLetter}
+                {myLetter}
               </p>
             </div>
           </section>
@@ -348,42 +367,23 @@ const Letter: React.FC = () => {
 
       <style>{`
         @keyframes letter-float {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-6px);
-          }
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-6px); }
         }
-
         @keyframes caret {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0;
-          }
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
         }
-
         @keyframes soft-pop {
-          0% {
-            opacity: 0;
-            transform: scale(0.96) translateY(6px);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
+          0% { opacity: 0; transform: scale(0.96) translateY(6px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
         }
-
         .animate-letter-float {
           animation: letter-float 2.8s ease-in-out infinite;
         }
-
         .animate-caret {
           animation: caret 0.8s step-end infinite;
         }
-
         .animate-soft-pop {
           animation: soft-pop 0.25s ease-out forwards;
         }

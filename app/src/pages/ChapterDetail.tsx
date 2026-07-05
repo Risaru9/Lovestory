@@ -2,68 +2,43 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { DialogBox } from '@/components/custom/DialogBox';
 import { PixelButton } from '@/components/custom/PixelButton';
-import { chapters, getChapterById } from '@/lib/chapter-data';
-import {
-  getCompletedChapterIds,
-  getUnlockedChapterIdsInOrder,
-  isChapterUnlocked,
-  JOURNEY_PROGRESS_EVENT,
-  markChapterAsCompleted,
-} from '@/lib/progress';
+import { getChapterById, deleteChapter, getChapters } from '@/lib/db';
+import type { Chapter } from '@/types';
 
 const ChapterDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const chapter = getChapterById(Number(id));
-
-  const [completedIds, setCompletedIds] = useState<number[]>(() => getCompletedChapterIds());
+  const [chapter, setChapter] = useState<Chapter | null>(null);
+  const [chaptersList, setChaptersList] = useState<Chapter[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showAchievement, setShowAchievement] = useState(false);
   const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const orderedChapterIds = useMemo(() => chapters.map((item) => item.id), []);
+  // Load Chapter dan List Chapters
+  const loadChapterData = async () => {
+    if (!id) return;
+    setIsLoading(true);
+    try {
+      const allChapters = await getChapters();
+      setChaptersList(allChapters);
+
+      const ch = await getChapterById(Number(id));
+      setChapter(ch);
+    } catch (err) {
+      console.error('Error load chapter detail:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    loadChapterData();
   }, [id]);
 
-  useEffect(() => {
-    const syncProgress = () => {
-      setCompletedIds(getCompletedChapterIds());
-    };
-
-    window.addEventListener('focus', syncProgress);
-    window.addEventListener('storage', syncProgress);
-    window.addEventListener(JOURNEY_PROGRESS_EVENT, syncProgress as EventListener);
-
-    return () => {
-      window.removeEventListener('focus', syncProgress);
-      window.removeEventListener('storage', syncProgress);
-      window.removeEventListener(JOURNEY_PROGRESS_EVENT, syncProgress as EventListener);
-    };
-  }, []);
-
-  const unlockedIds = useMemo(
-    () => getUnlockedChapterIdsInOrder(orderedChapterIds, completedIds),
-    [orderedChapterIds, completedIds]
-  );
-
-  const completedSet = useMemo(() => new Set(completedIds), [completedIds]);
-  const unlockedSet = useMemo(() => new Set(unlockedIds), [unlockedIds]);
-
   const photos = useMemo(() => chapter?.photos ?? [], [chapter]);
-
-  useEffect(() => {
-    if (!chapter) return;
-
-    const currentCompletedIds = getCompletedChapterIds();
-    const unlocked = isChapterUnlocked(orderedChapterIds, chapter.id, currentCompletedIds);
-
-    if (!unlocked) return;
-    if (currentCompletedIds.includes(chapter.id)) return;
-
-    markChapterAsCompleted(chapter.id);
-  }, [chapter?.id, orderedChapterIds]);
 
   useEffect(() => {
     if (activePhotoIndex === null) return;
@@ -104,98 +79,63 @@ const ChapterDetail: React.FC = () => {
     };
   }, [activePhotoIndex]);
 
+  // Hapus Chapter
+  const handleDelete = async () => {
+    if (!chapter) return;
+    if (!window.confirm('Apakah kamu yakin ingin menghapus kisah petualangan ini dari ingatan kita? 😢')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await deleteChapter(chapter.id);
+      navigate('/timeline');
+    } catch (err) {
+      console.error(err);
+      alert('Gagal menghapus kisah. Silakan coba lagi.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#1A1A2E] flex items-center justify-center">
+        <p className="font-['Press_Start_2P'] text-xs text-[#FF69B4] animate-pulse">
+          MEMBACA CATATAN KISAH...
+        </p>
+      </div>
+    );
+  }
+
   if (!chapter) {
     return (
       <div className="min-h-screen bg-[#1A1A2E] flex items-center justify-center px-4">
         <div className="text-center">
           <h1 className="font-['Press_Start_2P'] text-lg md:text-2xl text-white mb-4">
-            Chapter Not Found
+            Kisah Tidak Ditemukan
           </h1>
           <PixelButton onClick={() => navigate('/timeline')}>
-            BACK TO TIMELINE
+            KEMBALI KE TIMELINE
           </PixelButton>
         </div>
       </div>
     );
   }
 
-  const currentIndex = chapters.findIndex((item) => item.id === chapter.id);
-  const prevChapter = currentIndex > 0 ? chapters[currentIndex - 1] : null;
-  const nextChapter = currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
-
-  const chapterUnlocked = unlockedSet.has(chapter.id);
-  const chapterCompleted = completedSet.has(chapter.id);
-  const nextChapterUnlocked = nextChapter ? unlockedSet.has(nextChapter.id) : false;
+  const currentIndex = chaptersList.findIndex((item) => item.id === chapter.id);
+  const prevChapter = currentIndex > 0 ? chaptersList[currentIndex - 1] : null;
+  const nextChapter = currentIndex < chaptersList.length - 1 ? chaptersList[currentIndex + 1] : null;
 
   const currentPhoto = activePhotoIndex !== null ? photos[activePhotoIndex] : null;
-  const previousRequiredChapter = currentIndex > 0 ? chapters[currentIndex - 1] : null;
-
-  if (!chapterUnlocked) {
-    return (
-      <div className="min-h-screen bg-[#1A1A2E] flex items-center justify-center px-4">
-        <div className="max-w-xl w-full text-center bg-[#111327]/90 border-2 border-[#FF69B4]/40 rounded-2xl p-6 md:p-8 shadow-[0_0_24px_rgba(255,105,180,0.15)]">
-          <div className="text-5xl mb-4">🔒</div>
-
-          <h1 className="font-['Press_Start_2P'] text-sm md:text-lg text-white leading-relaxed mb-4">
-            CHAPTER MASIH TERKUNCI
-          </h1>
-
-          <p className="font-['VT323'] text-xl text-white/75 leading-snug mb-6">
-            Selesaikan chapter sebelumnya terlebih dahulu untuk membuka{' '}
-            <span className="text-[#FFD700]">{chapter.title}</span>.
-          </p>
-
-          {previousRequiredChapter && (
-            <div className="mb-6 bg-white/5 border border-white/10 rounded-xl px-4 py-3">
-              <div className="font-['Press_Start_2P'] text-[10px] text-[#00FFFF] mb-2">
-                REQUIRED CHAPTER
-              </div>
-              <div className="font-['VT323'] text-xl text-white">
-                {previousRequiredChapter.title}
-              </div>
-            </div>
-          )}
-
-          <div className="flex justify-center">
-            <PixelButton onClick={() => navigate('/timeline')} size="sm">
-              BACK TO TIMELINE
-            </PixelButton>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const openPhoto = (index: number) => {
-    setActivePhotoIndex(index);
-  };
-
-  const closePhoto = () => {
-    setActivePhotoIndex(null);
-  };
-
-  const showPrevPhoto = () => {
-    if (photos.length === 0) return;
-    setActivePhotoIndex((prev) => {
-      if (prev === null) return 0;
-      return prev === 0 ? photos.length - 1 : prev - 1;
-    });
-  };
-
-  const showNextPhoto = () => {
-    if (photos.length === 0) return;
-    setActivePhotoIndex((prev) => {
-      if (prev === null) return 0;
-      return (prev + 1) % photos.length;
-    });
-  };
 
   return (
     <div className="min-h-screen bg-[#1A1A2E]">
+      {/* Header Sticky */}
       <div className="bg-[#1A1A2E]/90 backdrop-blur-sm border-b-4 border-[#FF69B4] p-4 sticky top-0 z-30">
         <div className="flex justify-between items-center max-w-6xl mx-auto gap-4">
           <PixelButton onClick={() => navigate('/timeline')} variant="secondary" size="sm">
-            ← BACK
+            ← TIMELINE
           </PixelButton>
 
           <div className="text-center">
@@ -203,11 +143,19 @@ const ChapterDetail: React.FC = () => {
               MONTH {chapter.month}
             </h1>
             <p className="font-['VT323'] text-sm text-white/60 mt-1">
-              {currentIndex + 1} / {chapters.length}
+              {currentIndex + 1} / {chaptersList.length}
             </p>
           </div>
 
-          <div className="w-20" />
+          <PixelButton
+            onClick={handleDelete}
+            variant="secondary"
+            size="sm"
+            disabled={isDeleting}
+            className="hover:bg-red-600/20 border-red-500/50 text-red-400"
+          >
+            {isDeleting ? 'MENGHAPUS...' : '🗑 HAPUS'}
+          </PixelButton>
         </div>
       </div>
 
@@ -231,7 +179,7 @@ const ChapterDetail: React.FC = () => {
 
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent p-5">
               <div className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#FFD700] mb-2">
-                CHAPTER HIGHLIGHT
+                KISAH UTAMA
               </div>
               <p className="font-['VT323'] text-lg md:text-xl text-white leading-snug">
                 {chapter.description || 'Satu lagi potongan kisah dari perjalanan kita.'}
@@ -267,7 +215,7 @@ const ChapterDetail: React.FC = () => {
               />
               <div>
                 <p className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#FFD700] mb-1">
-                  ACHIEVEMENT
+                  PENCAPAIAN KITA
                 </p>
                 <p className="font-['VT323'] text-white text-lg leading-snug">
                   {chapter.achievement}
@@ -296,7 +244,7 @@ const ChapterDetail: React.FC = () => {
                   STATUS
                 </div>
                 <p className="font-['VT323'] text-xl text-white">
-                  {chapterCompleted ? 'Completed' : 'Unlocked'}
+                  Completed
                 </p>
               </div>
 
@@ -326,9 +274,6 @@ const ChapterDetail: React.FC = () => {
                   <p className="font-['VT323'] text-lg text-white leading-snug">
                     {nextChapter.title}
                   </p>
-                  <p className="font-['VT323'] text-base mt-1 text-white/60">
-                    {nextChapterUnlocked ? 'Sudah terbuka' : 'Akan terbuka setelah chapter ini selesai'}
-                  </p>
                 </div>
               )}
             </div>
@@ -352,7 +297,7 @@ const ChapterDetail: React.FC = () => {
                   key={photo.id}
                   type="button"
                   className="group relative overflow-hidden rounded-xl border-4 border-[#FF69B4]/55 bg-[#111327] shadow-[0_0_18px_rgba(255,105,180,0.15)]"
-                  onClick={() => openPhoto(index)}
+                  onClick={() => setActivePhotoIndex(index)}
                 >
                   <img
                     src={photo.src}
@@ -410,7 +355,7 @@ const ChapterDetail: React.FC = () => {
       {currentPhoto && (
         <div
           className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center px-4 py-6"
-          onClick={closePhoto}
+          onClick={() => setActivePhotoIndex(null)}
         >
           <div
             className="relative w-full max-w-5xl"
@@ -418,7 +363,7 @@ const ChapterDetail: React.FC = () => {
           >
             <button
               type="button"
-              onClick={closePhoto}
+              onClick={() => setActivePhotoIndex(null)}
               className="absolute -top-12 right-0 font-['Press_Start_2P'] text-xs text-white/80 hover:text-white"
             >
               CLOSE ✕
@@ -428,7 +373,7 @@ const ChapterDetail: React.FC = () => {
               <>
                 <button
                   type="button"
-                  onClick={showPrevPhoto}
+                  onClick={() => setActivePhotoIndex((prev) => (prev === null ? 0 : prev === 0 ? photos.length - 1 : prev - 1))}
                   className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/55 border border-white/20 text-white text-xl"
                 >
                   ‹
@@ -436,7 +381,7 @@ const ChapterDetail: React.FC = () => {
 
                 <button
                   type="button"
-                  onClick={showNextPhoto}
+                  onClick={() => setActivePhotoIndex((prev) => (prev === null ? 0 : (prev + 1) % photos.length))}
                   className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/55 border border-white/20 text-white text-xl"
                 >
                   ›

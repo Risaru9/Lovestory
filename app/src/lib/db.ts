@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient';
+import type { Chapter } from '@/types';
 
 const DB_NAME = 'LovestoryDB';
 const DB_VERSION = 1;
@@ -275,4 +276,251 @@ export const getLetterReply = async (): Promise<string> => {
     return data.reply_text;
   }
   return local;
+};
+
+// =========================================================================
+// PUBLIC API - DYNAMIC CHAPTERS (ADVENTURES)
+// =========================================================================
+export const getChapters = async (): Promise<Chapter[]> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const local = localStorage.getItem('local-chapters');
+    return local ? JSON.parse(local) : [];
+  }
+
+  const coupleId = await getCoupleId();
+  if (!coupleId) return [];
+
+  const { data, error } = await supabase
+    .from('chapters')
+    .select('*')
+    .eq('couple_id', coupleId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Gagal ambil chapters:', error.message);
+    return [];
+  }
+
+  return (data || []).map((item: any, index: number) => ({
+    id: item.id,
+    month: index + 1,
+    title: item.title,
+    date: item.date,
+    description: item.description,
+    story: item.story,
+    achievement: item.achievement,
+    image: item.image_url,
+    unlocked: true,
+    completed: true,
+  }));
+};
+
+export const getChapterById = async (id: number): Promise<Chapter | null> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const list = await getChapters();
+    return list.find((c) => c.id === id) || null;
+  }
+
+  const { data, error } = await supabase
+    .from('chapters')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  // Fetch all chapters to know the month index
+  const list = await getChapters();
+  const index = list.findIndex((c) => c.id === id);
+
+  return {
+    id: data.id,
+    month: index !== -1 ? index + 1 : 1,
+    title: data.title,
+    date: data.date,
+    description: data.description,
+    story: data.story,
+    achievement: data.achievement,
+    image: data.image_url,
+    unlocked: true,
+    completed: true,
+  };
+};
+
+export const addChapter = async (
+  title: string,
+  date: string,
+  description: string,
+  story: string,
+  achievement: string,
+  imageBlob: Blob
+): Promise<Chapter> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const list = await getChapters();
+    const id = Date.now();
+    const newCh: Chapter = {
+      id,
+      month: list.length + 1,
+      title,
+      date,
+      description,
+      story,
+      achievement,
+      image: URL.createObjectURL(imageBlob),
+      unlocked: true,
+      completed: true,
+    };
+    localStorage.setItem('local-chapters', JSON.stringify([...list, newCh]));
+    return newCh;
+  }
+
+  const coupleId = await getCoupleId();
+  if (!coupleId) throw new Error('Couple tidak terhubung.');
+
+  const fileExt = imageBlob.type.split('/')[1] || 'jpg';
+  const idStr = `chapter-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  const fileName = `couples/${coupleId}/chapters/${idStr}.${fileExt}`;
+
+  // Upload image to Supabase Storage
+  const { error: uploadError } = await supabase.storage.from('media').upload(fileName, imageBlob, {
+    contentType: imageBlob.type,
+    cacheControl: '3600',
+    upsert: false,
+  });
+  if (uploadError) throw new Error(`Gagal upload gambar chapter: ${uploadError.message}`);
+
+  const { data: urlData } = supabase.storage.from('media').getPublicUrl(fileName);
+  const publicUrl = urlData.publicUrl;
+
+  // Insert database record
+  const { data, error: dbError } = await supabase
+    .from('chapters')
+    .insert([
+      {
+        couple_id: coupleId,
+        title,
+        date,
+        description,
+        story,
+        achievement,
+        image_url: publicUrl,
+      },
+    ])
+    .select()
+    .single();
+
+  if (dbError || !data) throw new Error(`Gagal simpan data chapter: ${dbError?.message}`);
+
+  const list = await getChapters();
+  return {
+    id: data.id,
+    month: list.length,
+    title: data.title,
+    date: data.date,
+    description: data.description,
+    story: data.story,
+    achievement: data.achievement,
+    image: data.image_url,
+    unlocked: true,
+    completed: true,
+  };
+};
+
+export const deleteChapter = async (id: number): Promise<void> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const list = await getChapters();
+    const updated = list.filter((c) => c.id !== id);
+    localStorage.setItem('local-chapters', JSON.stringify(updated));
+    return;
+  }
+
+  // Get chapter info first to delete storage file (optional, but good practice)
+  const { data: ch } = await supabase.from('chapters').select('image_url').eq('id', id).maybeSingle();
+  if (ch?.image_url) {
+    const pathParts = ch.image_url.split('/media/');
+    if (pathParts.length > 1) {
+      const filePath = pathParts[1];
+      await supabase.storage.from('media').remove([filePath]);
+    }
+  }
+
+  const { error } = await supabase.from('chapters').delete().eq('id', id);
+  if (error) throw new Error(`Gagal menghapus chapter: ${error.message}`);
+};
+
+// =========================================================================
+// PUBLIC API - DYNAMIC LOVE LETTERS (DUA ARAH)
+// =========================================================================
+export const getLoveLetter = async (): Promise<{ myLetter: string; partnerLetter: string }> => {
+  const defaultRes = { myLetter: '', partnerLetter: '' };
+
+  if (!isSupabaseConfigured() || !supabase) {
+    const local = localStorage.getItem('local-love-letter') || '';
+    return { myLetter: local, partnerLetter: 'Fitur partner memerlukan koneksi cloud.' };
+  }
+
+  const userId = await getCurrentUserId();
+  if (!userId) return defaultRes;
+
+  const { data: couple } = await supabase
+    .from('couples')
+    .select('*')
+    .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
+    .maybeSingle();
+
+  if (!couple) return defaultRes;
+
+  const { data: letter } = await supabase
+    .from('letters')
+    .select('*')
+    .eq('couple_id', couple.id)
+    .maybeSingle();
+
+  const isUserA = couple.user_a_id === userId;
+  const myLetter = letter ? (isUserA ? letter.letter_text_a : letter.letter_text_b) : '';
+  const partnerLetter = letter ? (isUserA ? letter.letter_text_b : letter.letter_text_a) : '';
+
+  return {
+    myLetter: myLetter || '',
+    partnerLetter: partnerLetter || '',
+  };
+};
+
+export const saveLoveLetter = async (letterText: string): Promise<void> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    localStorage.setItem('local-love-letter', letterText);
+    return;
+  }
+
+  const userId = await getCurrentUserId();
+  if (!userId) return;
+
+  const { data: couple } = await supabase
+    .from('couples')
+    .select('*')
+    .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
+    .maybeSingle();
+
+  if (!couple) return;
+
+  const isUserA = couple.user_a_id === userId;
+  const updatePayload: any = {
+    couple_id: couple.id,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (isUserA) {
+    updatePayload.letter_text_a = letterText;
+  } else {
+    updatePayload.letter_text_b = letterText;
+  }
+
+  const { error } = await supabase
+    .from('letters')
+    .upsert(updatePayload, { onConflict: 'couple_id' });
+
+  if (error) {
+    console.error('Gagal simpan surat cinta:', error.message);
+    throw error;
+  }
 };
