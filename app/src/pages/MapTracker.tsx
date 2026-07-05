@@ -921,10 +921,10 @@ const MapTracker: React.FC = () => {
         </div>
 
         {/* Sidebar / Bottom Sheet */}
-        <div className={`absolute lg:relative bottom-0 left-0 right-0 lg:bottom-auto lg:left-auto lg:right-auto bg-[#0a0d1f]/95 backdrop-blur-md border-t border-white/[0.07] lg:border-t-0 lg:border-l lg:border-white/[0.07] z-20 flex flex-col transition-all duration-300 ease-in-out ${
+        <div className={`w-full bg-[#0a0d1f]/95 backdrop-blur-sm border-t border-white/[0.07] lg:border-t-0 lg:border-l lg:border-white/[0.07] z-20 flex flex-col transition-all duration-300 ease-in-out ${
           isSidebarOpen
-            ? 'h-[60vh] lg:h-full lg:w-96 translate-y-0'
-            : 'h-[60vh] lg:h-full lg:w-11 translate-y-[calc(100%-44px)] lg:translate-y-0 lg:overflow-hidden'
+            ? 'h-[55vh] lg:h-full lg:w-96'
+            : 'h-12 lg:h-full lg:w-11 overflow-hidden'
         }`}>
           {/* Toggle Header (acting as bottom drawer handle) */}
           <div
