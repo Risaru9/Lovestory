@@ -230,32 +230,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const connectWithCode = async (code: string): Promise<{ error: string | null }> => {
     if (!supabase || !user) return { error: 'Anda harus login terlebih dahulu.' };
 
-    // Cari couple berdasarkan kode
-    const { data: coupleData, error: findError } = await supabase
-      .from('couples')
-      .select('*')
-      .eq('couple_code', code.toUpperCase().trim())
-      .maybeSingle();
+    // Panggil fungsi server-side RPC yang berjalan dengan hak akses tinggi
+    const { data, error: rpcError } = await supabase.rpc('connect_couple', {
+      p_code: code.toUpperCase().trim(),
+    });
 
-    if (findError || !coupleData) return { error: 'Kode tidak ditemukan. Periksa kembali kode yang dimasukkan.' };
-    if (coupleData.user_a_id === user.id) return { error: 'Anda tidak bisa terhubung dengan kode Anda sendiri.' };
-    if (coupleData.user_b_id) return { error: 'Kode ini sudah digunakan oleh orang lain.' };
+    if (rpcError) {
+      console.error('RPC connect_couple error:', rpcError);
+      return { error: `Gagal terhubung: ${rpcError.message}` };
+    }
 
-    // Hubungkan User B ke couple
-    const { error: updateError } = await supabase
-      .from('couples')
-      .update({
-        user_b_id: user.id,
-        connected_at: new Date().toISOString(),
-      })
-      .eq('id', coupleData.id);
+    // Fungsi RPC mengembalikan JSON { success, error?, couple_id?, message? }
+    if (!data || !data.success) {
+      return { error: data?.error || 'Gagal terhubung. Coba lagi.' };
+    }
 
-    if (updateError) return { error: `Gagal terhubung: ${updateError.message}` };
-
-    // Update couple_id di profil keduanya
-    await supabase.from('profiles').update({ couple_id: coupleData.id }).eq('id', user.id);
-    await supabase.from('profiles').update({ couple_id: coupleData.id }).eq('id', coupleData.user_a_id);
-
+    // Refresh data couple setelah berhasil pairing
     await refreshCouple();
     return { error: null };
   };
