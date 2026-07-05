@@ -626,7 +626,7 @@ const Music: React.FC = () => {
   }, [currentSong, isPlaying]);
 
   return (
-    <div className="min-h-screen bg-[#1A1A2E] relative overflow-y-auto flex flex-col items-center py-4">
+    <div className="h-[100dvh] max-h-[100dvh] bg-[#0c0a18] relative flex flex-col overflow-hidden">
       {/* Inline Styles for Animation to ensure they work without separate CSS files */}
       <style>{`
         @keyframes breathe {
@@ -704,55 +704,30 @@ const Music: React.FC = () => {
         onError={(e) => console.log("Audio Error:", e)}
       />
 
-      <div className="w-full max-w-4xl z-10 px-4">
-        
-        {/* Header */}
-        <div className="bg-[#16213E]/90 backdrop-blur-sm border-b-4 border-[#FF69B4] p-3 md:p-4 pixel-shadow mb-4">
-          <div className="flex justify-between items-center w-full">
-            <PixelButton 
-              onClick={() => navigate('/home')} 
-              variant="secondary" 
-              size="sm"
-              className="pixel-btn text-xs"
-            >
-              ← MENU
-            </PixelButton>
+      <header className="sticky top-0 z-40 border-b border-[#1A1A2E] bg-[#080b18]/90 backdrop-blur-md px-4 py-3 w-full">
+        <div className="flex justify-between items-center max-w-4xl mx-auto gap-4">
+          <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px] shrink-0">
+            ← MENU
+          </PixelButton>
 
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 bg-[#FF69B4] animate-pulse" />
-              <h1 className="font-pixel text-xs md:text-sm text-white tracking-wider">
-                8-BIT JUKEBOX
-              </h1>
-              <div className="w-2.5 h-2.5 bg-[#FFD700] animate-pulse" style={{ animationDelay: '0.5s' }} />
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <PixelButton 
-                onClick={() => setShowUploadModal(true)} 
-                size="sm"
-                className="pixel-btn text-[10px] md:text-xs"
-              >
-                + MUSIC
-              </PixelButton>
-              
-              <div className="hidden md:flex items-center gap-1 h-5 w-16 justify-end">
-                {[...Array(6)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      "w-1 bg-[#FF69B4] transition-all duration-150",
-                      isPlaying ? "equalizer-bar" : "h-1"
-                    )}
-                    style={{ 
-                      height: isPlaying ? undefined : '3px',
-                      animationDelay: `${i * 0.1}s`
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
+          <div className="text-center">
+            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-white leading-none">
+              8-BIT JUKEBOX
+            </h1>
+            <p className="font-['VT323'] text-xs text-white/50 mt-1 tracking-wider hidden sm:block">
+              Koleksi lagu kencan pilihan kita
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <PixelButton onClick={() => setShowUploadModal(true)} variant="primary" size="sm" className="text-[9px]">
+              + MUSIC
+            </PixelButton>
           </div>
         </div>
+      </header>
+
+      <div className="flex-1 w-full max-w-4xl mx-auto px-4 py-6 overflow-y-auto z-10">
 
         {/* Content */}
         <div className="flex justify-between items-end mb-4 px-2">
@@ -783,11 +758,11 @@ const Music: React.FC = () => {
           />
         </div>
 
-        <div className="bg-[#16213E]/95 backdrop-blur-md border-4 border-[#0F3460] p-4 md:p-5 mb-5 pixel-shadow-lg relative">
-          <div className="absolute -top-2 -left-2 w-3 h-3 bg-[#FF69B4] animate-pulse" />
-          <div className="absolute -top-2 -right-2 w-3 h-3 bg-[#FF69B4] animate-pulse" style={{ animationDelay: '0.5s' }} />
-          <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-[#FFD700] animate-pulse" style={{ animationDelay: '1s' }} />
-          <div className="absolute -bottom-2 -right-2 w-3 h-3 bg-[#FFD700] animate-pulse" style={{ animationDelay: '1.5s' }} />
+        <div className="bg-[#090b1e]/95 backdrop-blur-md border-4 border-[#1a1a2e] p-4 md:p-5 mb-5 shadow-[4px_4px_0_#FF69B4,inset_-4px_-4px_0_rgba(0,0,0,0.2)] relative rounded-2xl">
+          <div className="absolute -top-1.5 -left-1.5 w-2 h-2 bg-[#FF69B4] animate-pulse" />
+          <div className="absolute -top-1.5 -right-1.5 w-2 h-2 bg-[#FF69B4] animate-pulse" style={{ animationDelay: '0.5s' }} />
+          <div className="absolute -bottom-1.5 -left-1.5 w-2 h-2 bg-[#FFD700] animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute -bottom-1.5 -right-1.5 w-2 h-2 bg-[#FFD700] animate-pulse" style={{ animationDelay: '1.5s' }} />
 
           <div className="flex flex-col md:flex-row items-center gap-5">
             <div className="relative flex-shrink-0">
@@ -798,26 +773,29 @@ const Music: React.FC = () => {
             </div>
 
             <div className="flex-1 text-center md:text-left w-full">
-              <h2 className="font-pixel text-xs md:text-sm text-white mb-1.5 truncate leading-relaxed">
-                {currentSong ? currentSong.title : 'SELECT A SONG'}
+              <h2 className="font-pixel text-[9px] md:text-[10px] text-white/50 mb-1 tracking-wider uppercase">
+                {currentSong ? 'NOW PLAYING' : 'SELECT A SONG'}
               </h2>
+              <h3 className="font-pixel text-xs md:text-sm text-white mb-1.5 truncate leading-relaxed">
+                {currentSong ? currentSong.title : '---'}
+              </h3>
               <p className="font-retro text-xl md:text-2xl text-[#FFD700] mb-3">
                 {currentSong ? currentSong.artist : '---'}
               </p>
               
               <div className="mb-4">
                 <div 
-                  className="h-5 bg-[#0F3460] border-2 border-[#E94560] cursor-pointer relative overflow-hidden pixel-shadow progress-bar"
+                  className="h-5 bg-black/40 border-2 border-white/10 cursor-pointer relative overflow-hidden pixel-shadow progress-bar rounded-lg"
                   onClick={handleProgressBarClick}
                 >
                   <div 
-                    className="h-full bg-gradient-to-r from-[#FF69B4] to-[#E94560] transition-all duration-100 relative"
+                    className="h-full bg-[#FF69B4] transition-all duration-100 relative"
                     style={{ width: `${progress}%` }}
                   >
                     <div className="absolute right-0 top-0 bottom-0 w-2.5 bg-[#FFD700] border-l-2 border-white" />
                   </div>
                 </div>
-                <div className="flex justify-between mt-1.5 font-retro text-sm text-[#E94560]">
+                <div className="flex justify-between mt-1.5 font-retro text-sm text-[#FF69B4]">
                   <span>{formatTime(currentTime)}</span>
                   <span>{currentSong ? formatTime(duration) : '0:00'}</span>
                 </div>
@@ -870,7 +848,7 @@ const Music: React.FC = () => {
                 
                 {showVolumeSlider && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 z-50">
-                    <div className="bg-[#16213E] border-2 border-[#E94560] p-2 pixel-shadow">
+                    <div className="bg-[#090b1e] border-2 border-[#1a1a2e] p-2 rounded-xl shadow-lg">
                       <input
                         type="range"
                         min="0"
@@ -881,7 +859,7 @@ const Music: React.FC = () => {
                           setVolume(parseFloat(e.target.value));
                           setIsMuted(false);
                         }}
-                        className="w-24 h-2.5"
+                        className="w-24 h-2.5 cursor-pointer accent-[#FF69B4]"
                         style={{ background: `linear-gradient(to right, #FF69B4 ${volume * 100}%, #0F3460 ${volume * 100}%)` }}
                       />
                       <div className="text-center mt-1 font-retro text-[10px] text-[#FFD700]">
@@ -896,32 +874,30 @@ const Music: React.FC = () => {
           </div>
 
           <div className="mt-5 relative">
-            <div className="absolute -top-1.5 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#E94560] to-transparent" />
             <canvas 
               ref={visualizerRef}
               width={500}
               height={64}
-              className="w-full h-16 bg-[#0F3460] border-2 border-[#E94560] pixel-shadow"
+              className="w-full h-12 bg-black/40 border-2 border-white/10 rounded-xl"
               style={{ imageRendering: 'pixelated' }}
             />
-            <div className="absolute -bottom-1.5 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#E94560] to-transparent" />
           </div>
         </div>
 
-        <div className="bg-[#16213E]/95 backdrop-blur-md border-4 border-[#0F3460] p-3 md:p-4 pixel-shadow">
-          <div className="flex items-center justify-between mb-3 border-b-2 border-[#E94560] pb-2">
-            <h3 className="font-pixel text-[10px] md:text-xs text-[#FFD700]">
-              PLAYLIST ({allSongs.length} TRACKS)
+        <div className="bg-[#090b1e]/95 border-4 border-[#1a1a2e] p-4 shadow-[4px_4px_0_#FFD700] rounded-2xl mb-8">
+          <div className="flex items-center justify-between mb-4 border-b border-white/[0.08] pb-2">
+            <h3 className="font-pixel text-[9px] text-[#FFD700] tracking-wide">
+              💿 PLAYLIST ({allSongs.length} CASSETTES)
             </h3>
             <div className="flex items-center gap-3">
               {isShuffle && (
-                <span className="font-retro text-xs text-[#FF69B4] animate-pulse">
-                  SHUFFLE ON
+                <span className="font-pixel text-[8px] text-[#FF69B4] animate-pulse">
+                  SHUFFLE
                 </span>
                )}
                {repeatMode !== 'none' && (
-                <span className="font-retro text-xs text-[#FFD700]">
-                  REPEAT: {repeatMode.toUpperCase()}
+                <span className="font-pixel text-[8px] text-[#00FFFF] tracking-wider">
+                  LOOP
                 </span>
                )}
             </div>
@@ -939,13 +915,13 @@ const Music: React.FC = () => {
                   onMouseEnter={() => setHoveredSong(index)}
                   onMouseLeave={() => setHoveredSong(null)}
                   className={cn(
-                    'flex items-center gap-3 p-2 md:p-3 cursor-pointer transition-all border-2 pixel-btn',
+                    'flex items-center gap-3 p-2 cursor-pointer transition-all border-2 rounded-xl relative overflow-hidden',
                     isActive
-                      ? 'bg-[#E94560] border-[#FFD700]'
-                      : 'bg-[#0F3460] border-[#1A1A2E] hover:border-[#E94560] hover:bg-[#16213E]'
+                      ? 'bg-[#E94560]/20 border-[#FFD700] shadow-[2px_2px_0_#1a1a2e]'
+                      : 'bg-[#0F3460]/40 border-white/5 hover:border-[#FF69B4]/40 hover:bg-[#0F3460]/75'
                   )}
                 >
-                  <div className="w-8 h-8 flex items-center justify-center bg-[#1A1A2E] border-2 border-[#E94560] flex-shrink-0">
+                  <div className="w-8 h-8 flex items-center justify-center bg-black/40 border border-white/10 rounded flex-shrink-0 relative">
                     {isActive && isPlaying ? (
                       <div className="flex gap-0.5 items-end h-3">
                         <div className="w-0.5 bg-[#FFD700] equalizer-bar" style={{ height: '60%', animationDelay: '0s' }} />
@@ -953,23 +929,23 @@ const Music: React.FC = () => {
                         <div className="w-0.5 bg-[#FFD700] equalizer-bar" style={{ height: '40%', animationDelay: '0.2s' }} />
                       </div>
                     ) : (
-                      <span className={cn("font-pixel text-[10px]", isActive ? 'text-[#FFD700]' : 'text-[#E94560]')}>
-                        {(index + 1).toString().padStart(2, '0')}
+                      <span className={cn("text-base select-none", isActive ? 'text-[#FFD700]' : 'text-white/40')}>
+                        📼
                       </span>
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className={cn('font-retro text-base md:text-lg truncate', isActive ? 'text-white' : 'text-[#E94560]')}>
+                    <p className={cn('font-pixel text-[9px] uppercase tracking-wide truncate', isActive ? 'text-[#FFD700]' : 'text-white/80')}>
                       {song.title}
                     </p>
-                    <p className="font-retro text-xs text-[#8B8B8B] truncate">
+                    <p className="font-retro text-base text-white/50 truncate">
                       {song.artist}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="font-retro text-xs text-[#8B8B8B]">
+                    <span className="font-retro text-sm text-white/45">
                       {song.duration}
                     </span>
                     {isHovered && !isActive && (

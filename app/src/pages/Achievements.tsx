@@ -39,26 +39,54 @@ const rarityStyles: Record<
     glow: string;
     badge: string;
     label: string;
+    emoji: string;
   }
 > = {
   common: {
-    border: 'border-white/15',
-    glow: 'shadow-[0_0_18px_rgba(255,255,255,0.04)]',
+    border: 'border-white/10',
+    glow: 'hover:shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:border-white/20',
     badge: 'bg-white/10 text-white/80 border border-white/10',
     label: 'COMMON',
+    emoji: '🥉',
   },
   rare: {
-    border: 'border-[#00FFFF]/30',
-    glow: 'shadow-[0_0_22px_rgba(0,255,255,0.10)]',
+    border: 'border-[#00FFFF]/20',
+    glow: 'hover:shadow-[0_0_20px_rgba(0,255,255,0.08)] hover:border-[#00FFFF]/40',
     badge: 'bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/20',
     label: 'RARE',
+    emoji: '🥈',
   },
   legendary: {
-    border: 'border-[#FFD700]/35',
-    glow: 'shadow-[0_0_24px_rgba(255,215,0,0.12)]',
+    border: 'border-[#FFD700]/30',
+    glow: 'hover:shadow-[0_0_25px_rgba(255,215,0,0.12)] hover:border-[#FFD700]/50',
     badge: 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20',
     label: 'LEGENDARY',
+    emoji: '🥇',
   },
+};
+
+const playUnlockSound = () => {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = 'square';
+    
+    osc.frequency.setValueAtTime(659.25, ctx.currentTime);
+    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.08);
+    
+    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.005, ctx.currentTime + 0.25);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + 0.25);
+  } catch (e) {
+    console.warn("AudioContext blocked or not supported:", e);
+  }
 };
 
 const Achievements: React.FC = () => {
@@ -108,178 +136,165 @@ const Achievements: React.FC = () => {
   const completedCount = achievementItems.length;
 
   return (
-    <div className="min-h-screen bg-[#1A1A2E]">
+    <div className="h-[100dvh] max-h-[100dvh] bg-[#0c0a18] text-white flex flex-col relative overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,105,180,0.06),_transparent_40%)]" />
+      </div>
+
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-[#1A1A2E]/90 backdrop-blur-sm border-b-4 border-[#FF69B4] p-4">
+      <header className="sticky top-0 z-40 border-b border-[#1A1A2E] bg-[#080b18]/90 backdrop-blur-md px-4 py-3 w-full">
         <div className="max-w-7xl mx-auto flex justify-between items-center gap-4">
-          <PixelButton onClick={() => navigate('/timeline')} variant="secondary" size="sm">
+          <PixelButton onClick={() => navigate('/timeline')} variant="secondary" size="sm" className="text-[9px] shrink-0">
             ← TIMELINE
           </PixelButton>
 
           <div className="text-center">
-            <h1 className="font-['Press_Start_2P'] text-sm md:text-lg text-white">
+            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-white leading-none">
               ACHIEVEMENTS
             </h1>
-            <p className="font-['VT323'] text-sm md:text-base text-white/60 mt-1">
+            <p className="font-['VT323'] text-xs text-white/50 mt-1 tracking-wider hidden sm:block">
               Koleksi pencapaian kisah petualangan kita
             </p>
           </div>
 
-          <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm">
+          <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px] shrink-0">
             MENU
           </PixelButton>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-6 overflow-y-auto z-10">
         {isLoading ? (
           <div className="text-center py-20">
-            <p className="font-['Press_Start_2P'] text-xs text-[#FF69B4] animate-pulse">
+            <p className="font-['Press_Start_2P'] text-[9px] text-[#FF69B4] animate-pulse">
               MEMBUKA KOTAK PENCAPAIAN...
             </p>
           </div>
         ) : (
           <>
-            <section className="mb-8 rounded-2xl border border-[#FF69B4]/25 bg-[#111327]/90 p-5 md:p-6 shadow-[0_0_24px_rgba(255,105,180,0.08)]">
-              <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-6 items-center">
+            {/* Banner Section */}
+            <section className="mb-6 rounded-2xl border border-white/[0.06] bg-[#111327]/80 p-4 sm:p-5 shadow-lg">
+              <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 items-center">
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[#FFD700]/20 bg-[#FFD700]/10 px-3 py-1 mb-4">
-                    <Trophy className="w-4 h-4 text-[#FFD700]" />
-                    <span className="font-['VT323'] text-lg text-[#FFD700]">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[#FFD700]/20 bg-[#FFD700]/10 px-3 py-0.5 mb-2">
+                    <Trophy className="w-3.5 h-3.5 text-[#FFD700]" />
+                    <span className="font-['VT323'] text-sm text-[#FFD700] uppercase tracking-wider">
                       Journey Rewards
                     </span>
                   </div>
 
-                  <h2 className="font-['Press_Start_2P'] text-lg md:text-xl text-white leading-relaxed">
+                  <h2 className="font-['Press_Start_2P'] text-[10px] sm:text-xs leading-relaxed text-white tracking-wide">
                     Setiap kisah manis adalah pencapaian berharga
                   </h2>
 
-                  <p className="font-['VT323'] text-xl text-white/70 mt-4 leading-snug max-w-3xl">
-                    Halaman ini menampilkan seluruh piala pencapaian (achievement) dari kisah petualangan yang telah kalian tulis bersama. Setiap kenangan berhak mendapatkan lencana cintanya masing-masing.
+                  <p className="font-['VT323'] text-sm sm:text-base text-white/60 mt-2 leading-relaxed">
+                    Halaman ini menampilkan seluruh piala pencapaian dari kisah petualangan yang telah kalian tulis bersama. Setiap kenangan memiliki lencana cintanya masing-masing. Ketuk piala untuk detail petualangan lengkap.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-4">
-                    <div className="font-['Press_Start_2P'] text-[10px] text-white/50 mb-2">
-                      TOTAL
-                    </div>
-                    <div className="font-['VT323'] text-3xl text-white">
-                      {totalCount}
-                    </div>
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="rounded-xl border border-white/[0.05] bg-[#090b1e]/80 p-3 text-center">
+                    <div className="font-['Press_Start_2P'] text-[7px] text-white/40">TOTAL</div>
+                    <div className="mt-1 font-['VT323'] text-2xl text-white leading-none">{totalCount}</div>
                   </div>
 
-                  <div className="rounded-xl border border-[#00FFFF]/20 bg-[#00FFFF]/8 px-4 py-4">
-                    <div className="font-['Press_Start_2P'] text-[10px] text-[#00FFFF] mb-2">
-                      UNLOCKED
-                    </div>
-                    <div className="font-['VT323'] text-3xl text-white">
-                      {unlockedCount}
-                    </div>
+                  <div className="rounded-xl border border-white/[0.05] bg-[#090b1e]/80 p-3 text-center">
+                    <div className="font-['Press_Start_2P'] text-[7px] text-white/40">UNLOCKED</div>
+                    <div className="mt-1 font-['VT323'] text-2xl text-[#00FFFF] leading-none">{unlockedCount}</div>
                   </div>
 
-                  <div className="rounded-xl border border-[#32CD32]/20 bg-[#32CD32]/8 px-4 py-4">
-                    <div className="font-['Press_Start_2P'] text-[10px] text-[#32CD32] mb-2">
-                      COMPLETED
-                    </div>
-                    <div className="font-['VT323'] text-3xl text-white">
-                      {completedCount}
-                    </div>
+                  <div className="rounded-xl border border-white/[0.05] bg-[#090b1e]/80 p-3 text-center">
+                    <div className="font-['Press_Start_2P'] text-[7px] text-white/40">COMPLETED</div>
+                    <div className="mt-1 font-['VT323'] text-2xl text-[#32CD32] leading-none">{completedCount}</div>
                   </div>
                 </div>
               </div>
             </section>
 
-            <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredItems.map((item) => {
                 const rarity = rarityStyles[item.rarity];
 
                 return (
                   <div
                     key={item.id}
+                    onClick={() => {
+                      playUnlockSound();
+                      navigate(`/chapter/${item.id}`);
+                    }}
                     className={[
-                      'rounded-2xl border bg-[#111327]/90 overflow-hidden transition-all duration-300',
+                      'rounded-2xl border-2 bg-[#090b1e]/90 overflow-hidden transition-all duration-200 hover:-translate-y-1 cursor-pointer relative shadow-md',
                       rarity.border,
                       rarity.glow,
                     ].join(' ')}
                   >
-                    <div className="relative h-52 overflow-hidden border-b border-white/10 bg-black">
+                    <div className="relative h-44 overflow-hidden border-b border-white/[0.08] bg-black/40">
                       <img
                         src={item.image}
                         alt={item.title}
                         className="w-full h-full object-cover"
                       />
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
-                      <div className="absolute top-3 left-3 flex items-center gap-2">
-                        <span className={`rounded-full px-3 py-1 text-[10px] font-['Press_Start_2P'] ${rarity.badge}`}>
-                          {rarity.label}
+                      <div className="absolute top-3 left-3 flex items-center gap-2 select-none">
+                        <span className={`rounded-lg px-2 py-0.5 text-[7px] font-['Press_Start_2P'] tracking-wider ${rarity.badge}`}>
+                          {rarity.emoji} {rarity.label}
                         </span>
                       </div>
 
-                      <div className="absolute top-3 right-3">
-                        <div className="flex items-center gap-1 rounded-full border border-[#32CD32]/25 bg-[#32CD32]/10 px-3 py-1">
-                          <CheckCircle2 className="w-4 h-4 text-[#32CD32]" />
-                          <span className="font-['VT323'] text-base text-[#32CD32]">
-                            Completed
+                      <div className="absolute top-3 right-3 select-none">
+                        <div className="flex items-center gap-1.5 rounded-lg border border-[#32CD32]/30 bg-[#32CD32]/10 px-2 py-0.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#32CD32]" />
+                          <span className="font-['VT323'] text-xs text-[#32CD32] uppercase tracking-wider">
+                            Unlocked
                           </span>
                         </div>
                       </div>
 
-                      <div className="absolute inset-x-0 bottom-0 p-4">
-                        <div className="font-['Press_Start_2P'] text-[10px] text-[#FFD700] mb-2">
+                      <div className="absolute inset-x-0 bottom-0 p-3 select-none">
+                        <div className="font-['Press_Start_2P'] text-[7px] text-[#FFD700] mb-1">
                           MONTH {item.month}
                         </div>
-                        <h3 className="font-['VT323'] text-2xl text-white leading-tight">
+                        <h3 className="font-['Press_Start_2P'] text-[10px] text-white leading-normal uppercase tracking-wide truncate">
                           {item.title}
                         </h3>
                       </div>
                     </div>
 
-                    <div className="p-5">
-                      <div className="mb-3">
-                        <div className="font-['Press_Start_2P'] text-[10px] text-white/50 mb-2">
+                    <div className="p-4">
+                      <div className="mb-2">
+                        <div className="font-['Press_Start_2P'] text-[7px] text-white/40 mb-1 select-none">
                           PENCAPAIAN
                         </div>
-                        <p className="font-['VT323'] text-xl text-white leading-snug">
+                        <p className="font-['VT323'] text-lg text-[#FFD700] leading-snug line-clamp-1">
                           {item.achievement}
                         </p>
                       </div>
 
-                      <div className="mb-4">
-                        <div className="font-['Press_Start_2P'] text-[10px] text-white/50 mb-2">
-                          TANGGAL MENDAPATKAN
-                        </div>
-                        <p className="font-['VT323'] text-lg text-white/75">
-                          {item.date}
-                        </p>
-                      </div>
-
-                      <div className="mb-5">
-                        <div className="font-['Press_Start_2P'] text-[10px] text-white/50 mb-2">
+                      <div className="mb-3">
+                        <div className="font-['Press_Start_2P'] text-[7px] text-white/40 mb-1 select-none">
                           HIGHLIGHT MOMEN
                         </div>
-                        <p className="font-['VT323'] text-lg text-white/75 leading-snug">
+                        <p className="font-['VT323'] text-base text-white/60 leading-snug line-clamp-2">
                           {item.description}
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-[#FFD700]" />
-                          <span className="font-['VT323'] text-lg text-white/70">
+                      <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/[0.04]">
+                        <div className="flex items-center gap-1.5 select-none">
+                          <Star className="w-3.5 h-3.5 text-[#FFD700] fill-current animate-pulse" />
+                          <span className="font-['VT323'] text-base text-white/50">
                             Reward Collected
                           </span>
                         </div>
 
                         <button
                           type="button"
-                          onClick={() => navigate(`/chapter/${item.id}`)}
-                          className="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition-all duration-200 font-['Press_Start_2P'] text-[10px] bg-[#FF69B4] text-white hover:bg-[#ff58ae]"
+                          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-100 font-['Press_Start_2P'] text-[8px] bg-[#FF69B4] text-white hover:brightness-110 active:scale-95 shadow-sm"
                         >
                           BUKA
-                          <ArrowRight className="w-3.5 h-3.5" />
+                          <ArrowRight className="w-3 h-3" />
                         </button>
                       </div>
                     </div>
@@ -290,11 +305,11 @@ const Achievements: React.FC = () => {
 
             {filteredItems.length === 0 && (
               <div className="text-center py-20">
-                <Trophy className="w-14 h-14 text-white/20 mx-auto mb-4" />
-                <p className="font-['Press_Start_2P'] text-[9px] text-white/40 mb-2">
-                  BELUM ADA PENCAPAIAN YAK ter-UNLOCK
+                <Trophy className="w-12 h-12 text-white/20 mx-auto mb-3 animate-pulse" />
+                <p className="font-['Press_Start_2P'] text-[9px] text-white/35 mb-2">
+                  BELUM ADA PENCAPAIAN TERBUKA
                 </p>
-                <p className="font-['VT323'] text-xl text-white/30">
+                <p className="font-['VT323'] text-lg text-white/40">
                   Tulis kisah petualangan cinta kalian di timeline untuk memunculkan lencana di sini!
                 </p>
               </div>
