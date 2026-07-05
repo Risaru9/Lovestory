@@ -83,6 +83,7 @@ const Home: React.FC = () => {
       { label: 'MINI GAME', path: '/game', icon: '🎮', enabled: true },
       { label: 'LETTER', path: '/letter', icon: '💌', enabled: true },
       { label: 'DATE PLANNER', path: '/dateplanner', icon: '📅', enabled: true },
+      { label: 'LOCATION TRACKER', path: '/map', icon: '📍', enabled: true },
     ],
     []
   );

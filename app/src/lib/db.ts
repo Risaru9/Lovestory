@@ -645,3 +645,187 @@ export const deleteDatePlan = async (id: number): Promise<void> => {
 
   if (error) throw new Error(`Gagal menghapus rencana kencan: ${error.message}`);
 };
+
+// =========================================================================
+// PUBLIC API - REALTIME LOCATION TRACKER & GEOFENCING
+// =========================================================================
+export const updateLocation = async (latitude: number, longitude: number): Promise<void> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    localStorage.setItem('local-my-location', JSON.stringify({ latitude, longitude, time: new Date().toISOString() }));
+    return;
+  }
+
+  const userId = await getCurrentUserId();
+  if (!userId) return;
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      latitude,
+      longitude,
+      location_updated_at: new Date().toISOString(),
+    })
+    .eq('id', userId);
+
+  if (error) {
+    console.error('Gagal update lokasi:', error.message);
+  }
+};
+
+export const getPartnerLocation = async (): Promise<{ name: string; latitude: number; longitude: number; avatar_url: string | null; location_updated_at: string | null } | null> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const local = localStorage.getItem('local-partner-location');
+    return local ? JSON.parse(local) : null;
+  }
+
+  const userId = await getCurrentUserId();
+  if (!userId) return null;
+
+  const coupleId = await getCoupleId();
+  if (!coupleId) return null;
+
+  const { data: profiles, error } = await supabase
+    .from('profiles')
+    .select('name, latitude, longitude, avatar_url, location_updated_at')
+    .eq('couple_id', coupleId)
+    .neq('id', userId)
+    .maybeSingle();
+
+  if (error || !profiles) return null;
+
+  if (profiles.latitude === null || profiles.longitude === null) return null;
+
+  return {
+    name: profiles.name,
+    latitude: profiles.latitude,
+    longitude: profiles.longitude,
+    avatar_url: profiles.avatar_url,
+    location_updated_at: profiles.location_updated_at,
+  };
+};
+
+export const getGeofences = async (): Promise<any[]> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const local = localStorage.getItem('local-geofences');
+    return local ? JSON.parse(local) : [];
+  }
+
+  const coupleId = await getCoupleId();
+  if (!coupleId) return [];
+
+  const { data, error } = await supabase
+    .from('geofences')
+    .select('*')
+    .eq('couple_id', coupleId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Gagal ambil geofences:', error.message);
+    return [];
+  }
+
+  return data || [];
+};
+
+export const addGeofence = async (name: string, latitude: number, longitude: number, radiusMeters = 100): Promise<any> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const list = await getGeofences();
+    const newG = { id: Date.now(), name, latitude, longitude, radius_meters: radiusMeters, created_at: new Date().toISOString() };
+    localStorage.setItem('local-geofences', JSON.stringify([newG, ...list]));
+    return newG;
+  }
+
+  const coupleId = await getCoupleId();
+  if (!coupleId) throw new Error('Couple tidak terhubung.');
+
+  const { data, error } = await supabase
+    .from('geofences')
+    .insert([
+      {
+        couple_id: coupleId,
+        name,
+        latitude,
+        longitude,
+        radius_meters: radiusMeters,
+      },
+    ])
+    .select()
+    .single();
+
+  if (error || !data) throw new Error(`Gagal menyimpan lokasi penting: ${error?.message}`);
+
+  return data;
+};
+
+export const deleteGeofence = async (id: number): Promise<void> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const list = await getGeofences();
+    const updated = list.filter((g) => g.id !== id);
+    localStorage.setItem('local-geofences', JSON.stringify(updated));
+    return;
+  }
+
+  const { error } = await supabase
+    .from('geofences')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw new Error(`Gagal menghapus lokasi penting: ${error.message}`);
+};
+
+export const logLocationEvent = async (geofenceName: string, eventType: 'arrived' | 'left'): Promise<void> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    console.log(`[Local Log] Event: ${eventType} at ${geofenceName}`);
+    return;
+  }
+
+  const coupleId = await getCoupleId();
+  if (!coupleId) return;
+
+  const userId = await getCurrentUserId();
+  if (!userId) return;
+
+  const { error } = await supabase
+    .from('location_logs')
+    .insert([
+      {
+        couple_id: coupleId,
+        profile_id: userId,
+        geofence_name: geofenceName,
+        event_type: eventType,
+      },
+    ]);
+
+  if (error) {
+    console.error('Gagal menyimpan log lokasi:', error.message);
+  }
+};
+
+export const getLocationLogs = async (): Promise<any[]> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    return [];
+  }
+
+  const coupleId = await getCoupleId();
+  if (!coupleId) return [];
+
+  const { data, error } = await supabase
+    .from('location_logs')
+    .select('*, profiles(name)')
+    .eq('couple_id', coupleId)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  if (error) {
+    console.error('Gagal mengambil log lokasi:', error.message);
+    return [];
+  }
+
+  return (data || []).map((item: any) => ({
+    id: item.id,
+    geofence_name: item.geofence_name,
+    event_type: item.event_type,
+    created_at: item.created_at,
+    profile_name: item.profiles?.name || 'Pasangan',
+  }));
+};
