@@ -926,6 +926,91 @@ export const getMoodLogs = async (): Promise<MoodLog[]> => {
   }
 };
 
+export const saveMoodLogForDate = async (dateStr: string, mood: string, intensity: number, reason: string): Promise<void> => {
+  const checkinDate = new Date(dateStr + 'T12:00:00');
+  const localListStr = localStorage.getItem('local-mood-logs');
+  const localList: MoodLog[] = localListStr ? JSON.parse(localListStr) : [];
+  
+  const existingLocalIndex = localList.findIndex(log => {
+    const logDate = new Date(log.created_at);
+    const logDateStr = `${logDate.getFullYear()}-${String(logDate.getMonth() + 1).padStart(2, '0')}-${String(logDate.getDate()).padStart(2, '0')}`;
+    return logDateStr === dateStr;
+  });
+  
+  const isNewCheckin = existingLocalIndex === -1;
+  
+  if (!isNewCheckin) {
+    localList[existingLocalIndex].mood = mood;
+    localList[existingLocalIndex].intensity = intensity;
+    localList[existingLocalIndex].reason = reason;
+  } else {
+    const newLog: MoodLog = {
+      id: `mood-${Date.now()}`,
+      mood,
+      intensity,
+      reason,
+      created_at: checkinDate.toISOString()
+    };
+    localList.unshift(newLog);
+  }
+  
+  localStorage.setItem('local-mood-logs', JSON.stringify(localList));
+  
+  if (isNewCheckin) {
+    await addRelationshipXP(15, 'intimacy');
+  }
+  
+  if (!isSupabaseConfigured() || !supabase) return;
+  
+  try {
+    const coupleId = await getCoupleId();
+    const userId = await getCurrentUserId();
+    if (!coupleId || !userId) return;
+    
+    const startOfDay = `${dateStr}T00:00:00.000Z`;
+    const endOfDay = `${dateStr}T23:59:59.999Z`;
+    
+    const { data: existingLogs, error: searchError } = await supabase
+      .from('mood_logs')
+      .select('id')
+      .eq('user_id', userId)
+      .gte('created_at', startOfDay)
+      .lte('created_at', endOfDay);
+      
+    if (searchError) throw searchError;
+    
+    if (existingLogs && existingLogs.length > 0) {
+      const { error: updateError } = await supabase
+        .from('mood_logs')
+        .update({
+          mood,
+          intensity,
+          reason
+        })
+        .eq('id', existingLogs[0].id);
+        
+      if (updateError) throw updateError;
+    } else {
+      const { error: insertError } = await supabase
+        .from('mood_logs')
+        .insert([
+          {
+            couple_id: coupleId,
+            user_id: userId,
+            mood,
+            intensity,
+            reason,
+            created_at: checkinDate.toISOString()
+          }
+        ]);
+        
+      if (insertError) throw insertError;
+    }
+  } catch (err) {
+    console.warn('[db] Gagal simpan/update mood log ke Supabase:', err);
+  }
+};
+
 // =========================================================================
 // PUBLIC API - REALTIME COUPLE CHAT
 // =========================================================================
