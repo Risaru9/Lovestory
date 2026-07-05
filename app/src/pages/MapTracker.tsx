@@ -34,6 +34,7 @@ const MapTracker: React.FC = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
+  const [initError, setInitError] = useState<string | null>(null);
 
   // Markers
   const myMarkerRef = useRef<L.Marker | null>(null);
@@ -202,38 +203,55 @@ const MapTracker: React.FC = () => {
     if (isLoading) return;
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
-    // Default center at Indonesia
-    const defaultCenter: L.LatLngExpression = [-2.5489, 118.0149];
-    const initialZoom = 5;
+    try {
+      // Default center at Indonesia
+      const defaultCenter: L.LatLngExpression = [-2.5489, 118.0149];
+      const initialZoom = 5;
 
-    // Dark Map Tile Layer (Retro dark feel)
-    const cartoDBVoyagerDark = L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
-      {
-        attribution: '&copy; CartoDB',
-        maxZoom: 20,
-      }
-    );
+      // Dark Map Tile Layer (Retro dark feel)
+      const cartoDBVoyagerDark = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
+        {
+          attribution: '&copy; CartoDB',
+          maxZoom: 20,
+        }
+      );
 
-    const initializedMap = L.map(mapContainerRef.current, {
-      center: defaultCenter,
-      zoom: initialZoom,
-      layers: [cartoDBVoyagerDark],
-    });
+      const initializedMap = L.map(mapContainerRef.current, {
+        center: defaultCenter,
+        zoom: initialZoom,
+        layers: [cartoDBVoyagerDark],
+      });
 
-    // Click map to prefill geofence coordinates
-    initializedMap.on('click', (e: L.LeafletMouseEvent) => {
-      setGfLat(e.latlng.lat.toFixed(6));
-      setGfLng(e.latlng.lng.toFixed(6));
-      showToast('Titik koordinat terpilih dari peta!', '📍');
-    });
+      // Click map to prefill geofence coordinates
+      initializedMap.on('click', (e: L.LeafletMouseEvent) => {
+        setGfLat(e.latlng.lat.toFixed(6));
+        setGfLng(e.latlng.lng.toFixed(6));
+        showToast('Titik koordinat terpilih dari peta!', '📍');
+      });
 
-    mapInstanceRef.current = initializedMap;
-    setMap(initializedMap);
+      mapInstanceRef.current = initializedMap;
+      setMap(initializedMap);
+      setInitError(null);
+
+      // Force recalculation of map size after layout is fully rendered
+      setTimeout(() => {
+        if (initializedMap) {
+          initializedMap.invalidateSize();
+        }
+      }, 300);
+    } catch (err: any) {
+      console.error('Leaflet initialization error:', err);
+      setInitError(err.message || String(err));
+    }
 
     return () => {
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
+        try {
+          mapInstanceRef.current.remove();
+        } catch (e) {
+          console.error('Error removing map:', e);
+        }
         mapInstanceRef.current = null;
       }
       setMap(null);
@@ -489,7 +507,15 @@ const MapTracker: React.FC = () => {
         {/* Map Container */}
         <div className="flex-1 h-[45vh] lg:h-full relative z-10">
           <div ref={mapContainerRef} className="w-full h-full" />
-          
+
+          {initError && (
+            <div className="absolute inset-0 bg-red-950/90 border border-red-500/50 flex flex-col items-center justify-center p-6 text-center z-50">
+              <span className="text-4xl mb-4">⚠</span>
+              <h4 className="font-['Press_Start_2P'] text-xs text-red-400 mb-2">GAGAL MEMULAI PETA</h4>
+              <p className="font-['VT323'] text-lg text-white max-w-md">{initError}</p>
+            </div>
+          )}
+
           {/* Instructions Overlay */}
           <div className="absolute bottom-4 left-4 bg-[#111327]/90 border border-white/10 rounded-xl px-4 py-2 pointer-events-none z-[1000] shadow-lg max-w-[280px]">
             <p className="font-['VT323'] text-sm text-[#FFD700]">💡 Tips:</p>
