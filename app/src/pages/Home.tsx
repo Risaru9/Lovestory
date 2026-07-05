@@ -82,7 +82,7 @@ const Home: React.FC = () => {
       { label: 'MUSIC', path: '/music', icon: '🎵', enabled: true },
       { label: 'MINI GAME', path: '/game', icon: '🎮', enabled: true },
       { label: 'LETTER', path: '/letter', icon: '💌', enabled: true },
-      { label: 'INVITATION LETTER', path: '/invitationletter', icon: '💗', enabled: true },
+      { label: 'DATE PLANNER', path: '/dateplanner', icon: '📅', enabled: true },
     ],
     []
   );

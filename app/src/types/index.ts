@@ -12,6 +12,19 @@ export interface Chapter {
   photos?: Photo[];
 }
 
+export interface DatePlan {
+  id: number;
+  couple_id: string;
+  title: string;
+  date_time: string;
+  location: string;
+  activity: string;
+  notes?: string;
+  status: 'planned' | 'completed';
+  created_at?: string;
+  created_by?: string;
+}
+
 export interface Photo {
   id: string;
   src: string;

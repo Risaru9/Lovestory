@@ -14,7 +14,7 @@ import Gallery from '@/pages/Gallery';
 import Music from '@/pages/Music';
 import Game from '@/pages/Game';
 import Letter from '@/pages/Letter';
-import InvitationLetter from '@/pages/InvitationLetter';
+import DatePlanner from '@/pages/DatePlanner';
 import Achievements from '@/pages/Achievements';
 import AuthPage from '@/pages/AuthPage';
 import CoupleConnect from '@/pages/CoupleConnect';
@@ -118,7 +118,7 @@ function AppContent() {
         <Route path="/music" element={<ProtectedRoute><Music /></ProtectedRoute>} />
         <Route path="/game" element={<ProtectedRoute><Game /></ProtectedRoute>} />
         <Route path="/letter" element={<ProtectedRoute><Letter /></ProtectedRoute>} />
-        <Route path="/invitationletter" element={<ProtectedRoute><InvitationLetter /></ProtectedRoute>} />
+        <Route path="/dateplanner" element={<ProtectedRoute><DatePlanner /></ProtectedRoute>} />
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
       </Routes>
     </div>

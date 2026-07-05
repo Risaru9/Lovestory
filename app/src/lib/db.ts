@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient';
-import type { Chapter } from '@/types';
+import type { Chapter, DatePlan } from '@/types';
 
 const DB_NAME = 'LovestoryDB';
 const DB_VERSION = 1;
@@ -523,4 +523,125 @@ export const saveLoveLetter = async (letterText: string): Promise<void> => {
     console.error('Gagal simpan surat cinta:', error.message);
     throw error;
   }
+};
+
+// =========================================================================
+// PUBLIC API - DATE PLANS & MEMORY TRACKER
+// =========================================================================
+export const getDatePlans = async (): Promise<DatePlan[]> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const local = localStorage.getItem('local-date-plans');
+    return local ? JSON.parse(local) : [];
+  }
+
+  const coupleId = await getCoupleId();
+  if (!coupleId) return [];
+
+  const { data, error } = await supabase
+    .from('date_plans')
+    .select('*')
+    .eq('couple_id', coupleId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Gagal ambil rencana kencan:', error.message);
+    return [];
+  }
+
+  return (data || []).map((item: any) => ({
+    id: item.id,
+    couple_id: item.couple_id,
+    title: item.title,
+    date_time: item.date_time,
+    location: item.location,
+    activity: item.activity,
+    notes: item.notes,
+    status: item.status,
+    created_at: item.created_at,
+    created_by: item.created_by,
+  }));
+};
+
+export const addDatePlan = async (
+  title: string,
+  dateTime: string,
+  location: string,
+  activity: string,
+  notes?: string
+): Promise<DatePlan> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const list = await getDatePlans();
+    const id = Date.now();
+    const newPlan: DatePlan = {
+      id,
+      couple_id: 'local',
+      title,
+      date_time: dateTime,
+      location,
+      activity,
+      notes,
+      status: 'planned',
+      created_at: new Date().toISOString(),
+    };
+    localStorage.setItem('local-date-plans', JSON.stringify([newPlan, ...list]));
+    return newPlan;
+  }
+
+  const coupleId = await getCoupleId();
+  if (!coupleId) throw new Error('Couple tidak terhubung.');
+
+  const userId = await getCurrentUserId();
+
+  const { data, error } = await supabase
+    .from('date_plans')
+    .insert([
+      {
+        couple_id: coupleId,
+        title,
+        date_time: dateTime,
+        location,
+        activity,
+        notes,
+        status: 'planned',
+        created_by: userId,
+      },
+    ])
+    .select()
+    .single();
+
+  if (error || !data) throw new Error(`Gagal menyimpan rencana kencan: ${error?.message}`);
+
+  return data as DatePlan;
+};
+
+export const updateDatePlanStatus = async (id: number, status: 'planned' | 'completed'): Promise<void> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const list = await getDatePlans();
+    const updated = list.map((p) => (p.id === id ? { ...p, status } : p));
+    localStorage.setItem('local-date-plans', JSON.stringify(updated));
+    return;
+  }
+
+  const { error } = await supabase
+    .from('date_plans')
+    .update({ status })
+    .eq('id', id);
+
+  if (error) throw new Error(`Gagal memperbarui status rencana: ${error.message}`);
+};
+
+export const deleteDatePlan = async (id: number): Promise<void> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const list = await getDatePlans();
+    const updated = list.filter((p) => p.id !== id);
+    localStorage.setItem('local-date-plans', JSON.stringify(updated));
+    return;
+  }
+
+  const { error } = await supabase
+    .from('date_plans')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw new Error(`Gagal menghapus rencana kencan: ${error.message}`);
 };
