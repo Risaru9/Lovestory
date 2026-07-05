@@ -159,6 +159,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   // -----------------------------------------------------------
+  // Realtime subscription: Mendeteksi pairing pasangan secara instan
+  // -----------------------------------------------------------
+  useEffect(() => {
+    if (!isSupabaseConfigured() || !supabase || !user) return;
+
+    const channel = supabase
+      .channel(`public:couples:user:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'couples',
+        },
+        async (payload: any) => {
+          const oldVal = payload.old;
+          const newVal = payload.new;
+
+          // Cek apakah perubahan melibatkan user saat ini
+          const isUserInvolved =
+            newVal?.user_a_id === user.id ||
+            newVal?.user_b_id === user.id ||
+            oldVal?.user_a_id === user.id ||
+            oldVal?.user_b_id === user.id;
+
+          if (isUserInvolved) {
+            console.log('[Realtime] Perubahan data couple terdeteksi:', payload);
+            await fetchCouple(user.id);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase?.removeChannel(channel);
+    };
+  }, [user]);
+
+  // -----------------------------------------------------------
   // SIGN UP
   // -----------------------------------------------------------
   const signUp = async (email: string, password: string, name: string): Promise<{ error: string | null }> => {

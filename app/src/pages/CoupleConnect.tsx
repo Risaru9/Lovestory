@@ -21,12 +21,24 @@ const CoupleConnect: React.FC = () => {
     }
   }, [coupleInfo]);
 
-  // Jika sudah connected (bukan dari justConnected), langsung ke home
+  const [wasConnected] = useState(isConnected);
+
+  // Jika status terhubung berubah secara real-time
   useEffect(() => {
-    if (isConnected && !justConnected) {
-      navigate('/home', { replace: true });
+    if (isConnected) {
+      if (!wasConnected) {
+        // Terjadi pairing secara real-time (User A yang menunggu kode di-link oleh User B)
+        setJustConnected(true);
+        const timer = setTimeout(() => {
+          navigate('/home', { replace: true });
+        }, 2500);
+        return () => clearTimeout(timer);
+      } else {
+        // Sudah terhubung dari awal (misal terakses manual)
+        navigate('/home', { replace: true });
+      }
     }
-  }, [isConnected, justConnected, navigate]);
+  }, [isConnected, wasConnected, navigate]);
 
   const handleGenerateCode = async () => {
     setIsGenerating(true);

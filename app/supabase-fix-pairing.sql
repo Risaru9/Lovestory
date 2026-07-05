@@ -133,3 +133,22 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================================
+-- 4. AKTIFKAN SUPABASE REALTIME UNTUK TABEL COUPLES
+-- ============================================================
+-- Konfigurasikan tabel agar mengirim semua kolom saat update
+ALTER TABLE public.couples REPLICA IDENTITY FULL;
+
+-- Masukkan tabel couples ke dalam publikasi realtime
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+      AND schemaname = 'public' 
+      AND tablename = 'couples'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.couples;
+  END IF;
+END $$;
