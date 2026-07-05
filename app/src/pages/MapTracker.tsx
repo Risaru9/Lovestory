@@ -34,6 +34,7 @@ const MapTracker: React.FC = () => {
   const [map, setMap] = useState<L.Map | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<'granted' | 'prompt' | 'denied'>('prompt');
+  const [diagInfo, setDiagInfo] = useState<{ width: number; height: number; active: boolean } | null>(null);
 
   // Markers
   const myMarkerRef = useRef<L.Marker | null>(null);
@@ -348,6 +349,26 @@ const MapTracker: React.FC = () => {
   }, [map, permissionStatus]);
 
   // =========================================================================
+  // RUNTIME DIAGNOSTICS FOR MAP LAYOUT DIMENSIONS
+  // =========================================================================
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const el = document.querySelector('.leaflet-container') as HTMLElement;
+      if (el) {
+        setDiagInfo({
+          width: el.offsetWidth,
+          height: el.offsetHeight,
+          active: map !== null,
+        });
+      } else {
+        setDiagInfo(null);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [map]);
+
+  // =========================================================================
   // RENDER / UPDATE MY MARKER
   // =========================================================================
   useEffect(() => {
@@ -559,7 +580,7 @@ const MapTracker: React.FC = () => {
       {/* Map & Sidebar Wrapper */}
       <div className="flex-1 flex flex-col lg:flex-row lg:h-[calc(100vh-76px)] lg:overflow-hidden relative">
         {/* Map Container */}
-        <div className="flex-1 h-[45vh] lg:h-full relative z-10">
+        <div className="w-full h-[45vh] lg:flex-1 lg:h-full relative z-10">
           <div ref={mapContainerCallbackRef} className="w-full h-full" />
 
           {permissionStatus !== 'granted' && (
@@ -747,6 +768,23 @@ const MapTracker: React.FC = () => {
                 })}
               </div>
             )}
+          </section>
+
+          {/* Section: Panel Diagnostik (Layout Verification) */}
+          <section className="p-4 border-t border-white/10 bg-black/25">
+            <h3 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-2">
+              🛠 SYSTEM DIAGNOSTICS
+            </h3>
+            <div className="font-['VT323'] text-base space-y-1 text-white/70">
+              <p>Map Container: <span className={diagInfo ? 'text-green-400' : 'text-red-400'}>{diagInfo ? 'FOUND' : 'NOT FOUND'}</span></p>
+              {diagInfo && (
+                <>
+                  <p>Dimensions: <b className="text-white">{diagInfo.width}px x {diagInfo.height}px</b></p>
+                  <p>Layout Status: <span className={diagInfo.height > 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold animate-pulse'}>{diagInfo.height > 0 ? 'OK (READY)' : 'COLLAPSED (0px height)'}</span></p>
+                  <p>Leaflet State: <span className={diagInfo.active ? 'text-green-400' : 'text-red-400'}>{diagInfo.active ? 'ACTIVE' : 'INACTIVE'}</span></p>
+                </>
+              )}
+            </div>
           </section>
         </div>
       </div>
