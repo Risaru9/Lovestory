@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const CoupleConnect: React.FC = () => {
   const navigate = useNavigate();
-  const { profile, coupleInfo, partner, isConnected, generateCoupleCode, connectWithCode, signOut } = useAuth();
+  const { profile, coupleInfo, partner, isConnected, generateCoupleCode, connectWithCode, refreshCouple, signOut } = useAuth();
 
   const [myCode, setMyCode] = useState<string | null>(coupleInfo?.couple_code ?? null);
   const [inputCode, setInputCode] = useState('');
@@ -14,16 +14,17 @@ const CoupleConnect: React.FC = () => {
   const [justConnected, setJustConnected] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Sinkronkan kode dari coupleInfo
   useEffect(() => {
     if (coupleInfo?.couple_code) {
       setMyCode(coupleInfo.couple_code);
     }
   }, [coupleInfo]);
 
-  // Jika sudah connected, navigasi ke home
+  // Jika sudah connected (bukan dari justConnected), langsung ke home
   useEffect(() => {
     if (isConnected && !justConnected) {
-      navigate('/home');
+      navigate('/home', { replace: true });
     }
   }, [isConnected, justConnected, navigate]);
 
@@ -45,10 +46,16 @@ const CoupleConnect: React.FC = () => {
     const { error: err } = await connectWithCode(inputCode);
     if (err) {
       setError(err);
-    } else {
-      setJustConnected(true);
-      setTimeout(() => navigate('/home'), 2500);
+      setIsConnecting(false);
+      return;
     }
+
+    // Berhasil! Tampilkan animasi connected
+    setJustConnected(true);
+
+    // Refresh state couple lalu navigasi ke home
+    await refreshCouple();
+    setTimeout(() => navigate('/home', { replace: true }), 2000);
     setIsConnecting(false);
   };
 
@@ -60,6 +67,7 @@ const CoupleConnect: React.FC = () => {
     }
   };
 
+  // Tampilan animasi CONNECTED
   if (justConnected) {
     return (
       <div className="min-h-screen bg-[#0d0d1a] flex items-center justify-center p-4">
@@ -97,13 +105,23 @@ const CoupleConnect: React.FC = () => {
           </p>
         </div>
 
-        {/* Step 1: Kode milik saya */}
+        {/* INSTRUKSI PENTING */}
+        <div className="bg-[#1a1a3e] border border-[#FFD700]/30 rounded-xl p-4">
+          <p className="font-['VT323'] text-[#FFD700] text-lg text-center">
+            📌 Hanya <strong>SATU ORANG</strong> yang membuat kode.
+          </p>
+          <p className="font-['VT323'] text-white/50 text-base text-center mt-1">
+            Satu buat kode → kirim ke pasangan → pasangan masukkan kode tersebut.
+          </p>
+        </div>
+
+        {/* Opsi A: Buat kode (untuk orang pertama) */}
         <div className="bg-[#111327] border-2 border-[#FF69B4]/50 rounded-2xl p-5">
           <h2 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-3">
-            KODE SAYA
+            OPSI A: BUAT KODE
           </h2>
           <p className="font-['VT323'] text-white/60 text-base mb-3">
-            Bagikan kode ini kepada pasangan kamu agar bisa terhubung.
+            Klik tombol ini, lalu kirimkan kode yang muncul ke pasangan kamu.
           </p>
 
           {myCode ? (
@@ -129,15 +147,21 @@ const CoupleConnect: React.FC = () => {
               {isGenerating ? 'MEMBUAT KODE...' : '✨ BUAT KODE SAYA'}
             </button>
           )}
+
+          {myCode && (
+            <p className="font-['VT323'] text-white/40 text-sm mt-2 text-center">
+              Menunggu pasangan memasukkan kode ini...
+            </p>
+          )}
         </div>
 
-        {/* Step 2: Masukkan kode pasangan */}
+        {/* Opsi B: Masukkan kode pasangan */}
         <div className="bg-[#111327] border-2 border-[#00CED1]/50 rounded-2xl p-5">
           <h2 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-3">
-            MASUKKAN KODE PASANGAN
+            OPSI B: MASUKKAN KODE PASANGAN
           </h2>
           <p className="font-['VT323'] text-white/60 text-base mb-3">
-            Jika pasangan kamu sudah punya kode, masukkan di sini.
+            Pasangan kamu sudah buat kode? Masukkan di sini.
           </p>
 
           <form onSubmit={handleConnect} className="flex gap-3">
@@ -165,14 +189,14 @@ const CoupleConnect: React.FC = () => {
           </div>
         )}
 
-        {/* Already connected? */}
+        {/* Already connected indicator */}
         {isConnected && partner && (
           <div className="bg-green-900/30 border border-green-500/40 rounded-2xl p-4 text-center">
             <p className="font-['VT323'] text-green-400 text-lg">
               💕 Sudah terhubung dengan {partner.name}!
             </p>
             <button
-              onClick={() => navigate('/home')}
+              onClick={() => navigate('/home', { replace: true })}
               className="mt-2 font-['VT323'] text-[#FFD700] text-lg underline"
             >
               Lanjut ke Beranda →

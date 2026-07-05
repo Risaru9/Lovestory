@@ -80,17 +80,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchCouple = async (userId: string) => {
     if (!supabase) return;
 
-    const { data: coupleData, error } = await supabase
+    // Ambil SEMUA couple rows di mana user terlibat (bisa lebih dari 1)
+    const { data: allCouples, error } = await supabase
       .from('couples')
       .select('*')
       .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
-      .maybeSingle();
+      .order('connected_at', { ascending: false, nullsFirst: false });
 
-    if (error || !coupleData) {
+    if (error || !allCouples || allCouples.length === 0) {
       setCoupleInfo(null);
       setPartner(null);
       return;
     }
+
+    // Prioritaskan couple yang sudah CONNECTED (connected_at bukan null)
+    const connectedCouple = allCouples.find((c: any) => c.connected_at !== null);
+    const coupleData = connectedCouple || allCouples[0];
 
     setCoupleInfo(coupleData as CoupleInfo);
 
@@ -102,6 +107,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (partnerId) {
       const partnerProfile = await fetchProfile(partnerId);
       setPartner(partnerProfile);
+    } else {
+      setPartner(null);
     }
   };
 
