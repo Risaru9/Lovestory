@@ -208,19 +208,19 @@ const MapTracker: React.FC = () => {
       const defaultCenter: L.LatLngExpression = [-2.5489, 118.0149];
       const initialZoom = 5;
 
-      // Dark Map Tile Layer (Retro dark feel)
-      const cartoDBVoyagerDark = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
+      // OpenStreetMap Tile Layer (Never blocked by adblockers or privacy protection)
+      const openStreetMap = L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         {
-          attribution: '&copy; CartoDB',
-          maxZoom: 20,
+          attribution: '&copy; OpenStreetMap contributors',
+          maxZoom: 19,
         }
       );
 
       const initializedMap = L.map(mapContainerRef.current, {
         center: defaultCenter,
         zoom: initialZoom,
-        layers: [cartoDBVoyagerDark],
+        layers: [openStreetMap],
       });
 
       // Click map to prefill geofence coordinates
@@ -282,9 +282,9 @@ const MapTracker: React.FC = () => {
         showToast('Gagal memuat GPS. Pastikan izin lokasi aktif!', '⚠');
       },
       {
-        enableHighAccuracy: true,
-        maximumAge: 5000,
-        timeout: 10000,
+        enableHighAccuracy: false,
+        maximumAge: 10000,
+        timeout: 15000,
       }
     );
 
@@ -718,6 +718,10 @@ const MapTracker: React.FC = () => {
         .leaflet-div-icon {
           background: transparent !important;
           border: none !important;
+        }
+        /* Retro dark filter for standard OpenStreetMap tiles */
+        .leaflet-tile {
+          filter: invert(90%) hue-rotate(180deg) brightness(85%) contrast(110%);
         }
       `}</style>
     </div>
