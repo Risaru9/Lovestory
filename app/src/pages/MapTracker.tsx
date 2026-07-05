@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
-import { Plus, Trash2, Clock, Navigation, History, Info, Settings, Compass, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, Clock, Navigation, History, Info, Settings, Compass, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, X, MapPin } from 'lucide-react';
 import {
   updateLocation,
   getPartnerLocation,
@@ -58,6 +58,8 @@ const MapTracker: React.FC = () => {
   const [diagInfo, setDiagInfo] = useState<{ width: number; height: number; active: boolean } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isDiagOpen, setIsDiagOpen] = useState(false);
+  const [showTips, setShowTips] = useState(() => localStorage.getItem('hide-map-tips') !== 'true');
+  const [isAddressExpanded, setIsAddressExpanded] = useState(false);
   const [myAddressData, setMyAddressData] = useState<AddressData | null>(null);
   const [partnerAddressData, setPartnerAddressData] = useState<AddressData | null>(null);
   const geocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -773,7 +775,7 @@ const MapTracker: React.FC = () => {
       {/* Map & Sidebar Wrapper */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative min-h-0">
         {/* Map Container */}
-        <div className="w-full h-[45vh] lg:flex-1 lg:h-full relative z-10">
+        <div className="w-full flex-1 lg:h-full relative z-10">
           <div ref={mapContainerCallbackRef} className="w-full h-full" />
 
           {permissionStatus !== 'granted' && (
@@ -821,72 +823,157 @@ const MapTracker: React.FC = () => {
             </div>
           )}
 
-          {/* Instructions Overlay */}
-          <div className="absolute bottom-4 left-4 bg-[#0a0d1f]/90 backdrop-blur-sm border border-white/10 rounded-2xl px-4 py-2.5 pointer-events-none z-[1000] shadow-lg max-w-[280px]">
-            <p className="text-xs font-semibold text-[#F472B6] flex items-center gap-1.5 mb-1">
-              <Info className="w-3.5 h-3.5" /> Tips
-            </p>
-            <p className="text-[11px] text-white/60 leading-normal">Klik tempat pada peta untuk menyalin koordinat secara otomatis ke form.</p>
-          </div>
-
-          {/* Address Overlay — Compact summary pinned top-left */}
-          {myCoords && myAddressData && (
-            <div className="absolute top-3 left-3 bg-[#0a0d1f]/90 backdrop-blur-sm border border-white/10 rounded-2xl px-3.5 py-2.5 pointer-events-none z-[1000] shadow-lg max-w-[280px]">
-              <p className="text-[9px] font-bold text-[#F472B6] tracking-wider uppercase mb-0.5">📍 LOKASIKU</p>
-              <p className="text-xs text-white/90 leading-snug">
-                {myAddressData.road ?? myAddressData.suburb ?? 'Lokasi ditemukan'}
-                {myAddressData.city ? `, ${myAddressData.city}` : ''}
-              </p>
-              {partnerCoords && partnerAddressData && (
-                <>
-                  <div className="my-2 border-t border-white/5" />
-                  <p className="text-[9px] font-bold text-[#06B6D4] tracking-wider uppercase mb-0.5">💙 LOKASI DIA</p>
-                  <p className="text-xs text-white/90 leading-snug">
-                    {partnerAddressData.road ?? partnerAddressData.suburb ?? 'Lokasi ditemukan'}
-                    {partnerAddressData.city ? `, ${partnerAddressData.city}` : ''}
-                  </p>
-                </>
-              )}
-              {partnerCoords && !partnerAddressData && (
-                <>
-                  <div className="my-2 border-t border-white/5" />
-                  <p className="text-[9px] font-bold text-[#06B6D4] tracking-wider uppercase mb-0.5">💙 LOKASI DIA</p>
-                  <p className="text-xs text-white/50 animate-pulse">Mengambil alamat...</p>
-                </>
-              )}
+          {/* Tips Overlay (Dismissible & Collapsible) */}
+          {showTips && (
+            <div className="absolute bottom-16 sm:bottom-4 left-4 bg-[#0a0d1f]/95 backdrop-blur-sm border border-white/10 rounded-2xl p-3.5 z-[1000] shadow-xl max-w-[280px] pointer-events-auto flex items-start justify-between gap-2.5 animate-slide-in">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-[#F472B6] flex items-center gap-1.5 mb-1">
+                  <Info className="w-3.5 h-3.5 shrink-0" /> Tips
+                </p>
+                <p className="text-[11px] text-white/60 leading-normal">
+                  Klik tempat pada peta untuk menyalin koordinat secara otomatis ke form.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowTips(false);
+                  localStorage.setItem('hide-map-tips', 'true');
+                }}
+                className="p-1 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-all shrink-0"
+                title="Sembunyikan"
+              >
+                <X className="w-3 h-3" />
+              </button>
             </div>
           )}
-          {myCoords && !myAddressData && (
-            <div className="absolute top-3 left-3 bg-[#0a0d1f]/90 backdrop-blur-sm border border-white/10 rounded-2xl px-3.5 py-2.5 pointer-events-none z-[1000] shadow-lg">
-              <p className="text-[9px] font-bold text-[#F472B6] tracking-wider uppercase mb-0.5">📍 LOKASIKU</p>
-              <p className="text-xs text-white/50 animate-pulse">Mengambil alamat...</p>
+
+          {/* Floating Tips Toggle Button (Re-opens tips when closed) */}
+          {!showTips && (
+            <button
+              onClick={() => {
+                setShowTips(true);
+                localStorage.removeItem('hide-map-tips');
+              }}
+              className="absolute bottom-16 sm:bottom-4 left-4 bg-[#0a0d1f]/90 backdrop-blur-sm border border-white/10 w-8 h-8 rounded-full z-[1000] flex items-center justify-center text-white/50 hover:text-white shadow-lg pointer-events-auto transition-all active:scale-95"
+              title="Tampilkan Tips"
+            >
+              💡
+            </button>
+          )}
+
+          {/* Address Overlay — Compact Collapsible Pill / Expanded Panel */}
+          {myCoords && (
+            <div className="absolute top-3 left-3 z-[1000] pointer-events-auto max-w-[calc(100%-24px)] sm:max-w-sm">
+              {!isAddressExpanded ? (
+                /* Collapsed compact pill */
+                <button
+                  onClick={() => setIsAddressExpanded(true)}
+                  className="flex items-center gap-2 px-3 py-2 bg-[#0a0d1f]/90 backdrop-blur-sm border border-white/10 rounded-full shadow-lg hover:bg-white/5 active:scale-95 transition-all"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-[#F472B6] shrink-0" />
+                  <span className="text-[10px] font-bold text-white/90 tracking-wide">
+                    {myAddressData ? (myAddressData.road || myAddressData.suburb || 'Lokasi Saya') : 'Mengambil alamat...'}
+                  </span>
+                  <span className="text-white/35 text-[9px]">▼</span>
+                </button>
+              ) : (
+                /* Expanded clean card */
+                <div className="bg-[#0a0d1f]/95 backdrop-blur-md border border-white/10 rounded-2xl p-3.5 shadow-2xl flex flex-col gap-2 w-72 sm:w-80">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-white/40 tracking-wider uppercase">Detail Alamat</span>
+                    <button
+                      onClick={() => setIsAddressExpanded(false)}
+                      className="text-[10px] font-semibold text-[#F472B6] hover:text-[#EC4899] active:scale-95 transition-all"
+                    >
+                      Sembunyikan ▲
+                    </button>
+                  </div>
+
+                  <div className="my-1 border-t border-white/5" />
+
+                  {/* My Location details */}
+                  <div>
+                    <p className="text-[9px] font-bold text-[#F472B6] tracking-wider uppercase mb-0.5">📍 LOKASIKU</p>
+                    <p className="text-xs text-white/90 leading-snug">
+                      {myAddressData ? (
+                        <>
+                          {myAddressData.road || 'Lokasi ditemukan'}
+                          {myAddressData.city ? `, ${myAddressData.city}` : ''}
+                        </>
+                      ) : (
+                        'Mengambil alamat...'
+                      )}
+                    </p>
+                  </div>
+
+                  {partnerCoords && (
+                    <>
+                      <div className="my-1 border-t border-white/5" />
+                      <div>
+                        <p className="text-[9px] font-bold text-[#06B6D4] tracking-wider uppercase mb-0.5">💙 LOKASI DIA</p>
+                        <p className="text-xs text-white/90 leading-snug">
+                          {partnerAddressData ? (
+                            <>
+                              {partnerAddressData.road || 'Lokasi ditemukan'}
+                              {partnerAddressData.city ? `, ${partnerAddressData.city}` : ''}
+                            </>
+                          ) : (
+                            'Mengambil alamat...'
+                          )}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
 
-        {/* Sidebar */}
-        <div className={`w-full bg-[#0a0d1f]/95 backdrop-blur-sm border-t border-white/[0.07] lg:border-t-0 lg:border-l lg:border-white/[0.07] z-20 flex flex-col transition-all duration-300 ease-in-out ${
+        {/* Sidebar / Bottom Sheet */}
+        <div className={`absolute lg:relative bottom-0 left-0 right-0 lg:bottom-auto lg:left-auto lg:right-auto bg-[#0a0d1f]/95 backdrop-blur-md border-t border-white/[0.07] lg:border-t-0 lg:border-l lg:border-white/[0.07] z-20 flex flex-col transition-all duration-300 ease-in-out ${
           isSidebarOpen
-            ? 'lg:w-96 max-h-[55vh] lg:max-h-full'
-            : 'lg:w-11 max-h-10 lg:max-h-full overflow-hidden'
+            ? 'h-[60vh] lg:h-full lg:w-96 translate-y-0'
+            : 'h-[60vh] lg:h-full lg:w-11 translate-y-[calc(100%-44px)] lg:translate-y-0 lg:overflow-hidden'
         }`}>
-          {/* Toggle Header */}
-          <div className={`flex items-center flex-shrink-0 border-b border-white/[0.06] px-3 py-2.5 ${
-            isSidebarOpen ? 'justify-between' : 'justify-center'
-          }`}>
+          {/* Toggle Header (acting as bottom drawer handle) */}
+          <div
+            onClick={() => {
+              if (window.innerWidth < 1024) {
+                setIsSidebarOpen(!isSidebarOpen);
+                setTimeout(() => { map?.invalidateSize(); }, 320);
+              }
+            }}
+            className={`flex items-center flex-shrink-0 border-b border-white/[0.06] px-4 py-2.5 cursor-pointer lg:cursor-default select-none bg-black/10 ${
+              isSidebarOpen ? 'justify-between' : 'justify-center'
+            }`}
+          >
+            {/* Drawer handle pill for mobile view */}
+            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 bg-white/20 rounded-full lg:hidden" />
+
             {isSidebarOpen && (
-              <span className="text-[10px] font-medium text-white/40 tracking-widest uppercase">Panel</span>
+              <span className="text-[10px] font-medium text-white/40 tracking-widest uppercase">Panel Kontrol</span>
             )}
+
             <button
-              onClick={() => {
+              onClick={(e) => {
+                // Prevent trigger twice on mobile due to event bubbling from parent click handler
+                e.stopPropagation();
                 const next = !isSidebarOpen;
                 setIsSidebarOpen(next);
                 setTimeout(() => { map?.invalidateSize(); }, 320);
               }}
-              className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white/10 text-white/40 hover:text-white/80 transition-all"
+              className="w-7 h-7 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/80 border border-white/10 active:scale-95 transition-all shrink-0"
               title={isSidebarOpen ? 'Sembunyikan Panel' : 'Tampilkan Panel'}
             >
-              <span className="text-xs">{isSidebarOpen ? '❯' : '❮'}</span>
+              {/* Mobile Up/Down Chevrons */}
+              <span className="lg:hidden">
+                {isSidebarOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+              </span>
+              {/* Desktop Left/Right Chevrons */}
+              <span className="hidden lg:inline">
+                {isSidebarOpen ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              </span>
             </button>
           </div>
 
