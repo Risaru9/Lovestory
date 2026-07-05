@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
 import { Plus, Trash2, Clock, Navigation, History, Info, Settings, Compass, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, X, MapPin } from 'lucide-react';
+import { PixelButton } from '@/components/custom/PixelButton';
 import {
   updateLocation,
   getPartnerLocation,
@@ -307,7 +308,10 @@ const MapTracker: React.FC = () => {
           center: defaultCenter,
           zoom: initialZoom,
           layers: [openStreetMap],
+          zoomControl: false,
         });
+
+        L.control.zoom({ position: 'topright' }).addTo(initializedMap);
 
         // Click map to prefill geofence coordinates
         initializedMap.on('click', (e: L.LeafletMouseEvent) => {
@@ -730,44 +734,32 @@ const MapTracker: React.FC = () => {
       </div>
 
       {/* Header */}
-      <header className="relative z-25 border-b border-white/[0.07] bg-[#080b18]/90 backdrop-blur-md px-4 py-3">
+      <header className="relative z-25 border-b border-[#1A1A2E] bg-[#080b18]/90 backdrop-blur-md px-4 py-3">
         <div className="max-w-7xl mx-auto flex justify-between items-center gap-3">
 
           {/* Back button */}
-          <button
-            onClick={() => navigate('/home')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-sm transition-all"
-          >
-            <span className="text-base">←</span>
-            <span className="hidden sm:inline text-xs tracking-wide">Menu</span>
-          </button>
+          <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px] shrink-0">
+            ← MENU
+          </PixelButton>
 
           {/* Title */}
           <div className="text-center">
-            <h1 className="text-sm sm:text-base font-semibold tracking-tight text-white">
+            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-white leading-none">
               Location Tracker
             </h1>
-            <p className="text-[10px] text-white/40 mt-0.5 hidden sm:block">Live Map · Geofencing</p>
+            <p className="font-['VT323'] text-xs text-[#FFD700] mt-1 tracking-wider hidden sm:block">Live Map · Geofencing</p>
           </div>
 
           {/* Nav buttons */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 shrink-0">
             {partnerCoords && (
-              <button
-                onClick={centerToPartner}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F472B6]/15 hover:bg-[#F472B6]/25 border border-[#F472B6]/30 text-[#F472B6] text-xs transition-all"
-              >
-                <span>♥</span>
-                <span className="hidden sm:inline">Dia</span>
-              </button>
+              <PixelButton onClick={centerToPartner} variant="primary" size="sm" className="text-[9px]">
+                DIA
+              </PixelButton>
             )}
-            <button
-              onClick={centerToMe}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-xs transition-all"
-            >
-              <span>◎</span>
-              <span className="hidden sm:inline">Aku</span>
-            </button>
+            <PixelButton onClick={centerToMe} variant="secondary" size="sm" className="text-[9px]">
+              AKU
+            </PixelButton>
           </div>
         </div>
       </header>
@@ -868,13 +860,11 @@ const MapTracker: React.FC = () => {
                 /* Collapsed compact pill */
                 <button
                   onClick={() => setIsAddressExpanded(true)}
-                  className="flex items-center gap-2 px-3 py-2 bg-[#0a0d1f]/90 backdrop-blur-sm border border-white/10 rounded-full shadow-lg hover:bg-white/5 active:scale-95 transition-all"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-[#0a0d1f]/90 backdrop-blur-md border border-white/10 rounded-full shadow-xl hover:bg-[#0a0d1f] text-white transition-all active:scale-95 duration-200 pointer-events-auto"
                 >
                   <MapPin className="w-3.5 h-3.5 text-[#F472B6] shrink-0" />
-                  <span className="text-[10px] font-bold text-white/90 tracking-wide">
-                    {myAddressData ? (myAddressData.road || myAddressData.suburb || 'Lokasi Saya') : 'Mengambil alamat...'}
-                  </span>
-                  <span className="text-white/35 text-[9px]">▼</span>
+                  <span className="text-xs font-semibold text-white/90">Tampilkan Alamat</span>
+                  <span className="text-white/30 text-xs">▼</span>
                 </button>
               ) : (
                 /* Expanded clean card */
@@ -1163,13 +1153,15 @@ const MapTracker: React.FC = () => {
                 <p className="text-xs text-red-400">⚠ {formError}</p>
               )}
 
-              <button
+              <PixelButton
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-2.5 bg-[#F472B6] hover:bg-[#EC4899] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-semibold text-white transition-all shadow-[0_2px_10px_rgba(244,114,182,0.15)] active:translate-y-0.5"
+                variant="primary"
+                size="sm"
+                className="w-full text-[9px] py-3.5"
               >
-                {isSubmitting ? 'Menyimpan...' : 'Simpan Tempat'}
-              </button>
+                {isSubmitting ? 'MENYIMPAN...' : 'SIMPAN TEMPAT'}
+              </PixelButton>
             </form>
           </section>
 
