@@ -28,6 +28,28 @@ interface ToastMessage {
   emoji: string;
 }
 
+interface NearbyPlace {
+  name: string;
+  type: string;
+  distanceM: number;
+  bearing: string;
+}
+
+interface AddressData {
+  summary: string;           // Short: jalan + kota untuk overlay
+  road: string | null;
+  houseNumber: string | null;
+  suburb: string | null;     // Kelurahan/Desa
+  district: string | null;   // Kecamatan
+  city: string | null;       // Kota/Kabupaten
+  state: string | null;      // Provinsi
+  postcode: string | null;
+  country: string | null;
+  nearbyPlaces: NearbyPlace[];
+  lat: number;
+  lng: number;
+}
+
 const MapTracker: React.FC = () => {
   const navigate = useNavigate();
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -36,10 +58,11 @@ const MapTracker: React.FC = () => {
   const [permissionStatus, setPermissionStatus] = useState<'granted' | 'prompt' | 'denied'>('prompt');
   const [diagInfo, setDiagInfo] = useState<{ width: number; height: number; active: boolean } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [myAddress, setMyAddress] = useState<string | null>(null);
-  const [partnerAddress, setPartnerAddress] = useState<string | null>(null);
+  const [myAddressData, setMyAddressData] = useState<AddressData | null>(null);
+  const [partnerAddressData, setPartnerAddressData] = useState<AddressData | null>(null);
   const geocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const partnerGeocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const polylineRef = useRef<L.Polyline | null>(null);
 
   // Markers
   const myMarkerRef = useRef<L.Marker | null>(null);
@@ -374,22 +397,101 @@ const MapTracker: React.FC = () => {
   }, [map]);
 
   // =========================================================================
-  // REVERSE GEOCODING (NOMINATIM OSM — NO API KEY REQUIRED)
+  // UTILITIES: BEARING & DISTANCE
   // =========================================================================
-  const reverseGeocode = (lat: number, lng: number, setAddress: (addr: string) => void, timerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>) => {
+  const calcBearingLabel = (fromLat: number, fromLng: number, toLat: number, toLng: number): string => {
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const dLng = toRad(toLng - fromLng);
+    const fLat = toRad(fromLat);
+    const tLat = toRad(toLat);
+    const y = Math.sin(dLng) * Math.cos(tLat);
+    const x = Math.cos(fLat) * Math.sin(tLat) - Math.sin(fLat) * Math.cos(tLat) * Math.cos(dLng);
+    const brng = ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+    const dirs = ['Utara', 'Timur Laut', 'Timur', 'Tenggara', 'Selatan', 'Barat Daya', 'Barat', 'Barat Laut'];
+    return dirs[Math.round(brng / 45) % 8];
+  };
+
+  const calcDistanceM = (lat1: number, lng1: number, lat2: number, lng2: number): number =>
+    L.latLng(lat1, lng1).distanceTo(L.latLng(lat2, lng2));
+
+  // =========================================================================
+  // REVERSE GEOCODING — ENHANCED (NOMINATIM + OVERPASS NEARBY PLACES)
+  // =========================================================================
+  const reverseGeocode = (
+    lat: number,
+    lng: number,
+    setData: (d: AddressData) => void,
+    timerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>
+  ) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=id`,
+        // ── Step 1: Nominatim structured address ──────────────────────────
+        const nomRes = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&accept-language=id`,
           { headers: { 'User-Agent': 'LovestoryApp/1.0' } }
         );
-        if (!res.ok) return;
-        const data = await res.json();
-        const addr = data.display_name as string;
-        // Shorten: take first 2-3 parts before the country
-        const parts = addr.split(',').slice(0, 3).map((s: string) => s.trim());
-        setAddress(parts.join(', '));
+        if (!nomRes.ok) return;
+        const nomData = await nomRes.json();
+        const a = nomData.address || {};
+
+        const road = a.road || a.pedestrian || a.footway || a.path || null;
+        const houseNumber = a.house_number || null;
+        const suburb = a.suburb || a.village || a.hamlet || a.residential || null;
+        const district = a.district || a.city_district || a.municipality || null;
+        const city = a.city || a.town || a.county || null;
+        const state = a.state || null;
+        const postcode = a.postcode || null;
+        const country = a.country || null;
+
+        const summaryParts = [road, city || district].filter(Boolean);
+        const summary = summaryParts.length > 0 ? summaryParts.join(', ') : (nomData.display_name?.split(',').slice(0, 2).join(', ') || 'Lokasi tidak diketahui');
+
+        // ── Step 2: Overpass API for nearby places (non-blocking) ─────────
+        let nearbyPlaces: NearbyPlace[] = [];
+        try {
+          const overpassQuery = `
+            [out:json][timeout:8];
+            (
+              node["amenity"~"hospital|clinic|pharmacy|school|university|mosque|church|supermarket|minimarket|convenience|fuel|atm|bank|restaurant|cafe|bus_station|train_station|airport"](around:600,${lat},${lng});
+              node["shop"~"supermarket|convenience|mall"](around:600,${lat},${lng});
+              node["tourism"~"hotel|attraction|museum"](around:600,${lat},${lng});
+              node["name"](around:600,${lat},${lng})["amenity"];
+            );
+            out body 8;
+          `;
+          const ovRes = await fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            body: `data=${encodeURIComponent(overpassQuery)}`,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          });
+          if (ovRes.ok) {
+            const ovData = await ovRes.json();
+            const typeLabels: Record<string, string> = {
+              hospital: 'Rumah Sakit', clinic: 'Klinik', pharmacy: 'Apotek',
+              school: 'Sekolah', university: 'Universitas', mosque: 'Masjid',
+              church: 'Gereja', supermarket: 'Supermarket', minimarket: 'Minimarket',
+              convenience: 'Minimarket', fuel: 'SPBU', atm: 'ATM', bank: 'Bank',
+              restaurant: 'Restoran', cafe: 'Kafe', bus_station: 'Terminal Bus',
+              train_station: 'Stasiun', airport: 'Bandara', hotel: 'Hotel',
+              attraction: 'Wisata', museum: 'Museum', mall: 'Mall',
+            };
+            nearbyPlaces = (ovData.elements || [])
+              .filter((el: any) => el.tags?.name)
+              .map((el: any) => ({
+                name: el.tags.name as string,
+                type: typeLabels[el.tags.amenity || el.tags.shop || el.tags.tourism || ''] || (el.tags.amenity || el.tags.shop || el.tags.tourism || 'Tempat'),
+                distanceM: Math.round(calcDistanceM(lat, lng, el.lat, el.lon)),
+                bearing: calcBearingLabel(lat, lng, el.lat, el.lon),
+              }))
+              .sort((a: NearbyPlace, b: NearbyPlace) => a.distanceM - b.distanceM)
+              .slice(0, 5);
+          }
+        } catch (ovErr) {
+          console.warn('Overpass nearby places failed (non-critical):', ovErr);
+        }
+
+        setData({ summary, road, houseNumber, suburb, district, city, state, postcode, country, nearbyPlaces, lat, lng });
       } catch (e) {
         console.warn('Reverse geocode failed:', e);
       }
@@ -399,16 +501,52 @@ const MapTracker: React.FC = () => {
   // Trigger reverse geocoding when my coords change
   useEffect(() => {
     if (!myCoords) return;
-    setMyAddress('Sedang mengambil alamat...');
-    reverseGeocode(myCoords.latitude, myCoords.longitude, setMyAddress, geocodeTimerRef);
+    reverseGeocode(myCoords.latitude, myCoords.longitude, setMyAddressData, geocodeTimerRef);
   }, [myCoords]);
 
   // Trigger reverse geocoding when partner coords change
   useEffect(() => {
     if (!partnerCoords) return;
-    setPartnerAddress('Sedang mengambil alamat...');
-    reverseGeocode(partnerCoords.latitude, partnerCoords.longitude, setPartnerAddress, partnerGeocodeTimerRef);
+    reverseGeocode(partnerCoords.latitude, partnerCoords.longitude, setPartnerAddressData, partnerGeocodeTimerRef);
   }, [partnerCoords]);
+
+  // =========================================================================
+  // PINK POLYLINE — CONNECTION LINE BETWEEN ME & PARTNER
+  // =========================================================================
+  useEffect(() => {
+    if (!map) return;
+
+    // Remove old polyline
+    if (polylineRef.current) {
+      polylineRef.current.remove();
+      polylineRef.current = null;
+    }
+
+    if (!myCoords || !partnerCoords) return;
+
+    const line = L.polyline(
+      [
+        [myCoords.latitude, myCoords.longitude],
+        [partnerCoords.latitude, partnerCoords.longitude],
+      ],
+      {
+        color: '#FF69B4',
+        weight: 3,
+        opacity: 0.85,
+        dashArray: '10, 7',
+        lineJoin: 'round',
+      }
+    ).addTo(map);
+
+    // Distance label in the tooltip
+    const distM = Math.round(calcDistanceM(myCoords.latitude, myCoords.longitude, partnerCoords.latitude, partnerCoords.longitude));
+    const distLabel = distM >= 1000 ? `${(distM / 1000).toFixed(1)} km` : `${distM} m`;
+    line.bindTooltip(`💕 Jarak: ${distLabel}`, { permanent: true, direction: 'center', className: 'polyline-distance-label' });
+
+    polylineRef.current = line;
+  }, [map, myCoords, partnerCoords]);
+
+
 
   // =========================================================================
   // RENDER / UPDATE MY MARKER
@@ -668,18 +806,40 @@ const MapTracker: React.FC = () => {
             <p className="font-['VT323'] text-xs text-white/70 leading-snug">Klik sembarang tempat pada peta untuk mengambil koordinat Latitude & Longitude otomatis.</p>
           </div>
 
-          {/* Address Overlay — My Location */}
-          {myCoords && (
-            <div className="absolute top-3 left-3 right-3 lg:right-auto lg:max-w-sm bg-[#111327]/90 border border-[#FF69B4]/40 rounded-xl px-3 py-2 pointer-events-none z-[1000] shadow-lg">
-              <p className="font-['Press_Start_2P'] text-[8px] text-[#FF69B4] mb-0.5">📍 LOKASIKU</p>
-              <p className="font-['VT323'] text-sm text-white/90 leading-tight">{myAddress ?? 'Sedang mengambil alamat...'}</p>
-              {partnerCoords && (
+          {/* Address Overlay — Compact summary pinned top-left */}
+          {myCoords && myAddressData && (
+            <div className="absolute top-3 left-3 bg-[#111327]/92 border border-[#FF69B4]/50 rounded-xl px-3 py-2 pointer-events-none z-[1000] shadow-lg max-w-[280px]">
+              <p className="font-['Press_Start_2P'] text-[7px] text-[#FF69B4] mb-0.5">📍 LOKASIKU</p>
+              <p className="font-['VT323'] text-sm text-white leading-tight">
+                {myAddressData.road ?? myAddressData.suburb ?? 'Lokasi ditemukan'}
+                {myAddressData.city ? `, ${myAddressData.city}` : ''}
+              </p>
+              {partnerCoords && partnerAddressData && (
                 <>
                   <div className="my-1.5 border-t border-white/10" />
-                  <p className="font-['Press_Start_2P'] text-[8px] text-[#00FFFF] mb-0.5">💙 LOKASI DIA</p>
-                  <p className="font-['VT323'] text-sm text-white/90 leading-tight">{partnerAddress ?? 'Sedang mengambil alamat...'}</p>
+                  <p className="font-['Press_Start_2P'] text-[7px] text-[#00FFFF] mb-0.5">💙 LOKASI DIA</p>
+                  <p className="font-['VT323'] text-sm text-white leading-tight">
+                    {partnerAddressData.road ?? partnerAddressData.suburb ?? 'Lokasi ditemukan'}
+                    {partnerAddressData.city ? `, ${partnerAddressData.city}` : ''}
+                  </p>
                 </>
               )}
+              {partnerCoords && !partnerAddressData && (
+                <>
+                  <div className="my-1.5 border-t border-white/10" />
+                  <p className="font-['Press_Start_2P'] text-[7px] text-[#00FFFF] mb-0.5">💙 LOKASI DIA</p>
+                  <p className="font-['VT323'] text-xs text-white/50 animate-pulse">Mengambil alamat...</p>
+                </>
+              )}
+              {myCoords && !myAddressData && (
+                <p className="font-['VT323'] text-xs text-white/50 animate-pulse">Mengambil alamat...</p>
+              )}
+            </div>
+          )}
+          {myCoords && !myAddressData && (
+            <div className="absolute top-3 left-3 bg-[#111327]/92 border border-[#FF69B4]/50 rounded-xl px-3 py-2 pointer-events-none z-[1000] shadow-lg">
+              <p className="font-['Press_Start_2P'] text-[7px] text-[#FF69B4] mb-0.5">📍 LOKASIKU</p>
+              <p className="font-['VT323'] text-xs text-white/50 animate-pulse">Mengambil alamat...</p>
             </div>
           )}
         </div>
@@ -715,6 +875,116 @@ const MapTracker: React.FC = () => {
           <div className={`flex flex-col overflow-y-auto transition-all duration-300 ${
             isSidebarOpen ? 'flex-1 opacity-100' : 'h-0 opacity-0 pointer-events-none'
           }`}>
+
+          {/* Section: INFO LOKASI — Full Address & Nearby Places */}
+          {(myAddressData || partnerAddressData) && (
+            <section className="p-4 border-b border-white/10 bg-[#0a0818]/40">
+              <h3 className="font-['Press_Start_2P'] text-[9px] text-[#FF69B4] mb-3 flex items-center gap-2">
+                <span>📍</span> INFO LOKASI
+              </h3>
+
+              {/* My full address */}
+              {myAddressData && (
+                <div className="mb-3">
+                  <p className="font-['Press_Start_2P'] text-[7px] text-[#FF69B4] mb-1">📌 LOKASIKU</p>
+                  <div className="bg-black/30 rounded-lg p-2.5 space-y-0.5">
+                    {myAddressData.road && (
+                      <p className="font-['VT323'] text-base text-white leading-tight">
+                        🛣 {myAddressData.houseNumber ? `No. ${myAddressData.houseNumber}, ` : ''}{myAddressData.road}
+                      </p>
+                    )}
+                    {myAddressData.suburb && <p className="font-['VT323'] text-sm text-white/80">🏘 {myAddressData.suburb}</p>}
+                    {myAddressData.district && <p className="font-['VT323'] text-sm text-white/80">🏙 Kec. {myAddressData.district}</p>}
+                    {myAddressData.city && <p className="font-['VT323'] text-sm text-white/80">🌆 {myAddressData.city}</p>}
+                    {myAddressData.state && <p className="font-['VT323'] text-sm text-white/80">🗺 {myAddressData.state}</p>}
+                    {(myAddressData.postcode || myAddressData.country) && (
+                      <p className="font-['VT323'] text-sm text-white/60">
+                        {myAddressData.postcode && `📮 ${myAddressData.postcode}`}{myAddressData.postcode && myAddressData.country && ' · '}{myAddressData.country && `🌏 ${myAddressData.country}`}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Nearby Places for Me */}
+                  {myAddressData.nearbyPlaces.length > 0 && (
+                    <div className="mt-2">
+                      <p className="font-['Press_Start_2P'] text-[6px] text-[#FFD700] mb-1">📍 SEKITAR LOKASIKU</p>
+                      <div className="space-y-1">
+                        {myAddressData.nearbyPlaces.map((place, i) => (
+                          <div key={i} className="flex items-start gap-1.5 bg-black/20 rounded px-2 py-1">
+                            <span className="font-['VT323'] text-base text-[#FFD700] shrink-0">◆</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-['VT323'] text-sm text-white leading-tight truncate">{place.name}</p>
+                              <p className="font-['VT323'] text-xs text-white/50 leading-none">
+                                {place.type} · ~{place.distanceM}m ke {place.bearing}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Partner full address */}
+              {partnerAddressData && (
+                <div>
+                  <p className="font-['Press_Start_2P'] text-[7px] text-[#00FFFF] mb-1">💙 LOKASI DIA</p>
+                  <div className="bg-black/30 rounded-lg p-2.5 space-y-0.5">
+                    {partnerAddressData.road && (
+                      <p className="font-['VT323'] text-base text-white leading-tight">
+                        🛣 {partnerAddressData.houseNumber ? `No. ${partnerAddressData.houseNumber}, ` : ''}{partnerAddressData.road}
+                      </p>
+                    )}
+                    {partnerAddressData.suburb && <p className="font-['VT323'] text-sm text-white/80">🏘 {partnerAddressData.suburb}</p>}
+                    {partnerAddressData.district && <p className="font-['VT323'] text-sm text-white/80">🏙 Kec. {partnerAddressData.district}</p>}
+                    {partnerAddressData.city && <p className="font-['VT323'] text-sm text-white/80">🌆 {partnerAddressData.city}</p>}
+                    {partnerAddressData.state && <p className="font-['VT323'] text-sm text-white/80">🗺 {partnerAddressData.state}</p>}
+                    {(partnerAddressData.postcode || partnerAddressData.country) && (
+                      <p className="font-['VT323'] text-sm text-white/60">
+                        {partnerAddressData.postcode && `📮 ${partnerAddressData.postcode}`}{partnerAddressData.postcode && partnerAddressData.country && ' · '}{partnerAddressData.country && `🌏 ${partnerAddressData.country}`}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Nearby Places for Partner */}
+                  {partnerAddressData.nearbyPlaces.length > 0 && (
+                    <div className="mt-2">
+                      <p className="font-['Press_Start_2P'] text-[6px] text-[#FFD700] mb-1">📍 SEKITAR LOKASINYA</p>
+                      <div className="space-y-1">
+                        {partnerAddressData.nearbyPlaces.map((place, i) => (
+                          <div key={i} className="flex items-start gap-1.5 bg-black/20 rounded px-2 py-1">
+                            <span className="font-['VT323'] text-base text-[#00FFFF] shrink-0">◆</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-['VT323'] text-sm text-white leading-tight truncate">{place.name}</p>
+                              <p className="font-['VT323'] text-xs text-white/50 leading-none">
+                                {place.type} · ~{place.distanceM}m ke {place.bearing}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Distance between both */}
+              {myCoords && partnerCoords && (() => {
+                const dm = Math.round(calcDistanceM(myCoords.latitude, myCoords.longitude, partnerCoords.latitude, partnerCoords.longitude));
+                const label = dm >= 1000 ? `${(dm / 1000).toFixed(2)} km` : `${dm} m`;
+                const bearing = calcBearingLabel(myCoords.latitude, myCoords.longitude, partnerCoords.latitude, partnerCoords.longitude);
+                return (
+                  <div className="mt-3 p-2.5 bg-[#FF69B4]/10 border border-[#FF69B4]/30 rounded-lg text-center">
+                    <p className="font-['Press_Start_2P'] text-[7px] text-[#FF69B4] mb-1">💕 JARAK KALIAN</p>
+                    <p className="font-['VT323'] text-2xl text-white font-bold">{label}</p>
+                    <p className="font-['VT323'] text-xs text-white/60">Dia berada di arah {bearing} dari kamu</p>
+                  </div>
+                );
+              })()}
+            </section>
+          )}
+
           {/* Section: Tambah Geofence */}
           <section className="p-4 border-b border-white/10">
             <h3 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-1 flex items-center gap-2">
@@ -930,6 +1200,21 @@ const MapTracker: React.FC = () => {
         /* Retro dark filter for standard OpenStreetMap tiles */
         .leaflet-tile {
           filter: invert(90%) hue-rotate(180deg) brightness(85%) contrast(110%);
+        }
+        /* Pink polyline distance tooltip */
+        .polyline-distance-label {
+          background: rgba(17, 19, 39, 0.92) !important;
+          border: 1.5px solid #FF69B4 !important;
+          border-radius: 8px !important;
+          color: #fff !important;
+          font-family: 'VT323', monospace !important;
+          font-size: 14px !important;
+          padding: 2px 8px !important;
+          box-shadow: 0 0 10px rgba(255, 105, 180, 0.3) !important;
+          white-space: nowrap;
+        }
+        .polyline-distance-label::before {
+          display: none !important;
         }
       `}</style>
     </div>
