@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { Plus, Trash2, Clock, Navigation, History } from 'lucide-react';
 import { PixelButton } from '@/components/custom/PixelButton';
 import {
@@ -35,6 +34,7 @@ const MapTracker: React.FC = () => {
   const mapInstanceRef = useRef<L.Map | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
+  const [permissionStatus, setPermissionStatus] = useState<'granted' | 'prompt' | 'denied'>('prompt');
 
   // Markers
   const myMarkerRef = useRef<L.Marker | null>(null);
@@ -59,6 +59,61 @@ const MapTracker: React.FC = () => {
 
   // Ref tracking untuk Geofencing agar tidak trigger berulang
   const insideGeofencesRef = useRef<Record<number, boolean>>({});
+
+  // =========================================================================
+  // LOCATION PERMISSIONS MANAGEMENT
+  // =========================================================================
+  const checkLocationPermission = async () => {
+    if (!('permissions' in navigator)) {
+      setPermissionStatus('prompt');
+      return;
+    }
+
+    try {
+      const result = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
+      setPermissionStatus(result.state as any);
+
+      result.onchange = () => {
+        setPermissionStatus(result.state as any);
+      };
+    } catch (err) {
+      console.error('Error querying permission status:', err);
+      setPermissionStatus('prompt');
+    }
+  };
+
+  const requestLocationPermission = () => {
+    if (!('geolocation' in navigator)) {
+      showToast('Geolocation tidak didukung oleh browser Anda.', '⚠');
+      return;
+    }
+
+    showToast('Meminta izin akses lokasi...', '🛰');
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setMyCoords({ latitude, longitude });
+        updateLocation(latitude, longitude);
+        setPermissionStatus('granted');
+        showToast('Izin lokasi disetujui!', '💖');
+      },
+      (err) => {
+        console.error('Error requesting location:', err);
+        if (err.code === err.PERMISSION_DENIED) {
+          setPermissionStatus('denied');
+          showToast('Izin lokasi ditolak! Buka setelan browser untuk mengaktifkan.', '⚠');
+        } else {
+          showToast('Gagal memuat GPS. Pastikan GPS aktif!', '⚠');
+        }
+      },
+      {
+        enableHighAccuracy: false,
+        maximumAge: 10000,
+        timeout: 15000,
+      }
+    );
+  };
 
   // =========================================================================
   // INITIAL DATA LOAD
@@ -88,6 +143,7 @@ const MapTracker: React.FC = () => {
   };
 
   useEffect(() => {
+    checkLocationPermission();
     loadInitialData();
   }, []);
 
@@ -262,7 +318,7 @@ const MapTracker: React.FC = () => {
   // GEOLOCATION MONITORING (MY LOCATION WATCHER)
   // =========================================================================
   useEffect(() => {
-    if (!map) return;
+    if (!map || permissionStatus !== 'granted') return;
 
     if (!('geolocation' in navigator)) {
       showToast('Geolocation tidak didukung oleh browser Anda.', '⚠');
@@ -291,7 +347,7 @@ const MapTracker: React.FC = () => {
     return () => {
       navigator.geolocation.clearWatch(watchId);
     };
-  }, [map]);
+  }, [map, permissionStatus]);
 
   // =========================================================================
   // RENDER / UPDATE MY MARKER
@@ -507,6 +563,35 @@ const MapTracker: React.FC = () => {
         {/* Map Container */}
         <div className="flex-1 h-[45vh] lg:h-full relative z-10">
           <div ref={mapContainerRef} className="w-full h-full" />
+
+          {permissionStatus !== 'granted' && (
+            <div className="absolute inset-0 bg-[#0c0a18]/95 flex flex-col items-center justify-center p-6 text-center z-[20]">
+              <div className="p-6 max-w-sm bg-[#111327] border-4 border-[#FF69B4] shadow-[0_0_24px_rgba(255,105,180,0.3)] rounded-xl relative">
+                <span className="text-4xl mb-3 block animate-bounce">🛰</span>
+                <h4 className="font-['Press_Start_2P'] text-[10px] text-[#FFD700] mb-3">IZIN LOKASI DIBUTUHKAN</h4>
+                
+                {permissionStatus === 'denied' ? (
+                  <p className="font-['VT323'] text-lg text-white/80 leading-snug mb-4">
+                    Akses GPS diblokir oleh peramban Anda. Silakan klik ikon gembok di sebelah kiri bilah alamat URL untuk mengizinkan akses lokasi.
+                  </p>
+                ) : (
+                  <p className="font-['VT323'] text-lg text-white/80 leading-snug mb-4">
+                    Aplikasi memerlukan izin GPS agar kalian dapat saling melacak lokasi masing-masing di peta secara real-time.
+                  </p>
+                )}
+
+                {permissionStatus !== 'denied' ? (
+                  <PixelButton onClick={requestLocationPermission} className="w-full">
+                    ▶ IZINKAN AKSES GPS
+                  </PixelButton>
+                ) : (
+                  <PixelButton onClick={checkLocationPermission} variant="secondary" className="w-full">
+                    🔄 PERIKSA ULANG IZIN
+                  </PixelButton>
+                )}
+              </div>
+            </div>
+          )}
 
           {initError && (
             <div className="absolute inset-0 bg-red-950/90 border border-red-500/50 flex flex-col items-center justify-center p-6 text-center z-50">
