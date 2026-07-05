@@ -1013,6 +1013,40 @@ export const saveMoodLogForDate = async (dateStr: string, mood: string, intensit
   }
 };
 
+export const deleteMoodLogForDate = async (dateStr: string): Promise<void> => {
+  const localListStr = localStorage.getItem('local-mood-logs');
+  const localList: MoodLog[] = localListStr ? JSON.parse(localListStr) : [];
+  
+  const updatedList = localList.filter(log => {
+    const logDate = new Date(log.created_at);
+    const logDateStr = `${logDate.getFullYear()}-${String(logDate.getMonth() + 1).padStart(2, '0')}-${String(logDate.getDate()).padStart(2, '0')}`;
+    return logDateStr !== dateStr;
+  });
+  
+  localStorage.setItem('local-mood-logs', JSON.stringify(updatedList));
+  
+  if (!isSupabaseConfigured() || !supabase) return;
+  
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) return;
+    
+    const startOfDay = `${dateStr}T00:00:00.000Z`;
+    const endOfDay = `${dateStr}T23:59:59.999Z`;
+    
+    const { error } = await supabase
+      .from('mood_logs')
+      .delete()
+      .eq('user_id', userId)
+      .gte('created_at', startOfDay)
+      .lte('created_at', endOfDay);
+      
+    if (error) throw error;
+  } catch (err) {
+    console.warn('[db] Gagal hapus mood log dari Supabase:', err);
+  }
+};
+
 // =========================================================================
 // PUBLIC API - REALTIME COUPLE CHAT
 // =========================================================================

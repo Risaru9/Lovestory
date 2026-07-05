@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PixelButton } from '@/components/custom/PixelButton';
-import { saveMoodLogForDate, getMoodLogs, getRPGStats, type MoodLog, type RPGStats } from '@/lib/db';
+import { saveMoodLogForDate, getMoodLogs, getRPGStats, deleteMoodLogForDate, type MoodLog, type RPGStats } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
 
@@ -142,21 +142,7 @@ const CheckIn: React.FC = () => {
       }
     });
 
-    // Mock partner checks in offline mode to keep UI testable & cute
-    if (!partnerLog && (!isSupabaseConfigured() || moodLogs.length === 0)) {
-      const dayNum = parseInt(dateStr.split('-')[2]);
-      if ([5, 12, 18, 25].includes(dayNum)) {
-        const mockMoods = ['happy', 'in_love', 'calm', 'tired'];
-        partnerLog = {
-          id: `mock-partner-${dayNum}`,
-          mood: mockMoods[dayNum % mockMoods.length],
-          intensity: 4,
-          reason: `Lagi mikirin kamu nih dari pagi! ❤️`,
-          created_at: new Date(year, month, dayNum, 12, 0).toISOString(),
-          user_id: 'partner'
-        };
-      }
-    }
+
 
     return { myLog, partnerLog };
   };
@@ -216,6 +202,22 @@ const CheckIn: React.FC = () => {
       console.error(err);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedDateStr) return;
+    if (!window.confirm('Apakah kamu yakin ingin menghapus check-in pada tanggal ini? 😢')) {
+      return;
+    }
+
+    try {
+      await deleteMoodLogForDate(selectedDateStr);
+      playSFX(200, 'square', 0.15); // Delete sound effect
+      setIsModalOpen(false);
+      await loadData();
+    } catch (err) {
+      console.error('Gagal menghapus mood log:', err);
     }
   };
 
@@ -478,15 +480,24 @@ const CheckIn: React.FC = () => {
                       </div>
                     </div>
 
-                    <PixelButton
-                      onClick={() => {
-                        playSFX(350, 'square', 0.08);
-                        setIsEditing(true);
-                      }}
-                      className="w-full text-[8px] py-2 mt-2"
-                    >
-                      ✏️ EDIT CHECK-IN
-                    </PixelButton>
+                    <div className="flex gap-2 mt-2 select-none">
+                      <PixelButton
+                        onClick={() => {
+                          playSFX(350, 'square', 0.08);
+                          setIsEditing(true);
+                        }}
+                        className="flex-1 text-[8px] py-2"
+                      >
+                        ✏️ EDIT
+                      </PixelButton>
+                      <button
+                        type="button"
+                        onClick={handleDelete}
+                        className="flex-1 text-[8px] py-2 font-['Press_Start_2P'] border-4 border-[#000000] bg-red-700 hover:bg-red-800 text-white shadow-[2px_2px_0_#000000] active:translate-x-0.5 active:translate-y-0.5 rounded cursor-pointer transition-all duration-100"
+                      >
+                        ❌ HAPUS
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <form onSubmit={handleFormSubmit} className="space-y-3 flex-grow flex flex-col justify-between">
