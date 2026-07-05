@@ -77,7 +77,7 @@ const GalleryCard = memo(function GalleryCard({
     <button
       type="button"
       onClick={onClick}
-      className="group relative overflow-hidden rounded-2xl border-2 border-white/10 bg-[#090b1e]/85 p-2 text-left shadow-lg transition-all duration-200 hover:-translate-y-1 hover:border-[#FF69B4]/40"
+      className="group relative overflow-hidden rounded-xl border-4 border-[#1a1a2e] bg-[#12121c] p-2 text-left shadow-[4px_4px_0_#000000] transition-all duration-150 hover:-translate-y-0.5 hover:border-[#FF69B4]/60"
       style={{
         contentVisibility: 'auto',
         containIntrinsicSize: '0 300px',
@@ -86,7 +86,7 @@ const GalleryCard = memo(function GalleryCard({
       }}
       aria-label={`Open photo ${label}`}
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-black/40 border border-white/[0.04]">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-black/40 border border-white/[0.04]">
         {!loaded && (
           <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-white/10 via-white/5 to-transparent" />
         )}
@@ -100,7 +100,7 @@ const GalleryCard = memo(function GalleryCard({
           className={cn(
             'h-full w-full object-cover transition-all duration-300',
             loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.01]',
-            'group-hover:scale-[1.03]'
+            'group-hover:scale-[1.02]'
           )}
           style={{ imageRendering: 'auto' }}
         />
@@ -154,7 +154,7 @@ function PhotoModal({
           e.stopPropagation();
           onPrev();
         }}
-        className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-[#090b1e]/90 p-3 text-white/60 transition hover:bg-white/10 hover:text-white active:scale-90"
+        className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 rounded-xl border-4 border-[#1a1a2e] bg-[#12121c] p-2 text-white/60 transition hover:bg-[#FF69B4] hover:text-white shadow-[2px_2px_0_#000000] active:scale-95 z-40"
         aria-label="Previous photo"
       >
         <ChevronLeft className="h-6 w-6 md:h-7 md:w-7" />
@@ -166,26 +166,26 @@ function PhotoModal({
           e.stopPropagation();
           onNext();
         }}
-        className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-[#090b1e]/90 p-3 text-white/60 transition hover:bg-white/10 hover:text-white active:scale-90"
+        className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 rounded-xl border-4 border-[#1a1a2e] bg-[#12121c] p-2 text-white/60 transition hover:bg-[#FF69B4] hover:text-white shadow-[2px_2px_0_#000000] active:scale-95 z-40"
         aria-label="Next photo"
       >
         <ChevronRight className="h-6 w-6 md:h-7 md:w-7" />
       </button>
 
       <div
-        className="relative w-full max-w-3xl overflow-y-auto max-h-[85vh] rounded-2xl border-4 border-[#1a1a2e] bg-[#090b1e] shadow-[4px_4px_0_#FF69B4,inset_-4px_-4px_0_rgba(0,0,0,0.2)]"
+        className="relative w-full max-w-3xl overflow-y-auto max-h-[85vh] rounded-xl border-4 border-[#1a1a2e] bg-[#12121c] shadow-[6px_6px_0_#000000]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 rounded-full border border-white/10 bg-black/50 p-2 text-white/60 transition hover:bg-white/10 hover:text-white active:scale-95"
+          className="absolute right-4 top-4 z-10 rounded-full border-2 border-white/20 bg-black/50 p-2 text-white/60 transition hover:bg-[#FF69B4] hover:text-white active:scale-95"
           aria-label="Close photo preview"
         >
           <X className="h-5 w-5" />
         </button>
 
-        <div className="absolute left-4 top-4 z-10 rounded-full border border-white/10 bg-black/50 px-3 py-1 font-['Press_Start_2P'] text-[8px] text-white/70">
+        <div className="absolute left-4 top-4 z-10 rounded-lg border-2 border-white/20 bg-black/50 px-3 py-1 font-['Press_Start_2P'] text-[7px] text-white/70">
           {currentIndex + 1} / {total}
         </div>
 
@@ -389,9 +389,7 @@ const Gallery: React.FC = () => {
 
   return (
     <div className="h-[100dvh] max-h-[100dvh] bg-[#0c0a18] text-white flex flex-col relative overflow-hidden">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,105,180,0.06),_transparent_40%)]" />
-      </div>
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-black/60" />
 
       <header className="sticky top-0 z-40 border-b border-[#1A1A2E] bg-[#080b18]/90 backdrop-blur-md px-4 py-3">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">

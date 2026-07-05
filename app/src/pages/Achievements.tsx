@@ -137,9 +137,7 @@ const Achievements: React.FC = () => {
 
   return (
     <div className="h-[100dvh] max-h-[100dvh] bg-[#0c0a18] text-white flex flex-col relative overflow-hidden">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,105,180,0.06),_transparent_40%)]" />
-      </div>
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-black/60" />
 
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-[#1A1A2E] bg-[#080b18]/90 backdrop-blur-md px-4 py-3 w-full">
@@ -148,7 +146,7 @@ const Achievements: React.FC = () => {
             ← TIMELINE
           </PixelButton>
 
-          <div className="text-center">
+          <div className="text-center select-none">
             <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-white leading-none">
               ACHIEVEMENTS
             </h1>
@@ -167,18 +165,18 @@ const Achievements: React.FC = () => {
         {isLoading ? (
           <div className="text-center py-20">
             <p className="font-['Press_Start_2P'] text-[9px] text-[#FF69B4] animate-pulse">
-              MEMBUKA KOTAK PENCAPAIAN...
+              MEMUKAL KOTAK PENCAPAIAN...
             </p>
           </div>
         ) : (
           <>
             {/* Banner Section */}
-            <section className="mb-6 rounded-2xl border border-white/[0.06] bg-[#111327]/80 p-4 sm:p-5 shadow-lg">
+            <section className="mb-6 rounded-xl border-4 border-[#1a1a2e] bg-[#12121c] p-4 sm:p-5 shadow-[4px_4px_0_#000000]">
               <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 items-center">
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[#FFD700]/20 bg-[#FFD700]/10 px-3 py-0.5 mb-2">
+                  <div className="inline-flex items-center gap-2 rounded-lg border-2 border-[#FFD700] bg-[#FFD700]/10 px-3 py-0.5 mb-2 select-none">
                     <Trophy className="w-3.5 h-3.5 text-[#FFD700]" />
-                    <span className="font-['VT323'] text-sm text-[#FFD700] uppercase tracking-wider">
+                    <span className="font-['VT323'] text-sm text-[#FFD700] uppercase tracking-wider font-bold">
                       Journey Rewards
                     </span>
                   </div>
@@ -193,17 +191,17 @@ const Achievements: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-3 gap-2.5">
-                  <div className="rounded-xl border border-white/[0.05] bg-[#090b1e]/80 p-3 text-center">
+                  <div className="rounded-xl border-2 border-[#1a1a2e] bg-black/40 p-3 text-center shadow-[2px_2px_0_#000000] select-none">
                     <div className="font-['Press_Start_2P'] text-[7px] text-white/40">TOTAL</div>
                     <div className="mt-1 font-['VT323'] text-2xl text-white leading-none">{totalCount}</div>
                   </div>
 
-                  <div className="rounded-xl border border-white/[0.05] bg-[#090b1e]/80 p-3 text-center">
+                  <div className="rounded-xl border-2 border-[#1a1a2e] bg-black/40 p-3 text-center shadow-[2px_2px_0_#000000] select-none">
                     <div className="font-['Press_Start_2P'] text-[7px] text-white/40">UNLOCKED</div>
                     <div className="mt-1 font-['VT323'] text-2xl text-[#00FFFF] leading-none">{unlockedCount}</div>
                   </div>
 
-                  <div className="rounded-xl border border-white/[0.05] bg-[#090b1e]/80 p-3 text-center">
+                  <div className="rounded-xl border-2 border-[#1a1a2e] bg-black/40 p-3 text-center shadow-[2px_2px_0_#000000] select-none">
                     <div className="font-['Press_Start_2P'] text-[7px] text-white/40">COMPLETED</div>
                     <div className="mt-1 font-['VT323'] text-2xl text-[#32CD32] leading-none">{completedCount}</div>
                   </div>
@@ -223,12 +221,11 @@ const Achievements: React.FC = () => {
                       navigate(`/chapter/${item.id}`);
                     }}
                     className={[
-                      'rounded-2xl border-2 bg-[#090b1e]/90 overflow-hidden transition-all duration-200 hover:-translate-y-1 cursor-pointer relative shadow-md',
+                      'rounded-xl border-4 bg-[#12121c] overflow-hidden transition-all duration-150 hover:-translate-y-0.5 cursor-pointer relative shadow-[4px_4px_0_#000000]',
                       rarity.border,
-                      rarity.glow,
                     ].join(' ')}
                   >
-                    <div className="relative h-44 overflow-hidden border-b border-white/[0.08] bg-black/40">
+                    <div className="relative h-44 overflow-hidden border-b-4 border-[#1a1a2e] bg-black/40">
                       <img
                         src={item.image}
                         alt={item.title}

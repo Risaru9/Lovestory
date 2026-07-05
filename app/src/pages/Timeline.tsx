@@ -270,55 +270,49 @@ const Timeline: React.FC = () => {
                 <p className="font-['VT323'] text-sm sm:text-base text-white/60 tracking-widest uppercase">
                   {chaptersList.length} bab kisah petualangan kita
                 </p>
-              </div>
-
-              {/* Status bar */}
+              </div>              {/* Status bar */}
               <div className="grid grid-cols-3 gap-2.5 mb-8">
-                <div className="rounded-xl border border-white/[0.05] bg-[#090b1e]/80 p-3 text-center">
+                <div className="rounded-xl border-2 border-[#1a1a2e] bg-[#12121c] p-3 text-center shadow-[2px_2px_0_#000000] select-none">
                   <div className="font-['Press_Start_2P'] text-[7px] text-white/40">KISAH KITA</div>
-                  <div className="mt-1 font-['VT323'] text-2xl text-[#FF69B4] leading-none">{chaptersList.length} Bab</div>
+                  <div className="mt-1.5 font-['VT323'] text-2xl text-[#FF69B4] leading-none">{chaptersList.length} Bab</div>
                 </div>
-                <div className="rounded-xl border border-white/[0.05] bg-[#090b1e]/80 p-3 text-center min-w-0">
+                <div className="rounded-xl border-2 border-[#1a1a2e] bg-[#12121c] p-3 text-center shadow-[2px_2px_0_#000000] min-w-0 select-none">
                   <div className="font-['Press_Start_2P'] text-[7px] text-white/40">KERAJAAN AKTIF</div>
                   <div className="mt-1.5 font-['VT323'] text-xs text-[#32CD32] leading-none truncate uppercase tracking-wider">
                     {currentActiveChapter ? currentActiveChapter.title : 'Petualangan'}
                   </div>
                 </div>
-                <div className="rounded-xl border border-white/[0.05] bg-[#090b1e]/80 p-3 text-center">
+                <div className="rounded-xl border-2 border-[#1a1a2e] bg-[#12121c] p-3 text-center shadow-[2px_2px_0_#000000] select-none">
                   <div className="font-['Press_Start_2P'] text-[7px] text-white/40">ACHIEVEMENTS</div>
-                  <div className="mt-1 font-['VT323'] text-2xl text-[#FFD700] leading-none">{chaptersList.length}</div>
+                  <div className="mt-1.5 font-['VT323'] text-2xl text-[#FFD700] leading-none">{chaptersList.length}</div>
                 </div>
               </div>
 
               {chaptersList.length === 0 ? (
-                <div className="text-center py-20 bg-white/[0.01] border border-dashed border-white/10 rounded-2xl p-6">
+                <div className="text-center py-20 bg-[#12121c] border-4 border-[#1a1a2e] rounded-xl p-6 shadow-[4px_4px_0_#000000]">
                   <p className="font-['Press_Start_2P'] text-[9px] text-white/35 mb-3">
                     MAP MASIH KOSONG...
                   </p>
                   <p className="font-['VT323'] text-base text-white/50 mb-6">
                     Kalian belum menulis kisah perjalanan cinta kalian.<br />
-                    Klik tombol di bawah ini untuk memulai petualangan pertama!
+                    Klik tombol di atas untuk memulai petualangan pertama!
                   </p>
-                  <PixelButton onClick={() => setIsModalOpen(true)} variant="primary" size="sm" className="text-[9px]">
-                    ✨ BUAT KISAH PERTAMA
-                  </PixelButton>
                 </div>
               ) : (
                 <>
                   {/* Timeline bar */}
                   <div className="absolute md:left-1/2 left-8 top-[10%] bottom-[12%] w-[6px] bg-white/10 rounded-full -translate-x-1/2 z-0" />
                   <div
-                    className="absolute md:left-1/2 left-8 top-[10%] w-[6px] bg-gradient-to-b from-[#FFD700] via-[#FF69B4] to-[#00FFFF] rounded-full -translate-x-1/2 transition-all duration-300 z-0"
+                    className="absolute md:left-1/2 left-8 top-[10%] w-[6px] bg-[#FFD700] border border-[#1a1a2e] rounded-full -translate-x-1/2 transition-all duration-300 z-0"
                     style={{ height: progressHeight, maxHeight: '78%' }}
                   />
 
                   {/* Character sprite */}
                   <div
-                    className="absolute md:left-1/2 left-8 -translate-x-1/2 z-20 transition-all duration-300"
+                    className="absolute md:left-1/2 left-8 -translate-x-1/2 z-20 transition-all duration-300 select-none"
                     style={{ top: `${characterY}%` }}
                   >
                     <div className="relative">
-                      <div className="absolute inset-0 bg-[#FFD700]/30 blur-lg rounded-full scale-125" />
                       <img
                         src="/images/sprites/char-boy.png"
                         alt="Player"
@@ -342,29 +336,29 @@ const Timeline: React.FC = () => {
                           <div className={`flex-1 ${isEven ? 'md:text-right' : 'md:text-left'} text-left`}>
                             <div
                               className={[
-                                'inline-block w-full max-w-[280px] md:max-w-sm rounded-2xl px-4 py-4 cursor-pointer transition-all duration-200 bg-[#090b1e]/90 border-2 border-white/10 hover:-translate-y-1 hover:border-[#FF69B4]/50 shadow-md relative overflow-hidden',
-                                isReached ? 'ring-2 ring-[#FFD700]/30 border-[#FF69B4]/40' : '',
+                                'inline-block w-full max-w-[280px] md:max-w-sm rounded-xl px-4 py-4 cursor-pointer transition-all duration-150 bg-[#12121c] border-4 border-[#1a1a2e] hover:border-[#FF69B4]/65 shadow-[4px_4px_0_#000000] relative overflow-hidden',
+                                isReached ? 'border-[#FFD700]/70' : '',
                               ].join(' ')}
                               onClick={(event) => handleChapterClick(chapter, event)}
                             >
                               <div
                                 className={`flex items-center gap-2 mb-2 ${isEven ? 'md:justify-end' : 'md:justify-start'} justify-start select-none`}
                               >
-                                <span className="font-['Press_Start_2P'] text-[8px] text-[#FFD700] tracking-wider">
+                                <span className="font-['Press_Start_2P'] text-[7px] text-[#FFD700] tracking-wider font-bold">
                                   MONTH {chapter.month}
                                 </span>
                                 {isReached && (
-                                  <span className="font-['VT323'] text-xs text-[#00FFFF] tracking-wider uppercase bg-[#00FFFF]/10 border border-[#00FFFF]/30 rounded px-1.5 py-0.5">
+                                  <span className="font-['Press_Start_2P'] text-[6px] text-[#00FFFF] tracking-wider uppercase border border-[#00FFFF] px-1 rounded-sm">
                                     aktif
                                   </span>
                                 )}
                               </div>
 
-                              <h3 className="font-['Press_Start_2P'] text-[10px] text-white leading-normal mb-1.5 tracking-wide">
+                              <h3 className="font-['Press_Start_2P'] text-[9px] text-white leading-normal mb-1.5 tracking-wide uppercase">
                                 {chapter.title}
                               </h3>
 
-                              <div className="font-['VT323'] text-xs text-white/40 tracking-wider">
+                              <div className="font-['VT323'] text-sm text-white/40 tracking-wider">
                                 {chapter.date}
                               </div>
 
@@ -375,8 +369,8 @@ const Timeline: React.FC = () => {
                               )}
 
                               <div className={`mt-3 flex ${isEven ? 'md:justify-end' : 'md:justify-start'} justify-start select-none`}>
-                                <div className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 bg-[#32CD32]/10 border border-[#32CD32]/30">
-                                  <span className="text-[#32CD32] text-xs">✓</span>
+                                <div className="inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5 bg-[#32CD32]/10 border border-[#32CD32]/30">
+                                  <span className="text-[#32CD32] text-xs font-bold">✓</span>
                                   <span className="font-['VT323'] text-xs text-[#32CD32] uppercase tracking-wider">
                                     Completed
                                   </span>
@@ -389,14 +383,13 @@ const Timeline: React.FC = () => {
                           <div className="w-16 md:w-28 flex justify-center items-center shrink-0 select-none">
                             <div
                               className={[
-                                'relative w-11 h-11 rounded-full flex items-center justify-center border-2 z-10 transition-all duration-200 shrink-0 bg-[#090b1e]/90 border-white/10 hover:scale-105 active:scale-95 cursor-pointer',
-                                isReached ? 'bg-[#FFD700] border-[#FFD700] shadow-[0_0_15px_rgba(255,215,0,0.4)] text-[#1a1a2e]' : 'text-white/30',
+                                'relative w-10 h-10 rounded-full flex items-center justify-center border-2 z-10 transition-all duration-150 shrink-0 cursor-pointer',
+                                isReached
+                                  ? 'bg-[#FFD700] border-2 border-[#1a1a2e] text-[#1a1a2e] shadow-[2px_2px_0_#000000] font-bold'
+                                  : 'bg-[#12121c] border-2 border-[#1a1a2e] text-white/30 hover:text-white',
                               ].join(' ')}
                               onClick={(event) => handleChapterClick(chapter, event)}
                             >
-                              {isReached && (
-                                <div className="absolute inset-0 rounded-full border-2 border-white/20 animate-ping" />
-                              )}
                               <span className="text-sm font-bold">★</span>
                             </div>
                           </div>
@@ -408,7 +401,7 @@ const Timeline: React.FC = () => {
                   </div>
 
                   <div className="text-center mt-16 select-none z-10 relative">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[#FFD700] border-2 border-[#1a1a2e] rounded-full shadow-[4px_4px_0_#FF69B4] animate-pulse">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[#FFD700] border-2 border-[#1a1a2e] rounded-full shadow-[3px_3px_0_#000000] animate-pulse">
                       <span className="text-2xl">🏆</span>
                     </div>
                     <p className="font-['Press_Start_2P'] text-[8px] text-[#FFD700] mt-4 tracking-widest">
@@ -436,8 +429,8 @@ const Timeline: React.FC = () => {
       {/* Modal Tambah Kisah Baru */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#090b1e]/98 border-4 border-[#1a1a2e] rounded-2xl w-full max-w-md p-5 shadow-[4px_4px_0_#FF69B4,inset_-4px_-4px_0_rgba(0,0,0,0.2)] max-h-[85vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-white/[0.08] pb-3 mb-4">
+          <div className="bg-[#12121c] border-4 border-[#1a1a2e] rounded-xl w-full max-w-md p-5 shadow-[6px_6px_0_#000000] max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b-2 border-[#1a1a2e] pb-3 mb-4 select-none">
               <h3 className="font-['Press_Start_2P'] text-[#FFD700] text-[9px] tracking-wide uppercase">
                 ⚔️ ADD NEW ADVENTURE
               </h3>

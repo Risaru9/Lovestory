@@ -129,8 +129,8 @@ const DatePlanner: React.FC = () => {
 
   return (
     <div className="h-[100dvh] max-h-[100dvh] bg-[#0c0a18] text-white flex flex-col relative overflow-hidden">
-      {/* Background radial gradient */}
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(255,105,180,0.06),transparent_40%),linear-gradient(to_bottom,rgba(12,10,24,0.4),rgba(12,10,24,0.7))]" />
+      {/* Background overlay */}
+      <div className="fixed inset-0 pointer-events-none bg-black/60" />
 
       {/* Header Sticky */}
       <header className="relative z-20 border-b border-[#1A1A2E] bg-[#080b18]/90 backdrop-blur-md px-4 py-3">
@@ -178,18 +178,18 @@ const DatePlanner: React.FC = () => {
             onClick={() => setActiveTab('planned')}
             className={`py-3 px-2 border-2 rounded-xl text-center transition-all duration-100 ${
               activeTab === 'planned'
-                ? 'border-[#FF69B4] bg-[#FF69B4]/15 text-[#FF69B4] shadow-[2px_2px_0_#1a1a2e]'
-                : 'border-white/10 bg-white/[0.02] text-white/50 hover:text-white hover:bg-white/5'
+                ? 'border-[#1a1a2e] bg-[#FF69B4] text-white shadow-[3px_3px_0_#000000] translate-x-0.5 translate-y-0.5 font-bold'
+                : 'border-transparent bg-[#1a1a2e]/40 text-white/50 hover:text-white hover:bg-[#1a1a2e]'
             }`}
           >
             📋 QUEST AKTIF ({activePlans.length})
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`py-3 px-2 border-2 rounded-xl text-center transition-all duration-100 ${
+            className={`py-3 px-2 border-2 rounded-xl text-center transition-all duration-100 font-['Press_Start_2P'] text-[9px] ${
               activeTab === 'history'
-                ? 'border-[#00FFFF] bg-[#00FFFF]/15 text-[#00FFFF] shadow-[2px_2px_0_#1a1a2e]'
-                : 'border-white/10 bg-white/[0.02] text-white/50 hover:text-white hover:bg-white/5'
+                ? 'border-[#1a1a2e] bg-[#32CD32] text-white shadow-[3px_3px_0_#000000] translate-x-0.5 translate-y-0.5 font-bold'
+                : 'border-transparent bg-[#1a1a2e]/40 text-white/50 hover:text-white hover:bg-[#1a1a2e]'
             }`}
           >
             🏆 MEMORI SELESAI ({completedPlans.length})
@@ -199,7 +199,7 @@ const DatePlanner: React.FC = () => {
         {/* Loading Indicator */}
         {isLoading ? (
           <div className="text-center py-20">
-            <p className="font-['Press_Start_2P'] text-[10px] text-[#FF69B4] animate-pulse">
+            <p className="font-['Press_Start_2P'] text-[9px] text-[#FF69B4] animate-pulse">
               MEMUAT DATA QUEST...
             </p>
           </div>
@@ -224,29 +224,29 @@ const DatePlanner: React.FC = () => {
                   activePlans.map((plan) => (
                     <div
                       key={plan.id}
-                      className="bg-[#090b1e]/85 backdrop-blur-md border-2 border-white/10 rounded-2xl p-5 hover:border-[#FF69B4]/40 transition-all duration-200 shadow-lg relative overflow-hidden"
+                      className="bg-[#12121c] border-4 border-[#1a1a2e] rounded-2xl p-5 hover:border-[#FF69B4]/60 transition-all duration-150 shadow-[4px_4px_0_#000000] relative overflow-hidden"
                     >
                       {/* Top-right quest badge */}
-                      <div className="absolute top-0 right-0 bg-[#FF69B4]/20 border-l border-b border-[#FF69B4]/30 px-3 py-1 text-[8px] font-['Press_Start_2P'] text-[#FF69B4] rounded-bl-xl uppercase tracking-wider select-none">
+                      <div className="absolute top-0 right-0 bg-[#FF69B4] border-l-2 border-b-2 border-[#1a1a2e] px-3 py-1 text-[7px] font-['Press_Start_2P'] text-white uppercase tracking-wider select-none rounded-bl-xl font-bold">
                         Quest
                       </div>
 
                       <div className="flex flex-col gap-4">
                         <div className="space-y-3">
-                          <h3 className="font-['Press_Start_2P'] text-xs text-[#FFD700] leading-normal pr-16 tracking-wide">
+                          <h3 className="font-['Press_Start_2P'] text-xs text-[#FFD700] leading-normal pr-16 tracking-wide select-text">
                             {plan.title}
                           </h3>
                           
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-['VT323'] text-base text-white/70">
-                            <div className="flex items-center gap-2 bg-white/[0.02] border border-white/[0.04] rounded-lg p-2 min-w-0">
+                            <div className="flex items-center gap-2 bg-black/20 border border-white/[0.05] rounded-lg p-2 min-w-0">
                               <Clock className="w-4 h-4 text-[#FF69B4] shrink-0" />
                               <span className="truncate">{plan.date_time}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-white/[0.02] border border-white/[0.04] rounded-lg p-2 min-w-0">
+                            <div className="flex items-center gap-2 bg-black/20 border border-white/[0.05] rounded-lg p-2 min-w-0">
                               <MapPin className="w-4 h-4 text-[#00FFFF] shrink-0" />
                               <span className="truncate">{plan.location}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-white/[0.02] border border-white/[0.04] rounded-lg p-2 min-w-0">
+                            <div className="flex items-center gap-2 bg-black/20 border border-white/[0.05] rounded-lg p-2 min-w-0">
                               <MessageSquare className="w-4 h-4 text-green-400 shrink-0" />
                               <span className="truncate">Aktivitas: {plan.activity}</span>
                             </div>
@@ -272,7 +272,7 @@ const DatePlanner: React.FC = () => {
                             onClick={() => handleDelete(plan.id)}
                             variant="secondary"
                             size="sm"
-                            className="text-[9px] px-3 py-2 border-red-500/30 hover:border-red-500/70 hover:bg-red-500/10 text-red-400/90"
+                            className="text-[9px] px-3 py-2 text-red-400/90"
                           >
                             🗑 HAPUS
                           </PixelButton>
@@ -300,10 +300,10 @@ const DatePlanner: React.FC = () => {
                   completedPlans.map((plan) => (
                     <div
                       key={plan.id}
-                      className="bg-[#090b1e]/60 backdrop-blur-md border-2 border-white/5 rounded-2xl p-5 shadow-sm relative overflow-hidden opacity-80"
+                      className="bg-[#12121c]/70 border-4 border-[#1a1a2e] rounded-2xl p-5 shadow-[4px_4px_0_#000000] relative overflow-hidden opacity-80"
                     >
                       {/* Top-right completed badge */}
-                      <div className="absolute top-0 right-0 bg-[#00FFFF]/10 border-l border-b border-[#00FFFF]/20 px-3 py-1 text-[8px] font-['Press_Start_2P'] text-[#00FFFF] rounded-bl-xl uppercase tracking-wider select-none">
+                      <div className="absolute top-0 right-0 bg-[#32CD32] border-l-2 border-b-2 border-[#1a1a2e] px-3 py-1 text-[7px] font-['Press_Start_2P'] text-white uppercase tracking-wider select-none rounded-bl-xl font-bold">
                         Completed
                       </div>
 
@@ -317,15 +317,15 @@ const DatePlanner: React.FC = () => {
                           </div>
                           
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-['VT323'] text-base text-white/60">
-                            <div className="flex items-center gap-2 bg-white/[0.01] border border-white/[0.03] rounded-lg p-2 min-w-0">
+                            <div className="flex items-center gap-2 bg-black/20 border border-white/[0.05] rounded-lg p-2 min-w-0">
                               <Clock className="w-4 h-4 text-white/30 shrink-0" />
                               <span className="truncate">{plan.date_time}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-white/[0.01] border border-white/[0.03] rounded-lg p-2 min-w-0">
+                            <div className="flex items-center gap-2 bg-black/20 border border-white/[0.05] rounded-lg p-2 min-w-0">
                               <MapPin className="w-4 h-4 text-white/30 shrink-0" />
                               <span className="truncate">{plan.location}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-white/[0.01] border border-white/[0.03] rounded-lg p-2 min-w-0">
+                            <div className="flex items-center gap-2 bg-black/20 border border-white/[0.05] rounded-lg p-2 min-w-0">
                               <CheckCircle2 className="w-4 h-4 text-green-500/80 shrink-0" />
                               <span className="truncate">Aktivitas: {plan.activity}</span>
                             </div>
@@ -343,7 +343,7 @@ const DatePlanner: React.FC = () => {
                             onClick={() => handleDelete(plan.id)}
                             variant="secondary"
                             size="sm"
-                            className="text-[9px] px-3 py-2 border-red-500/20 hover:border-red-500/60 hover:bg-red-500/10 text-red-400/80"
+                            className="text-[9px] px-3 py-2 text-red-400/80"
                           >
                             🗑 HAPUS
                           </PixelButton>
@@ -361,8 +361,8 @@ const DatePlanner: React.FC = () => {
       {/* Modal: Buat Rencana Baru */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#090b1e]/98 border-4 border-[#1a1a2e] rounded-2xl w-full max-w-md p-5 shadow-[4px_4px_0_#FF69B4,inset_-4px_-4px_0_rgba(0,0,0,0.2)] max-h-[85vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-white/[0.08] pb-3 mb-4">
+          <div className="bg-[#12121c] border-4 border-[#1a1a2e] rounded-xl w-full max-w-md p-5 shadow-[6px_6px_0_#000000] max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b-2 border-[#1a1a2e] pb-3 mb-4 select-none">
               <h3 className="font-['Press_Start_2P'] text-[#FFD700] text-[9px] tracking-wide uppercase">
                 ⚔️ CREATE NEW QUEST
               </h3>

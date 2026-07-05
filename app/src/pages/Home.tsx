@@ -270,7 +270,7 @@ const Home: React.FC = () => {
 
   return (
     <div
-      className="relative h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-[#0c0a18]"
+      className="relative h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-[#0a0813]"
       style={{
         backgroundImage: 'url(/images/backgrounds/home-bg.png)',
         backgroundSize: 'cover',
@@ -280,8 +280,7 @@ const Home: React.FC = () => {
       <audio ref={audioRef} preload="auto" />
 
       {/* Retro background filters */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(12,10,24,0.4),rgba(12,10,24,0.65))]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,105,180,0.06),transparent_50%)]" />
+      <div className="absolute inset-0 bg-black/60" />
 
       {/* Floating hearts */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -307,7 +306,7 @@ const Home: React.FC = () => {
             <p className="mb-1.5 font-['VT323'] text-base md:text-lg text-[#FFD700] tracking-widest uppercase">
               Press Start to Continue Our Journey
             </p>
-            <h1 className="font-['Press_Start_2P'] text-xl sm:text-2xl md:text-3xl leading-none text-white drop-shadow-[2.5px_2.5px_0_#FF69B4] tracking-wider">
+            <h1 className="font-['Press_Start_2P'] text-xl sm:text-2xl md:text-3xl leading-none text-white drop-shadow-[2.5px_2.5px_0_#1a1a2e] tracking-wider">
               OUR LOVE STORY
             </h1>
           </div>
@@ -315,11 +314,11 @@ const Home: React.FC = () => {
           <button
             type="button"
             onClick={handleToggleMusic}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3.5 py-1.5 text-white/80 backdrop-blur-sm transition hover:bg-black/60 active:scale-95 text-xs"
+            className="inline-flex items-center gap-2 rounded-full border-2 border-[#1a1a2e] bg-black/50 px-3.5 py-1.5 text-white/80 transition hover:bg-black/75 active:scale-95 text-xs shadow-[2px_2px_0_#000000]"
             aria-label={musicEnabled ? 'Turn music off' : 'Turn music on'}
           >
             {musicEnabled ? (
-              <Volume2 className="h-3.5 w-3.5 text-[#FFD700] animate-pulse" />
+              <Volume2 className="h-3.5 w-3.5 text-[#FFD700]" />
             ) : (
               <VolumeX className="h-3.5 w-3.5 text-white/40" />
             )}
@@ -330,8 +329,8 @@ const Home: React.FC = () => {
         </div>
 
         {/* Center: Main Menu Retro Console Board */}
-        <div className="w-full max-w-[340px] sm:max-w-[360px] bg-[#090b1e]/90 border-4 border-[#1a1a2e] rounded-2xl p-4 shadow-[4px_4px_0_#FF69B4,inset_-4px_-4px_0_rgba(0,0,0,0.3)] backdrop-blur-md">
-          <div className="mb-3.5 flex items-center justify-between border-b border-white/[0.08] pb-2">
+        <div className="w-full max-w-[340px] sm:max-w-[360px] bg-[#12121c] border-4 border-[#1a1a2e] rounded-2xl p-4 shadow-[6px_6px_0_#000000] relative">
+          <div className="mb-3.5 flex items-center justify-between border-b-2 border-[#1a1a2e] pb-2 select-none">
             <span className="font-['Press_Start_2P'] text-[9px] text-[#FF69B4] tracking-widest">
               MAIN MENU
             </span>
@@ -357,20 +356,20 @@ const Home: React.FC = () => {
                     'w-full px-3.5 py-2.5 text-left transition-all duration-100 flex items-center gap-3 font-["Press_Start_2P"] text-[9px] border-2 rounded-xl',
                     isEnabled
                       ? isSelected
-                        ? 'border-[#FF69B4] bg-[#FF69B4]/15 text-[#FF69B4] shadow-[2px_2px_0_#1a1a2e] translate-x-0.5 translate-y-0.5'
-                        : 'border-transparent bg-[#111327]/60 text-white/70 hover:bg-[#181a33] hover:text-white'
-                      : 'cursor-not-allowed border-transparent bg-white/[0.02] text-white/20',
+                        ? 'border-[#1a1a2e] bg-[#FF69B4] text-white shadow-[2px_2px_0_#000000] translate-x-0.5 translate-y-0.5'
+                        : 'border-transparent bg-[#1a1a2e]/40 text-white/60 hover:bg-[#1a1a2e]/80 hover:text-white'
+                      : 'cursor-not-allowed border-transparent bg-white/[0.01] text-white/15',
                   ].join(' ')}
                   aria-label={item.label}
                 >
                   <span className="w-5 text-center text-xs shrink-0">{item.icon}</span>
 
-                  <span className={isSelected ? 'animate-pulse' : ''}>
+                  <span>
                     {item.label}
                   </span>
 
                   {isSelected && isEnabled && (
-                    <span className="ml-auto text-[#FF69B4] animate-bounce-horizontal">◀</span>
+                    <span className="ml-auto text-white">◀</span>
                   )}
 
                   {!isEnabled && (

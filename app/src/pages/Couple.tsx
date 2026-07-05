@@ -10,8 +10,8 @@ interface StatPanelProps {
 
 const StatPanel: React.FC<StatPanelProps> = ({ character }) => {
   return (
-    <div className="w-full bg-[#090b1e]/95 border-4 border-[#1a1a2e] rounded-xl p-4 shadow-[4px_4px_0_#FF69B4,inset_-4px_-4px_0_rgba(0,0,0,0.3)] animate-slide-up flex flex-col gap-3">
-      <div className="flex justify-between items-center border-b border-white/[0.08] pb-1.5">
+    <div className="w-full bg-[#12121c] border-4 border-[#1a1a2e] rounded-xl p-4 shadow-[4px_4px_0_#000000] animate-slide-up flex flex-col gap-3">
+      <div className="flex justify-between items-center border-b-2 border-[#1a1a2e] pb-1.5 select-none">
         <span className="font-['Press_Start_2P'] text-[9px] text-[#FF69B4] tracking-wider uppercase">
           STATUS: {character.name}
         </span>
@@ -27,8 +27,8 @@ const StatPanel: React.FC<StatPanelProps> = ({ character }) => {
             <span>LVL:</span>
             <span className="text-[#FFD700]">{character.level}</span>
           </div>
-          <div className="h-2.5 w-full bg-black/45 border-2 border-[#1a1a2e] p-0.5 rounded-sm">
-            <div className="h-full bg-[#FFD700] rounded-sm" style={{ width: '100%' }} />
+          <div className="h-3 w-full bg-black/40 border-2 border-[#1a1a2e] p-[1px]">
+            <div className="h-full bg-[#FFD700]" style={{ width: '100%' }} />
           </div>
         </div>
 
@@ -38,8 +38,8 @@ const StatPanel: React.FC<StatPanelProps> = ({ character }) => {
             <span>HP:</span>
             <span className="text-[#32CD32]">{character.hp}</span>
           </div>
-          <div className="h-2.5 w-full bg-black/45 border-2 border-[#1a1a2e] p-0.5 rounded-sm">
-            <div className="h-full bg-[#32CD32] rounded-sm" style={{ width: '100%' }} />
+          <div className="h-3 w-full bg-black/40 border-2 border-[#1a1a2e] p-[1px]">
+            <div className="h-full bg-[#32CD32]" style={{ width: '100%' }} />
           </div>
         </div>
 
@@ -49,8 +49,8 @@ const StatPanel: React.FC<StatPanelProps> = ({ character }) => {
             <span>MP:</span>
             <span className="text-[#00FFFF]">{character.mp}</span>
           </div>
-          <div className="h-2.5 w-full bg-black/45 border-2 border-[#1a1a2e] p-0.5 rounded-sm">
-            <div className="h-full bg-[#00FFFF] rounded-sm" style={{ width: '100%' }} />
+          <div className="h-3 w-full bg-black/40 border-2 border-[#1a1a2e] p-[1px]">
+            <div className="h-full bg-[#00FFFF]" style={{ width: '100%' }} />
           </div>
         </div>
       </div>
@@ -88,8 +88,6 @@ const Couple: React.FC = () => {
     }
   };
 
-  const isAnySelected = showStat1 || showStat2;
-
   return (
     <div 
       className="h-[100dvh] max-h-[100dvh] w-full relative overflow-hidden bg-[#0c0a18]"
@@ -106,8 +104,8 @@ const Couple: React.FC = () => {
       <div className="relative z-10 h-full flex flex-col items-center justify-between px-4 py-6 md:py-8">
         
         {/* Title */}
-        <div className="text-center">
-          <h1 className="font-['Press_Start_2P'] text-lg sm:text-xl md:text-2xl text-white mb-1.5 drop-shadow-[2.5px_2.5px_0_#FF69B4] tracking-wider">
+        <div className="text-center select-none">
+          <h1 className="font-['Press_Start_2P'] text-lg sm:text-xl md:text-2xl text-white mb-1.5 drop-shadow-[2.5px_2.5px_0_#1a1a2e] tracking-wider">
             SELECT CHARACTER
           </h1>
           <p className="font-['VT323'] text-sm sm:text-base text-[#FFD700] tracking-widest uppercase">
@@ -121,10 +119,10 @@ const Couple: React.FC = () => {
           <div className="flex flex-col items-center">
             <button 
               type="button"
-              className={`cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 outline-none ${
+              className={`cursor-pointer transition-all duration-150 outline-none p-2 border-4 rounded-2xl ${
                 showStat1 
-                  ? 'filter drop-shadow-[0_0_15px_rgba(244,114,182,0.9)] scale-105 -translate-y-2 opacity-100' 
-                  : isAnySelected ? 'opacity-45 scale-95' : 'opacity-100'
+                  ? 'border-[#FF69B4] bg-[#FF69B4]/10 scale-105 opacity-100 shadow-[3px_3px_0_#000000]' 
+                  : 'border-transparent opacity-60 hover:opacity-90'
               }`}
               onClick={() => handleCharacterClick(0)}
               aria-label={`Select ${characters[0].name}`}
@@ -135,13 +133,13 @@ const Couple: React.FC = () => {
                 className="w-20 h-20 sm:w-28 md:w-36 pixel-art"
               />
             </button>
-            <p className="font-['Press_Start_2P'] text-[9px] text-white mt-3.5 tracking-wider">
+            <p className="font-['Press_Start_2P'] text-[9px] text-white mt-3.5 tracking-wider select-none">
               {characters[0].name}
             </p>
           </div>
 
           {/* Heart between */}
-          <div className="text-xl sm:text-3xl animate-pulse text-[#FF69B4]">
+          <div className="text-xl sm:text-3xl animate-pulse text-[#FF69B4] select-none">
             💕
           </div>
 
@@ -149,10 +147,10 @@ const Couple: React.FC = () => {
           <div className="flex flex-col items-center">
             <button 
               type="button"
-              className={`cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 outline-none ${
+              className={`cursor-pointer transition-all duration-150 outline-none p-2 border-4 rounded-2xl ${
                 showStat2 
-                  ? 'filter drop-shadow-[0_0_15px_rgba(244,114,182,0.9)] scale-105 -translate-y-2 opacity-100' 
-                  : isAnySelected ? 'opacity-45 scale-95' : 'opacity-100'
+                  ? 'border-[#FF69B4] bg-[#FF69B4]/10 scale-105 opacity-100 shadow-[3px_3px_0_#000000]' 
+                  : 'border-transparent opacity-60 hover:opacity-90'
               }`}
               onClick={() => handleCharacterClick(1)}
               aria-label={`Select ${characters[1].name}`}
@@ -163,7 +161,7 @@ const Couple: React.FC = () => {
                 className="w-20 h-20 sm:w-28 md:w-36 pixel-art"
               />
             </button>
-            <p className="font-['Press_Start_2P'] text-[9px] text-white mt-3.5 tracking-wider">
+            <p className="font-['Press_Start_2P'] text-[9px] text-white mt-3.5 tracking-wider select-none">
               {characters[1].name}
             </p>
           </div>
