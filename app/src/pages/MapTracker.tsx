@@ -711,7 +711,7 @@ const MapTracker: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="h-screen bg-[#080b18] flex flex-col items-center justify-center gap-4">
+      <div className="h-[100dvh] bg-[#080b18] flex flex-col items-center justify-center gap-4">
         <div className="w-8 h-8 rounded-full border-2 border-[#F472B6] border-t-transparent animate-spin" />
         <p className="text-sm text-white/50 tracking-widest uppercase">Memuat peta...</p>
       </div>
@@ -719,7 +719,7 @@ const MapTracker: React.FC = () => {
   }
 
   return (
-    <div className="h-screen bg-[#080b18] text-white flex flex-col relative overflow-hidden">
+    <div className="h-[100dvh] max-h-[100dvh] bg-[#080b18] text-white flex flex-col relative overflow-hidden">
       {/* Toast Notifications */}
       <div className="fixed top-16 right-4 z-[9999] space-y-2 pointer-events-none max-w-xs w-full">
         {toasts.map((t) => (
