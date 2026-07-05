@@ -58,7 +58,7 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0d1a] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#0c0a18] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated background particles */}
       <div className="fixed inset-0 pointer-events-none">
         {[...Array(12)].map((_, i) => (
@@ -68,7 +68,7 @@ const AuthPage: React.FC = () => {
             style={{
               width: `${4 + (i % 3) * 2}px`,
               height: `${4 + (i % 3) * 2}px`,
-              background: i % 2 === 0 ? '#FF69B4' : '#FFD700',
+              background: i % 2 === 0 ? '#ff69b4' : '#ffb300',
               opacity: 0.15,
               left: `${(i * 8.5) % 100}%`,
               top: `${(i * 13 + 10) % 100}%`,
@@ -81,26 +81,26 @@ const AuthPage: React.FC = () => {
 
       <div className="relative z-10 w-full max-w-sm">
         {/* Title */}
-        <div className="text-center mb-8">
-          <h1 className="font-['Press_Start_2P'] text-[#FF69B4] text-base md:text-lg leading-loose">
+        <div className="text-center mb-8 select-none">
+          <h1 className="font-['Press_Start_2P'] text-[#ffffff] text-base md:text-lg leading-loose drop-shadow-[2px_2px_0_#ff69b4] font-bold">
             💕 LOVE STORY
           </h1>
-          <p className="font-['VT323'] text-[#FFD700] text-xl mt-2">
+          <p className="font-['VT323'] text-[#ffb300] text-xl mt-2 font-bold">
             {mode === 'login' ? 'Masuk ke Dunia Kita' : 'Buat Karakter Baru'}
           </p>
         </div>
 
         {/* Card */}
-        <div className="bg-[#111327] border-4 border-[#FF69B4] rounded-2xl p-6 shadow-[0_0_40px_rgba(255,105,180,0.25)]">
+        <div className="bg-[#121224] border-4 border-[#000000] rounded-2xl p-6 shadow-[4px_4px_0_#000000]">
           {/* Toggle buttons */}
-          <div className="flex rounded-lg overflow-hidden border-2 border-[#FF69B4]/40 mb-6">
+          <div className="flex rounded-lg overflow-hidden border-2 border-[#000000] mb-6 select-none">
             <button
               type="button"
               onClick={() => { setMode('login'); setError(null); setSuccess(null); }}
-              className={`flex-1 py-2 font-['Press_Start_2P'] text-[9px] transition-all duration-200 ${
+              className={`flex-1 py-2 font-['Press_Start_2P'] text-[9px] transition-all duration-200 font-bold ${
                 mode === 'login'
-                  ? 'bg-[#FF69B4] text-white'
-                  : 'bg-transparent text-[#FF69B4]/60 hover:text-[#FF69B4]'
+                  ? 'bg-[#ff69b4] text-[#000000]'
+                  : 'bg-transparent text-[#ff69b4]/60 hover:text-[#ff69b4]'
               }`}
             >
               LOGIN
@@ -108,10 +108,10 @@ const AuthPage: React.FC = () => {
             <button
               type="button"
               onClick={() => { setMode('register'); setError(null); setSuccess(null); }}
-              className={`flex-1 py-2 font-['Press_Start_2P'] text-[9px] transition-all duration-200 ${
+              className={`flex-1 py-2 font-['Press_Start_2P'] text-[9px] transition-all duration-200 font-bold ${
                 mode === 'register'
-                  ? 'bg-[#FF69B4] text-white'
-                  : 'bg-transparent text-[#FF69B4]/60 hover:text-[#FF69B4]'
+                  ? 'bg-[#ff69b4] text-[#000000]'
+                  : 'bg-transparent text-[#ff69b4]/60 hover:text-[#ff69b4]'
               }`}
             >
               DAFTAR
@@ -121,7 +121,7 @@ const AuthPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'register' && (
               <div>
-                <label className="block font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-2">
+                <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 font-bold">
                   NAMA KARAKTER
                 </label>
                 <input
@@ -129,13 +129,13 @@ const AuthPage: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Nama kamu..."
-                  className="w-full px-3 py-2.5 bg-black/40 border-2 border-white/10 rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#FF69B4] placeholder:text-white/30 transition-colors"
+                  className="w-full px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/30 transition-colors"
                 />
               </div>
             )}
 
             <div>
-              <label className="block font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-2">
+              <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 font-bold">
                 EMAIL
               </label>
               <input
@@ -144,12 +144,12 @@ const AuthPage: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@kamu.com"
                 required
-                className="w-full px-3 py-2.5 bg-black/40 border-2 border-white/10 rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#FF69B4] placeholder:text-white/30 transition-colors"
+                className="w-full px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/30 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-2">
+              <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 font-bold">
                 PASSWORD
               </label>
               <input
@@ -158,29 +158,29 @@ const AuthPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full px-3 py-2.5 bg-black/40 border-2 border-white/10 rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#FF69B4] placeholder:text-white/30 transition-colors"
+                className="w-full px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/30 transition-colors"
               />
               {mode === 'register' && (
-                <p className="font-['VT323'] text-white/40 text-sm mt-1">Minimal 6 karakter</p>
+                <p className="font-['VT323'] text-[#a0a0b0] text-sm mt-1">Minimal 6 karakter</p>
               )}
             </div>
 
             {error && (
-              <div className="bg-red-900/30 border border-red-500/40 rounded-lg px-3 py-2">
-                <p className="font-['VT323'] text-red-400 text-base">⚠ {error}</p>
+              <div className="bg-red-950/20 border border-red-500/20 rounded-lg px-3 py-2">
+                <p className="font-['VT323'] text-red-400 text-base font-bold">⚠ {error}</p>
               </div>
             )}
 
             {success && (
-              <div className="bg-green-900/30 border border-green-500/40 rounded-lg px-3 py-2">
-                <p className="font-['VT323'] text-green-400 text-base">✓ {success}</p>
+              <div className="bg-green-950/20 border border-green-500/20 rounded-lg px-3 py-2">
+                <p className="font-['VT323'] text-green-400 text-base font-bold">✓ {success}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 bg-[#FF69B4] hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-['Press_Start_2P'] text-[10px] text-white transition-all duration-200 shadow-[0_4px_0px_#c0486f] hover:shadow-[0_2px_0px_#c0486f] hover:translate-y-0.5 active:translate-y-1 active:shadow-none"
+              className="w-full py-3 bg-[#ff69b4] hover:bg-[#ff69b4]/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-['Press_Start_2P'] text-[10px] text-[#000000] transition-all duration-200 shadow-[4px_4px_0_#000000] active:scale-95 border-2 border-[#000000] font-bold"
             >
               {isSubmitting
                 ? 'MEMPROSES...'
@@ -190,7 +190,7 @@ const AuthPage: React.FC = () => {
           </form>
         </div>
 
-        <p className="text-center font-['VT323'] text-white/30 text-base mt-4">
+        <p className="text-center font-['VT323'] text-[#a0a0b0]/30 text-base mt-4">
           Made with 💕 for us
         </p>
       </div>

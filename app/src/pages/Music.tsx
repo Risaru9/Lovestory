@@ -626,7 +626,7 @@ const Music: React.FC = () => {
   }, [currentSong, isPlaying]);
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] bg-[#f4f0e6] relative flex flex-col overflow-hidden text-[#1a1a2e]">
+    <div className="h-[100dvh] max-h-[100dvh] bg-[#0c0a18] relative flex flex-col overflow-hidden text-[#ffffff]">
       {/* Inline Styles for Animation to ensure they work without separate CSS files */}
       <style>{`
         @keyframes breathe {
@@ -657,7 +657,7 @@ const Music: React.FC = () => {
           imageRendering: 'pixelated'
         }}
       >
-        <div className="absolute inset-0 bg-[#f4f0e6]/85" />
+        <div className="absolute inset-0 bg-[#0c0a18]/92" />
       </div>
 
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
@@ -665,8 +665,8 @@ const Music: React.FC = () => {
           className="absolute inset-0 animate-grid"
           style={{
             backgroundImage: `
-              linear-gradient(to right, #1a1a2e 1px, transparent 1px),
-              linear-gradient(to bottom, #1a1a2e 1px, transparent 1px)
+              linear-gradient(to right, #000000 1px, transparent 1px),
+              linear-gradient(to bottom, #000000 1px, transparent 1px)
             `,
             backgroundSize: '32px 32px'
           }}
@@ -704,14 +704,14 @@ const Music: React.FC = () => {
         onError={(e) => console.log("Audio Error:", e)}
       />
 
-      <header className="sticky top-0 z-40 border-b-4 border-[#1A1A2E] bg-[#e8e5da] px-4 py-3 w-full">
+      <header className="sticky top-0 z-40 border-b-4 border-[#000000] bg-[#121224] px-4 py-3 w-full">
         <div className="flex justify-between items-center max-w-4xl mx-auto gap-4">
           <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px] shrink-0">
             ← MENU
           </PixelButton>
 
           <div className="text-center select-none">
-            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#1a1a2e] leading-none">
+            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#ffffff] leading-none">
               8-BIT JUKEBOX
             </h1>
             <p className="font-['VT323'] text-xs text-[#ff69b4] mt-1 tracking-wider hidden sm:block font-bold">
@@ -741,10 +741,10 @@ const Music: React.FC = () => {
           
           {isPlaying && (
             <div className="animate-float">
-              <div className="flex items-center gap-2 bg-[#FF69B4]/90 px-3 py-1.5 border-2 border-[#FFD700] pixel-shadow">
+              <div className="flex items-center gap-2 bg-[#ff69b4]/90 px-3 py-1.5 border-2 border-[#000000] pixel-shadow">
                 <div className="w-1.5 h-1.5 bg-white animate-pulse rounded-full" />
-                <span className="font-pixel text-[10px] md:text-xs text-white">NOW PLAYING</span>
-                <div className="w-1.5 h-1.5 bg-[#FFD700] animate-pulse rounded-full" style={{ animationDelay: '0.3s' }} />
+                <span className="font-pixel text-[10px] md:text-xs text-white font-bold">NOW PLAYING</span>
+                <div className="w-1.5 h-1.5 bg-[#ffb300] animate-pulse rounded-full" style={{ animationDelay: '0.3s' }} />
               </div>
             </div>
           )}
@@ -758,11 +758,11 @@ const Music: React.FC = () => {
           />
         </div>
 
-        <div className="bg-[#ffffff] border-4 border-[#1a1a2e] p-4 md:p-5 mb-5 shadow-[6px_6px_0_#1a1a2e] relative rounded-xl text-[#1a1a2e]">
-          <div className="absolute top-2 left-2 w-1.5 h-1.5 bg-[#1a1a2e]" />
-          <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-[#1a1a2e]" />
-          <div className="absolute bottom-2 left-2 w-1.5 h-1.5 bg-[#1a1a2e]" />
-          <div className="absolute bottom-2 right-2 w-1.5 h-1.5 bg-[#1a1a2e]" />
+        <div className="bg-[#121224] border-4 border-[#000000] p-4 md:p-5 mb-5 shadow-[6px_6px_0_#000000] relative rounded-xl text-white">
+          <div className="absolute top-2 left-2 w-1.5 h-1.5 bg-[#000000]" />
+          <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-[#000000]" />
+          <div className="absolute bottom-2 left-2 w-1.5 h-1.5 bg-[#000000]" />
+          <div className="absolute bottom-2 right-2 w-1.5 h-1.5 bg-[#000000]" />
 
           <div className="flex flex-col md:flex-row items-center gap-5">
             <div className="relative flex-shrink-0 select-none">
@@ -773,26 +773,26 @@ const Music: React.FC = () => {
               <h2 className="font-pixel text-[9px] md:text-[10px] text-[#ff69b4] mb-1 tracking-wider uppercase select-none font-bold">
                 {currentSong ? 'NOW PLAYING' : 'SELECT A SONG'}
               </h2>
-              <h3 className="font-pixel text-xs md:text-sm text-[#1a1a2e] mb-1.5 truncate leading-relaxed font-bold">
+              <h3 className="font-pixel text-xs md:text-sm text-white mb-1.5 truncate leading-relaxed font-bold">
                 {currentSong ? currentSong.title : '---'}
               </h3>
-              <p className="font-retro text-xl md:text-2xl text-[#1a1a2e]/60 mb-3 font-semibold">
+              <p className="font-retro text-xl md:text-2xl text-[#a0a0b0] mb-3 font-semibold">
                 {currentSong ? currentSong.artist : '---'}
               </p>
               
               <div className="mb-4">
                 <div 
-                  className="h-5 bg-black/10 border-4 border-[#1a1a2e] cursor-pointer relative overflow-hidden progress-bar shadow-[2px_2px_0_#1a1a2e] rounded-md"
+                  className="h-5 bg-black/40 border-4 border-[#000000] cursor-pointer relative overflow-hidden progress-bar shadow-[2px_2px_0_#000000] rounded-md"
                   onClick={handleProgressBarClick}
                 >
                   <div 
-                    className="h-full bg-[#FF69B4] transition-all duration-100 relative"
+                    className="h-full bg-[#ff69b4] transition-all duration-100 relative"
                     style={{ width: `${progress}%` }}
                   >
-                    <div className="absolute right-0 top-0 bottom-0 w-2.5 bg-[#FFD700] border-l-2 border-white" />
+                    <div className="absolute right-0 top-0 bottom-0 w-2.5 bg-[#ffb300] border-l-2 border-white" />
                   </div>
                 </div>
-                <div className="flex justify-between mt-1.5 font-retro text-sm text-[#FF69B4] select-none">
+                <div className="flex justify-between mt-1.5 font-retro text-sm text-[#ff69b4] select-none">
                   <span>{formatTime(currentTime)}</span>
                   <span>{currentSong ? formatTime(duration) : '0:00'}</span>
                 </div>
@@ -826,7 +826,7 @@ const Music: React.FC = () => {
                     <RepeatIcon size={16} className="text-white" />
                   )}
                   {repeatMode === 'one' && (
-                    <span className="absolute -top-1 -right-1 bg-[#FFD700] text-black text-[8px] w-3.5 h-3.5 flex items-center justify-center font-pixel rounded-sm">
+                    <span className="absolute -top-1 -right-1 bg-[#ffb300] text-black text-[8px] w-3.5 h-3.5 flex items-center justify-center font-pixel rounded-sm">
                       1
                     </span>
                   )}
@@ -845,7 +845,7 @@ const Music: React.FC = () => {
                 
                 {showVolumeSlider && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 z-50">
-                    <div className="bg-[#ffffff] border-4 border-[#1a1a2e] p-2 rounded-lg shadow-[3px_3px_0_#1a1a2e]">
+                    <div className="bg-[#121224] border-4 border-[#000000] p-2 rounded-lg shadow-[3px_3px_0_#000000]">
                       <input
                         type="range"
                         min="0"
@@ -856,8 +856,8 @@ const Music: React.FC = () => {
                           setVolume(parseFloat(e.target.value));
                           setIsMuted(false);
                         }}
-                        className="w-24 h-2.5 cursor-pointer accent-[#FF69B4]"
-                        style={{ background: `linear-gradient(to right, #FF69B4 ${volume * 100}%, #1a1a2e ${volume * 100}%)` }}
+                        className="w-24 h-2.5 cursor-pointer accent-[#ff69b4]"
+                        style={{ background: `linear-gradient(to right, #ff69b4 ${volume * 100}%, #1a1a2e ${volume * 100}%)` }}
                       />
                       <div className="text-center mt-1 font-retro text-[10px] text-[#ff69b4] font-bold">
                         {Math.round((isMuted ? 0 : volume) * 100)}%
@@ -875,14 +875,12 @@ const Music: React.FC = () => {
               ref={visualizerRef}
               width={500}
               height={64}
-              className="w-full h-12 bg-[#e8e5da] border-4 border-[#1a1a2e] rounded-lg"
+              className="w-full h-12 bg-black border-4 border-[#000000] rounded-lg"
               style={{ imageRendering: 'pixelated' }}
             />
           </div>
-        </div>
-
-        <div className="bg-[#ffffff] border-4 border-[#1a1a2e] p-4 shadow-[6px_6px_0_#1a1a2e] rounded-xl mb-8 text-[#1a1a2e]">
-          <div className="flex items-center justify-between mb-4 border-b-2 border-[#1a1a2e] pb-2 select-none">
+        </div>        <div className="bg-[#121224] border-4 border-[#000000] p-4 shadow-[6px_6px_0_#000000] rounded-xl mb-8 text-white">
+          <div className="flex items-center justify-between mb-4 border-b-2 border-[#000000] pb-2 select-none">
             <h3 className="font-pixel text-[9px] text-[#ff69b4] tracking-wide font-bold">
               💿 PLAYLIST ({allSongs.length} CASSETTES)
             </h3>
@@ -902,10 +900,10 @@ const Music: React.FC = () => {
           
           <div className="space-y-2 max-h-56 overflow-y-auto pr-2 custom-scrollbar">
             {allSongs.map((song, index) => {
-              const isActive = currentSong?.id === song.id;
-              const isHovered = hoveredSong === index;
+               const isActive = currentSong?.id === song.id;
+               const isHovered = hoveredSong === index;
 
-              return (
+               return (
                 <div
                   key={song.id}
                   onClick={() => handleSelectSong(song)}
@@ -914,42 +912,42 @@ const Music: React.FC = () => {
                   className={cn(
                     'flex items-center gap-3 p-2.5 cursor-pointer transition-all border-4 rounded-xl relative overflow-hidden',
                     isActive
-                      ? 'bg-[#ff69b4] border-[#1a1a2e] text-white shadow-[2px_2px_0_#1a1a2e]'
-                      : 'bg-[#e8e5da]/40 border-[#1a1a2e]/40 text-[#1a1a2e]/85 hover:bg-[#e8e5da]/80'
+                      ? 'bg-[#ff69b4] border-[#000000] text-black shadow-[2px_2px_0_#000000] font-bold'
+                      : 'bg-[#222230] border-[#000000]/40 text-[#a0a0b0] hover:bg-[#2a2a3e] hover:text-white'
                   )}
                 >
-                  <div className="w-8 h-8 flex items-center justify-center bg-black/10 border border-[#1a1a2e]/10 rounded flex-shrink-0 relative">
+                  <div className="w-8 h-8 flex items-center justify-center bg-black/10 border border-[#000000]/10 rounded flex-shrink-0 relative">
                     {isActive && isPlaying ? (
                       <div className="flex gap-0.5 items-end h-3">
-                        <div className="w-0.5 bg-white equalizer-bar" style={{ height: '60%', animationDelay: '0s' }} />
-                        <div className="w-0.5 bg-white equalizer-bar" style={{ height: '100%', animationDelay: '0.1s' }} />
-                        <div className="w-0.5 bg-white equalizer-bar" style={{ height: '40%', animationDelay: '0.2s' }} />
+                        <div className="w-0.5 bg-black equalizer-bar" style={{ height: '60%', animationDelay: '0s' }} />
+                        <div className="w-0.5 bg-black equalizer-bar" style={{ height: '100%', animationDelay: '0.1s' }} />
+                        <div className="w-0.5 bg-black equalizer-bar" style={{ height: '40%', animationDelay: '0.2s' }} />
                       </div>
                     ) : (
-                      <span className={cn("text-base select-none", isActive ? 'brightness-125' : 'opacity-40')}>
+                      <span className={cn("text-base select-none", isActive ? 'brightness-125' : 'opacity-30')}>
                         📼
                       </span>
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0 select-text">
-                    <p className={cn('font-pixel text-[8px] uppercase tracking-wide truncate font-bold', isActive ? 'text-white' : 'text-[#1a1a2e]')}>
+                    <p className={cn('font-pixel text-[8px] uppercase tracking-wide truncate font-bold', isActive ? 'text-black font-bold' : 'text-white')}>
                       {song.title}
                     </p>
-                    <p className={cn('font-retro text-base truncate', isActive ? 'text-white/80' : 'text-[#1a1a2e]/55')}>
+                    <p className={cn('font-retro text-base truncate', isActive ? 'text-black/80' : 'text-[#a0a0b0]/85')}>
                       {song.artist}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0 select-none">
-                    <span className={cn('font-retro text-sm', isActive ? 'text-white/70' : 'text-[#1a1a2e]/55')}>
+                    <span className={cn('font-retro text-sm', isActive ? 'text-black/70' : 'text-[#a0a0b0]/55')}>
                       {song.duration}
                     </span>
                     {isHovered && !isActive && (
                       <PlayIcon size={14} className="text-[#ff69b4] animate-bounce" />
                     )}
                     {isActive && (
-                      <div className="w-1.5 h-1.5 bg-white animate-pulse rounded-full" />
+                      <div className="w-1.5 h-1.5 bg-black animate-pulse rounded-full" />
                     )}
                   </div>
                 </div>
@@ -959,21 +957,21 @@ const Music: React.FC = () => {
         </div>
 
         <div className="mt-4 pb-6 text-center select-none">
-          <p className="font-retro text-[#1a1a2e]/55 text-xs font-semibold">
-            Use <kbd className="bg-[#ffffff] px-1.5 py-0.5 border border-[#1a1a2e]/25 text-[#1a1a2e] font-pixel text-[8px]">←</kbd>
-            <kbd className="bg-[#ffffff] px-1.5 py-0.5 border border-[#1a1a2e]/25 text-[#1a1a2e] font-pixel text-[8px] mx-1">→</kbd> 
+          <p className="font-retro text-[#a0a0b0] text-xs font-semibold">
+            Use <kbd className="bg-[#121224] px-1.5 py-0.5 border border-[#000000] text-white font-pixel text-[8px]">←</kbd>
+            <kbd className="bg-[#121224] px-1.5 py-0.5 border border-[#000000] text-white font-pixel text-[8px] mx-1">→</kbd> 
             to navigate • 
-            <kbd className="bg-[#ffffff] px-1.5 py-0.5 border border-[#1a1a2e]/25 text-[#1a1a2e] font-pixel text-[8px] mx-1">SPACE</kbd> 
+            <kbd className="bg-[#121224] px-1.5 py-0.5 border border-[#000000] text-white font-pixel text-[8px] mx-1">SPACE</kbd> 
             to play/pause • 
-            <kbd className="bg-[#ffffff] px-1.5 py-0.5 border border-[#1a1a2e]/25 text-[#1a1a2e] font-pixel text-[8px] mx-1">↑</kbd>
-            <kbd className="bg-[#ffffff] px-1.5 py-0.5 border border-[#1a1a2e]/25 text-[#1a1a2e] font-pixel text-[8px]">↓</kbd> 
+            <kbd className="bg-[#121224] px-1.5 py-0.5 border border-[#000000] text-white font-pixel text-[8px] mx-1">↑</kbd>
+            <kbd className="bg-[#121224] px-1.5 py-0.5 border border-[#000000] text-white font-pixel text-[8px]">↓</kbd> 
             for volume
           </p>
         </div>
         {/* Retro Upload Modal */}
         {showUploadModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-xl border-4 border-[#1a1a2e] bg-[#ffffff] p-6 shadow-[6px_6px_0_#1a1a2e] text-[#1a1a2e]">
+            <div className="w-full max-w-md rounded-xl border-4 border-[#000000] bg-[#121224] p-6 shadow-[6px_6px_0_#000000] text-white">
               <h2 className="font-pixel text-[10px] text-[#ff69b4] mb-6 text-center select-none font-bold">
                 ADD NEW MUSIC
               </h2>
@@ -988,7 +986,7 @@ const Music: React.FC = () => {
                     accept="audio/*"
                     onChange={handleAudioFileChange}
                     required
-                    className="w-full px-3 py-2 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[9px] file:font-pixel file:bg-[#FF69B4] file:text-white file:cursor-pointer hover:file:brightness-110"
+                    className="w-full px-3 py-2 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[9px] file:font-pixel file:bg-[#FF69B4] file:text-white file:cursor-pointer hover:file:brightness-110"
                   />
                 </div>
 
@@ -1002,7 +1000,7 @@ const Music: React.FC = () => {
                     value={uploadTitle}
                     onChange={(e) => setUploadTitle(e.target.value)}
                     required
-                    className="w-full px-3 py-2 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] focus:outline-none focus:border-[#ff69b4] text-base placeholder-[#1a1a2e]/40"
+                    className="w-full px-3 py-2 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-white focus:outline-none focus:border-[#ff69b4] text-base placeholder-[#a0a0b0]/40"
                   />
                 </div>
 
@@ -1016,7 +1014,7 @@ const Music: React.FC = () => {
                     value={uploadArtist}
                     onChange={(e) => setUploadArtist(e.target.value)}
                     required
-                    className="w-full px-3 py-2 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] focus:outline-none focus:border-[#ff69b4] text-base placeholder-[#1a1a2e]/40"
+                    className="w-full px-3 py-2 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-white focus:outline-none focus:border-[#ff69b4] text-base placeholder-[#a0a0b0]/40"
                   />
                 </div>
 
@@ -1030,7 +1028,7 @@ const Music: React.FC = () => {
                     value={uploadDuration}
                     onChange={(e) => setUploadDuration(e.target.value)}
                     required
-                    className="w-full px-3 py-2 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] focus:outline-none focus:border-[#ff69b4] text-base placeholder-[#1a1a2e]/40"
+                    className="w-full px-3 py-2 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-white focus:outline-none focus:border-[#ff69b4] text-base placeholder-[#a0a0b0]/40"
                   />
                 </div>
 
