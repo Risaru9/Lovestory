@@ -32,6 +32,7 @@ interface ToastMessage {
 const MapTracker: React.FC = () => {
   const navigate = useNavigate();
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
 
   // Markers
@@ -199,7 +200,7 @@ const MapTracker: React.FC = () => {
   // =========================================================================
   useEffect(() => {
     if (isLoading) return;
-    if (!mapContainerRef.current || map) return;
+    if (!mapContainerRef.current || mapInstanceRef.current) return;
 
     // Default center at Indonesia
     const defaultCenter: L.LatLngExpression = [-2.5489, 118.0149];
@@ -227,13 +228,17 @@ const MapTracker: React.FC = () => {
       showToast('Titik koordinat terpilih dari peta!', '📍');
     });
 
+    mapInstanceRef.current = initializedMap;
     setMap(initializedMap);
 
     return () => {
-      initializedMap.remove();
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
       setMap(null);
     };
-  }, [isLoading, map]);
+  }, [isLoading]);
 
   // =========================================================================
   // GEOLOCATION MONITORING (MY LOCATION WATCHER)
@@ -496,9 +501,12 @@ const MapTracker: React.FC = () => {
         <div className="w-full lg:w-96 bg-[#111327]/95 border-t-4 lg:border-t-0 lg:border-l-4 border-[#FF69B4]/60 z-20 flex flex-col max-h-[55vh] lg:max-h-full overflow-y-auto">
           {/* Section: Tambah Geofence */}
           <section className="p-4 border-b border-white/10">
-            <h3 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-3 flex items-center gap-2">
-              <Plus className="w-4 h-4" /> DAFTAR TEMPAT PENTING
+            <h3 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-1 flex items-center gap-2">
+              <Plus className="w-4 h-4" /> TEMPAT PENTING (OPSIONAL)
             </h3>
+            <p className="font-['VT323'] text-sm text-white/50 mb-3 leading-tight">
+              Daftarkan lokasi (e.g. Rumah/Kampus) untuk memicu notifikasi otomatis saat pasangan tiba/pergi.
+            </p>
 
             <form onSubmit={handleAddGeofenceSubmit} className="space-y-3">
               <div>
