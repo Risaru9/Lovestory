@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, CheckCircle2, Clock, MessageSquare } from 'lucide-react';
 import { PixelButton } from '@/components/custom/PixelButton';
-import { getDatePlans, addDatePlan, updateDatePlanStatus, deleteDatePlan } from '@/lib/db';
+import { getDatePlans, addDatePlan, updateDatePlanStatus, deleteDatePlan, addRelationshipXP } from '@/lib/db';
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
 import type { DatePlan } from '@/types';
 
@@ -101,6 +101,7 @@ const DatePlanner: React.FC = () => {
   const handleComplete = async (id: number) => {
     try {
       await updateDatePlanStatus(id, 'completed');
+      await addRelationshipXP(25, 'trust');
       await loadPlans();
     } catch (err) {
       console.error('Gagal update status rencana:', err);

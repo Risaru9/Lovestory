@@ -21,6 +21,22 @@ import AuthPage from '@/pages/AuthPage';
 import CoupleConnect from '@/pages/CoupleConnect';
 import CheckIn from '@/pages/CheckIn';
 import Chat from '@/pages/Chat';
+import LoveGarden from '@/pages/LoveGarden';
+import PillowPrompts from '@/pages/PillowPrompts';
+import LoveCoupons from '@/pages/LoveCoupons';
+import MixtapeTrading from '@/pages/MixtapeTrading';
+import HeartbeatSync from '@/pages/HeartbeatSync';
+import TimeCapsule from '@/pages/TimeCapsule';
+import QuizQuest from '@/pages/QuizQuest';
+import DoodleCanvas from '@/pages/DoodleCanvas';
+import MessageBottle from '@/pages/MessageBottle';
+import HabitTracker from '@/pages/HabitTracker';
+import FortuneWheel from '@/pages/FortuneWheel';
+import LovePet from '@/pages/LovePet';
+import AdventureChallenge from '@/pages/AdventureChallenge';
+import DreamVault from '@/pages/DreamVault';
+import SparkPrompt from '@/pages/SparkPrompt';
+import LovePostbox from '@/pages/LovePostbox';
 
 // ============================================================
 // Protected Route: Hanya bisa diakses setelah login & connected
@@ -126,6 +142,22 @@ function AppContent() {
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
         <Route path="/checkin" element={<ProtectedRoute><CheckIn /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+        <Route path="/lovegarden" element={<ProtectedRoute><LoveGarden /></ProtectedRoute>} />
+        <Route path="/pillowprompts" element={<ProtectedRoute><PillowPrompts /></ProtectedRoute>} />
+        <Route path="/lovecoupons" element={<ProtectedRoute><LoveCoupons /></ProtectedRoute>} />
+        <Route path="/mixtapes" element={<ProtectedRoute><MixtapeTrading /></ProtectedRoute>} />
+        <Route path="/heartbeat" element={<ProtectedRoute><HeartbeatSync /></ProtectedRoute>} />
+        <Route path="/timecapsule" element={<ProtectedRoute><TimeCapsule /></ProtectedRoute>} />
+        <Route path="/quizquest" element={<ProtectedRoute><QuizQuest /></ProtectedRoute>} />
+        <Route path="/doodle" element={<ProtectedRoute><DoodleCanvas /></ProtectedRoute>} />
+        <Route path="/messagebottle" element={<ProtectedRoute><MessageBottle /></ProtectedRoute>} />
+        <Route path="/habittracker" element={<ProtectedRoute><HabitTracker /></ProtectedRoute>} />
+        <Route path="/fortunewheel" element={<ProtectedRoute><FortuneWheel /></ProtectedRoute>} />
+        <Route path="/lovepet" element={<ProtectedRoute><LovePet /></ProtectedRoute>} />
+        <Route path="/adventurechallenge" element={<ProtectedRoute><AdventureChallenge /></ProtectedRoute>} />
+        <Route path="/dreamvault" element={<ProtectedRoute><DreamVault /></ProtectedRoute>} />
+        <Route path="/sparkprompt" element={<ProtectedRoute><SparkPrompt /></ProtectedRoute>} />
+        <Route path="/lovepostbox" element={<ProtectedRoute><LovePostbox /></ProtectedRoute>} />
       </Routes>
     </div>
   );
