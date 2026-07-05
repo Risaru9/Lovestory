@@ -938,6 +938,7 @@ export const saveMoodLogForDate = async (dateStr: string, mood: string, intensit
   });
   
   const isNewCheckin = existingLocalIndex === -1;
+  const userId = await getCurrentUserId() || 'me';
   
   if (!isNewCheckin) {
     localList[existingLocalIndex].mood = mood;
@@ -949,7 +950,8 @@ export const saveMoodLogForDate = async (dateStr: string, mood: string, intensit
       mood,
       intensity,
       reason,
-      created_at: checkinDate.toISOString()
+      created_at: checkinDate.toISOString(),
+      user_id: userId
     };
     localList.unshift(newLog);
   }
