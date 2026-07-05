@@ -201,38 +201,37 @@ const Timeline: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1A1A2E] flex flex-col relative">
+    <div className="h-[100dvh] max-h-[100dvh] bg-[#0c0a18] flex flex-col relative overflow-hidden">
       {/* Header */}
-      <div className="bg-[#1A1A2E]/90 backdrop-blur-sm border-b-4 border-[#FF69B4] p-4 z-30">
+      <header className="sticky top-0 z-40 border-b border-[#1A1A2E] bg-[#080b18]/90 backdrop-blur-md px-4 py-3">
         <div className="flex justify-between items-center max-w-6xl mx-auto gap-4">
-          <div>
-            <h1 className="font-['Press_Start_2P'] text-sm md:text-lg text-white">
+          <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px] shrink-0">
+            ← MENU
+          </PixelButton>
+
+          <div className="text-center">
+            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-white leading-none">
               JOURNEY MAP
             </h1>
-            <p className="font-['VT323'] text-sm text-white/70 mt-1">
-              {completedCount} chapter selesai
+            <p className="font-['VT323'] text-xs text-white/50 mt-1 tracking-wider hidden sm:block">
+              {completedCount} bab selesai
             </p>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-3 flex-wrap justify-end">
-            <PixelButton onClick={() => setIsModalOpen(true)} size="sm">
-              ✨ TAMBAH KISAH
+          <div className="flex gap-2 shrink-0">
+            <PixelButton onClick={() => setIsModalOpen(true)} variant="primary" size="sm" className="text-[9px]">
+              + KISAH
             </PixelButton>
-
-            <PixelButton onClick={() => navigate('/achievements')} variant="secondary" size="sm">
+            <PixelButton onClick={() => navigate('/achievements')} variant="secondary" size="sm" className="text-[9px] hidden sm:inline-block">
               ACHIEVE
-            </PixelButton>
-
-            <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm">
-              MENU
             </PixelButton>
           </div>
         </div>
-      </div>
+      </header>
 
       {isLoading ? (
-        <div className="flex-1 flex items-center justify-center bg-[#1A1A2E]">
-          <p className="font-['Press_Start_2P'] text-xs text-[#FF69B4] animate-pulse">
+        <div className="flex-1 flex items-center justify-center bg-[#0c0a18]">
+          <p className="font-['Press_Start_2P'] text-[10px] text-[#FF69B4] animate-pulse">
             LOADING MAP...
           </p>
         </div>
@@ -247,7 +246,7 @@ const Timeline: React.FC = () => {
             backgroundPosition: 'center',
           }}
         >
-          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 bg-black/65 z-0" />
 
           {confetti.map((particle) => (
             <div
@@ -262,67 +261,55 @@ const Timeline: React.FC = () => {
             />
           ))}
 
-          <div className="relative z-10 min-h-[150vh] py-10 md:py-12 px-4">
+          <div className="relative z-10 min-h-[140vh] py-8 px-4">
             <div className="max-w-4xl mx-auto relative">
-              <div className="text-center mb-10 md:mb-14">
-                <h2 className="font-['Press_Start_2P'] text-lg md:text-2xl text-[#FFD700] mb-3">
+              <div className="text-center mb-8">
+                <h2 className="font-['Press_Start_2P'] text-xs md:text-sm text-[#FFD700] mb-2 drop-shadow-[1.5px_1.5px_0_#FF69B4] tracking-wider">
                   OUR ADVENTURE
                 </h2>
-                <p className="font-['VT323'] text-lg text-white/85">
+                <p className="font-['VT323'] text-sm sm:text-base text-white/60 tracking-widest uppercase">
                   {chaptersList.length} bab kisah petualangan kita
                 </p>
               </div>
 
               {/* Status bar */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-10">
-                <div className="bg-[#111327]/80 border border-[#FF69B4]/40 rounded-xl px-4 py-3">
-                  <div className="font-['Press_Start_2P'] text-[10px] text-[#FFD700] mb-2">
-                    KISAH KITA
-                  </div>
-                  <div className="font-['VT323'] text-2xl text-white">
-                    {chaptersList.length} Bab Selesai
+              <div className="grid grid-cols-3 gap-2.5 mb-8">
+                <div className="rounded-xl border border-white/[0.05] bg-[#090b1e]/80 p-3 text-center">
+                  <div className="font-['Press_Start_2P'] text-[7px] text-white/40">KISAH KITA</div>
+                  <div className="mt-1 font-['VT323'] text-2xl text-[#FF69B4] leading-none">{chaptersList.length} Bab</div>
+                </div>
+                <div className="rounded-xl border border-white/[0.05] bg-[#090b1e]/80 p-3 text-center min-w-0">
+                  <div className="font-['Press_Start_2P'] text-[7px] text-white/40">KERAJAAN AKTIF</div>
+                  <div className="mt-1.5 font-['VT323'] text-xs text-[#32CD32] leading-none truncate uppercase tracking-wider">
+                    {currentActiveChapter ? currentActiveChapter.title : 'Petualangan'}
                   </div>
                 </div>
-
-                <div className="bg-[#111327]/80 border border-[#32CD32]/30 rounded-xl px-4 py-3">
-                  <div className="font-['Press_Start_2P'] text-[10px] text-[#32CD32] mb-2">
-                    KERAJAAN AKTIF
-                  </div>
-                  <div className="font-['VT323'] text-lg text-white leading-tight">
-                    {currentActiveChapter ? currentActiveChapter.title : 'Petualangan Baru'}
-                  </div>
-                </div>
-
-                <div className="bg-[#111327]/80 border border-[#FFD700]/30 rounded-xl px-4 py-3">
-                  <div className="font-['Press_Start_2P'] text-[10px] text-[#FFD700] mb-2">
-                    ACHIEVEMENTS UNLOCKED
-                  </div>
-                  <div className="font-['VT323'] text-2xl text-white">
-                    {chaptersList.length}
-                  </div>
+                <div className="rounded-xl border border-white/[0.05] bg-[#090b1e]/80 p-3 text-center">
+                  <div className="font-['Press_Start_2P'] text-[7px] text-white/40">ACHIEVEMENTS</div>
+                  <div className="mt-1 font-['VT323'] text-2xl text-[#FFD700] leading-none">{chaptersList.length}</div>
                 </div>
               </div>
 
               {chaptersList.length === 0 ? (
-                <div className="text-center py-20 bg-[#111327]/60 border border-dashed border-white/20 rounded-2xl p-6">
-                  <p className="font-['Press_Start_2P'] text-xs text-white/50 mb-4">
+                <div className="text-center py-20 bg-white/[0.01] border border-dashed border-white/10 rounded-2xl p-6">
+                  <p className="font-['Press_Start_2P'] text-[9px] text-white/35 mb-3">
                     MAP MASIH KOSONG...
                   </p>
-                  <p className="font-['VT323'] text-xl text-white/70 mb-6">
-                    Kalian belum menulis kisah perjalanan cinta kalian. <br />
+                  <p className="font-['VT323'] text-base text-white/50 mb-6">
+                    Kalian belum menulis kisah perjalanan cinta kalian.<br />
                     Klik tombol di bawah ini untuk memulai petualangan pertama!
                   </p>
-                  <PixelButton onClick={() => setIsModalOpen(true)}>
+                  <PixelButton onClick={() => setIsModalOpen(true)} variant="primary" size="sm" className="text-[9px]">
                     ✨ BUAT KISAH PERTAMA
                   </PixelButton>
                 </div>
               ) : (
                 <>
                   {/* Timeline bar */}
-                  <div className="absolute md:left-1/2 left-8 top-[17rem] md:top-[15rem] bottom-28 w-[6px] bg-white/10 rounded-full -translate-x-1/2" />
+                  <div className="absolute md:left-1/2 left-8 top-[10%] bottom-[12%] w-[6px] bg-white/10 rounded-full -translate-x-1/2 z-0" />
                   <div
-                    className="absolute md:left-1/2 left-8 top-[17rem] md:top-[15rem] w-[6px] bg-gradient-to-b from-[#FFD700] via-[#FF69B4] to-[#00FFFF] rounded-full -translate-x-1/2 transition-all duration-300"
-                    style={{ height: progressHeight }}
+                    className="absolute md:left-1/2 left-8 top-[10%] w-[6px] bg-gradient-to-b from-[#FFD700] via-[#FF69B4] to-[#00FFFF] rounded-full -translate-x-1/2 transition-all duration-300 z-0"
+                    style={{ height: progressHeight, maxHeight: '78%' }}
                   />
 
                   {/* Character sprite */}
@@ -331,7 +318,7 @@ const Timeline: React.FC = () => {
                     style={{ top: `${characterY}%` }}
                   >
                     <div className="relative">
-                      <div className="absolute inset-0 bg-[#FFD700]/30 blur-xl rounded-full scale-125" />
+                      <div className="absolute inset-0 bg-[#FFD700]/30 blur-lg rounded-full scale-125" />
                       <img
                         src="/images/sprites/char-boy.png"
                         alt="Player"
@@ -340,7 +327,7 @@ const Timeline: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-14 relative">
+                  <div className="space-y-12 relative z-10">
                     {chaptersList.map((chapter, index) => {
                       const isReached = index <= activeChapterIndex;
                       const isEven = index % 2 === 0;
@@ -355,42 +342,42 @@ const Timeline: React.FC = () => {
                           <div className={`flex-1 ${isEven ? 'md:text-right' : 'md:text-left'} text-left`}>
                             <div
                               className={[
-                                'inline-block w-full max-w-[280px] md:max-w-sm rounded-xl px-4 py-4 cursor-pointer transition-all duration-300 bg-[#111327]/82 border-2 border-[#FF69B4]/75 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_0_24px_rgba(255,105,180,0.35)]',
-                                isReached ? 'ring-2 ring-[#FFD700]/30' : '',
+                                'inline-block w-full max-w-[280px] md:max-w-sm rounded-2xl px-4 py-4 cursor-pointer transition-all duration-200 bg-[#090b1e]/90 border-2 border-white/10 hover:-translate-y-1 hover:border-[#FF69B4]/50 shadow-md relative overflow-hidden',
+                                isReached ? 'ring-2 ring-[#FFD700]/30 border-[#FF69B4]/40' : '',
                               ].join(' ')}
                               onClick={(event) => handleChapterClick(chapter, event)}
                             >
                               <div
-                                className={`flex items-center gap-2 mb-2 ${isEven ? 'md:justify-end' : 'md:justify-start'} justify-start`}
+                                className={`flex items-center gap-2 mb-2 ${isEven ? 'md:justify-end' : 'md:justify-start'} justify-start select-none`}
                               >
-                                <span className="font-['Press_Start_2P'] text-[10px] text-[#FFD700]">
+                                <span className="font-['Press_Start_2P'] text-[8px] text-[#FFD700] tracking-wider">
                                   MONTH {chapter.month}
                                 </span>
                                 {isReached && (
-                                  <span className="font-['VT323'] text-sm text-[#00FFFF]">
-                                    • aktif
+                                  <span className="font-['VT323'] text-xs text-[#00FFFF] tracking-wider uppercase bg-[#00FFFF]/10 border border-[#00FFFF]/30 rounded px-1.5 py-0.5">
+                                    aktif
                                   </span>
                                 )}
                               </div>
 
-                              <div className="font-['VT323'] text-xl text-white leading-tight">
+                              <h3 className="font-['Press_Start_2P'] text-[10px] text-white leading-normal mb-1.5 tracking-wide">
                                 {chapter.title}
-                              </div>
+                              </h3>
 
-                              <div className="font-['VT323'] text-sm text-white/60 mt-1">
+                              <div className="font-['VT323'] text-xs text-white/40 tracking-wider">
                                 {chapter.date}
                               </div>
 
                               {chapter.description && (
-                                <p className="font-['VT323'] text-base text-white/75 mt-2 leading-snug">
+                                <p className="font-['VT323'] text-base text-white/60 mt-2 leading-relaxed">
                                   {chapter.description}
                                 </p>
                               )}
 
-                              <div className={`mt-3 flex ${isEven ? 'md:justify-end' : 'md:justify-start'} justify-start`}>
-                                <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 bg-[#32CD32]/15 border border-[#32CD32]/40">
-                                  <span className="text-[#32CD32] text-sm">✓</span>
-                                  <span className="font-['VT323'] text-sm text-[#32CD32]">
+                              <div className={`mt-3 flex ${isEven ? 'md:justify-end' : 'md:justify-start'} justify-start select-none`}>
+                                <div className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 bg-[#32CD32]/10 border border-[#32CD32]/30">
+                                  <span className="text-[#32CD32] text-xs">✓</span>
+                                  <span className="font-['VT323'] text-xs text-[#32CD32] uppercase tracking-wider">
                                     Completed
                                   </span>
                                 </div>
@@ -398,14 +385,20 @@ const Timeline: React.FC = () => {
                             </div>
                           </div>
 
-                          <div
-                            className={[
-                              'relative w-14 h-14 rounded-full flex items-center justify-center border-4 z-10 transition-all duration-300 shrink-0 bg-[#FFD700] border-[#FFD700] shadow-[0_0_22px_rgba(255,215,0,0.55)]',
-                              isReached ? 'scale-110' : 'scale-100',
-                            ].join(' ')}
-                          >
-                            <div className="absolute inset-0 rounded-full border-4 border-white/20 animate-ping" />
-                            <span className="text-[#1A1A2E] text-xl">★</span>
+                          {/* Center Node Star */}
+                          <div className="w-16 md:w-28 flex justify-center items-center shrink-0 select-none">
+                            <div
+                              className={[
+                                'relative w-11 h-11 rounded-full flex items-center justify-center border-2 z-10 transition-all duration-200 shrink-0 bg-[#090b1e]/90 border-white/10 hover:scale-105 active:scale-95 cursor-pointer',
+                                isReached ? 'bg-[#FFD700] border-[#FFD700] shadow-[0_0_15px_rgba(255,215,0,0.4)] text-[#1a1a2e]' : 'text-white/30',
+                              ].join(' ')}
+                              onClick={(event) => handleChapterClick(chapter, event)}
+                            >
+                              {isReached && (
+                                <div className="absolute inset-0 rounded-full border-2 border-white/20 animate-ping" />
+                              )}
+                              <span className="text-sm font-bold">★</span>
+                            </div>
                           </div>
 
                           <div className="hidden md:block flex-1" />
@@ -414,11 +407,11 @@ const Timeline: React.FC = () => {
                     })}
                   </div>
 
-                  <div className="text-center mt-20">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-[#FFD700] rounded-full shadow-[0_0_35px_rgba(255,215,0,0.4)] animate-pulse">
-                      <span className="text-4xl">🏆</span>
+                  <div className="text-center mt-16 select-none z-10 relative">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[#FFD700] border-2 border-[#1a1a2e] rounded-full shadow-[4px_4px_0_#FF69B4] animate-pulse">
+                      <span className="text-2xl">🏆</span>
                     </div>
-                    <p className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#FFD700] mt-4">
+                    <p className="font-['Press_Start_2P'] text-[8px] text-[#FFD700] mt-4 tracking-widest">
                       KISAH KITA BERLANJUT...
                     </p>
                   </div>
@@ -426,46 +419,27 @@ const Timeline: React.FC = () => {
               )}
             </div>
           </div>
-
           <style>{`
             @keyframes confetti-fall {
-              0% {
-                transform: translateY(0) rotate(0deg) scale(1);
-                opacity: 1;
-              }
-              100% {
-                transform: translateY(180px) rotate(720deg) scale(0.7);
-                opacity: 0;
-              }
-            }
-            @keyframes shake {
-              0%, 100% { transform: translateX(0); }
-              20% { transform: translateX(-6px); }
-              40% { transform: translateX(6px); }
-              60% { transform: translateX(-4px); }
-              80% { transform: translateX(4px); }
+              0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+              100% { transform: translateY(180px) rotate(720deg) scale(0.7); opacity: 0; }
             }
             @keyframes float {
               0%, 100% { transform: translateY(0); }
               50% { transform: translateY(-6px); }
             }
-            .shake {
-              animation: shake 0.45s ease-in-out;
-            }
-            .animate-float {
-              animation: float 2s ease-in-out infinite;
-            }
+            .animate-float { animation: float 2s ease-in-out infinite; }
           `}</style>
         </div>
       )}
 
       {/* Modal Tambah Kisah Baru */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-[#111327] border-4 border-[#FF69B4] rounded-2xl w-full max-w-lg p-6 shadow-[0_0_50px_rgba(255,105,180,0.4)] max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-['Press_Start_2P'] text-[#FFD700] text-[10px] md:text-xs">
-                ✨ TAMBAH KISAH PETUALANGAN
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#090b1e]/98 border-4 border-[#1a1a2e] rounded-2xl w-full max-w-md p-5 shadow-[4px_4px_0_#FF69B4,inset_-4px_-4px_0_rgba(0,0,0,0.2)] max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-white/[0.08] pb-3 mb-4">
+              <h3 className="font-['Press_Start_2P'] text-[#FFD700] text-[9px] tracking-wide uppercase">
+                ⚔️ ADD NEW ADVENTURE
               </h3>
               <button
                 onClick={() => {
@@ -474,15 +448,15 @@ const Timeline: React.FC = () => {
                   setImagePreview(null);
                   setImageFile(null);
                 }}
-                className="font-['Press_Start_2P'] text-[#FF69B4] text-xs hover:brightness-125"
+                className="font-['Press_Start_2P'] text-white/45 text-[9px] hover:text-[#FF69B4]"
               >
-                [X]
+                [CLOSE]
               </button>
             </div>
 
             <form onSubmit={handleAddChapterSubmit} className="space-y-4">
               <div>
-                <label className="block font-['Press_Start_2P'] text-[9px] text-[#FF69B4] mb-2">
+                <label className="block font-['Press_Start_2P'] text-[8px] text-[#FF69B4] mb-2 tracking-wide">
                   JUDUL PETUALANGAN
                 </label>
                 <input
@@ -491,13 +465,13 @@ const Timeline: React.FC = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Kencan Pertama, Berjalan di Taman, dll..."
-                  className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#FF69B4]"
+                  className="w-full px-3.5 py-2.5 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4] transition-colors"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-['Press_Start_2P'] text-[9px] text-[#FF69B4] mb-2">
+                  <label className="block font-['Press_Start_2P'] text-[8px] text-[#FF69B4] mb-2 tracking-wide">
                     TANGGAL
                   </label>
                   <input
@@ -506,63 +480,63 @@ const Timeline: React.FC = () => {
                     value={dateStr}
                     onChange={(e) => setDateStr(e.target.value)}
                     placeholder="Juni 2024"
-                    className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#FF69B4]"
+                    className="w-full px-3.5 py-2.5 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4] transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-2">
+                  <label className="block font-['Press_Start_2P'] text-[8px] text-[#FFD700] mb-2 tracking-wide">
                     ACHIEVEMENT
                   </label>
                   <input
                     type="text"
                     value={achievement}
                     onChange={(e) => setAchievement(e.target.value)}
-                    placeholder="First Kiss Unlocked!"
-                    className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#FFD700]"
+                    placeholder="First Date Unlocked!"
+                    className="w-full px-3.5 py-2.5 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base focus:outline-none focus:border-[#FFD700] transition-colors"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-['Press_Start_2P'] text-[9px] text-[#FF69B4] mb-2">
-                  HIGHLIGHT RINGKAS (DESKRIPSI)
+                <label className="block font-['Press_Start_2P'] text-[8px] text-[#FF69B4] mb-2 tracking-wide">
+                  DESKRIPSI SINGKAT
                 </label>
                 <input
                   type="text"
                   required
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Ringkasan singkat tentang momen indah ini..."
-                  className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#FF69B4]"
+                  placeholder="Hari di mana kita pertama kali bertemu..."
+                  className="w-full px-3.5 py-2.5 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block font-['Press_Start_2P'] text-[9px] text-[#FF69B4] mb-2">
-                  CERITA LENGKAP (STORY MODE)
+                <label className="block font-['Press_Start_2P'] text-[8px] text-[#FFD700] mb-2 tracking-wide">
+                  CERITA DETAIL
                 </label>
                 <textarea
+                  rows={3}
                   required
-                  rows={4}
                   value={story}
                   onChange={(e) => setStory(e.target.value)}
-                  placeholder="Tulis detail momen manis yang kalian lewati..."
-                  className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#FF69B4] resize-none"
+                  placeholder="Ceritakan momen indah ini secara lengkap..."
+                  className="w-full px-3.5 py-2.5 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base focus:outline-none focus:border-[#FFD700] resize-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block font-['Press_Start_2P'] text-[9px] text-[#FF69B4] mb-2">
-                  FOTO MEMORY
+                <label className="block font-['Press_Start_2P'] text-[8px] text-[#FF69B4] mb-2 tracking-wide">
+                  FOTO MEMORI (OPSIONAL)
                 </label>
-                <div className="flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-xl p-4 bg-black/20 hover:border-[#FF69B4]/50 transition-colors relative">
+                <div className="flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-xl p-4 bg-black/20 hover:border-[#FF69B4]/50 transition-colors relative min-h-[100px]">
                   {imagePreview ? (
-                    <div className="relative w-full h-40">
+                    <div className="relative w-full h-32">
                       <img
                         src={imagePreview}
                         alt="Preview"
-                        className="w-full h-full object-cover rounded-lg border-2 border-[#FF69B4]"
+                        className="w-full h-full object-cover rounded-lg border border-white/10"
                       />
                       <button
                         type="button"
@@ -570,19 +544,18 @@ const Timeline: React.FC = () => {
                           setImageFile(null);
                           setImagePreview(null);
                         }}
-                        className="absolute top-2 right-2 bg-black/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                        className="absolute top-2 right-2 bg-black/80 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
                       >
                         ✕
                       </button>
                     </div>
                   ) : (
                     <>
-                      <span className="text-3xl mb-2">📸</span>
-                      <span className="font-['VT323'] text-lg text-white/50 mb-2">Klik untuk upload foto highlight</span>
+                      <span className="text-2xl mb-1 select-none">📸</span>
+                      <span className="font-['VT323'] text-sm text-white/40 mb-1 select-none">Klik untuk upload foto highlight</span>
                       <input
                         type="file"
                         accept="image/*"
-                        required
                         onChange={handleImageChange}
                         className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                       />
@@ -592,18 +565,20 @@ const Timeline: React.FC = () => {
               </div>
 
               {error && (
-                <div className="bg-red-900/30 border border-red-500/40 rounded-lg px-3 py-2">
-                  <p className="font-['VT323'] text-red-400 text-base">⚠ {error}</p>
+                <div className="bg-red-950/20 border border-red-500/20 rounded-xl px-3 py-2">
+                  <p className="font-['VT323'] text-red-400 text-sm">⚠ {error}</p>
                 </div>
               )}
 
-              <button
+              <PixelButton
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3 bg-[#FF69B4] hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-['Press_Start_2P'] text-[10px] text-white transition-all duration-200 shadow-[0_4px_0px_#c0486f] hover:shadow-[0_2px_0px_#c0486f] hover:translate-y-0.5 active:translate-y-1 active:shadow-none"
+                variant="primary"
+                size="sm"
+                className="w-full text-[9px] py-3.5 mt-2"
               >
-                {isSubmitting ? 'MENYIMPAN KISAH...' : '▶ SIMPAN PETUALANGAN'}
-              </button>
+                {isSubmitting ? 'MENYIMPAN KISAH...' : '▶ TAMBAH PETUALANGAN'}
+              </PixelButton>
             </form>
           </div>
         </div>
