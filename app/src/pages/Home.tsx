@@ -77,6 +77,8 @@ const Home: React.FC = () => {
     () => [
       { label: 'NEW GAME', path: '/couple', icon: '✨', enabled: true },
       { label: 'CONTINUE', path: '/timeline', icon: '▶', enabled: true },
+      { label: 'DAILY CHECK-IN', path: '/checkin', icon: '😊', enabled: true },
+      { label: 'COUPLE CHAT', path: '/chat', icon: '💬', enabled: true },
       { label: 'GALLERY', path: '/gallery', icon: '📷', enabled: true },
       { label: 'ACHIEVEMENTS', path: '/achievements', icon: '⭐', enabled: true },
       { label: 'MUSIC', path: '/music', icon: '🎵', enabled: true },

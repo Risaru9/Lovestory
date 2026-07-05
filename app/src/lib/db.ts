@@ -839,3 +839,349 @@ export const getLocationLogs = async (): Promise<any[]> => {
     profile_name: item.profiles?.name || 'Pasangan',
   }));
 };
+
+// =========================================================================
+// PUBLIC API - DAILY CHECK-IN & MOOD TRACKING
+// =========================================================================
+export interface MoodLog {
+  id: string;
+  mood: string;
+  intensity: number;
+  reason: string;
+  created_at: string;
+  user_id?: string;
+}
+
+export const saveMoodLog = async (mood: string, intensity: number, reason: string): Promise<void> => {
+  const log: MoodLog = {
+    id: `mood-${Date.now()}`,
+    mood,
+    intensity,
+    reason,
+    created_at: new Date().toISOString()
+  };
+
+  const localList = localStorage.getItem('local-mood-logs');
+  const list: MoodLog[] = localList ? JSON.parse(localList) : [];
+  localStorage.setItem('local-mood-logs', JSON.stringify([log, ...list]));
+
+  // Tambahkan XP RPG: +15 Intimacy XP untuk Check-In harian
+  await addRelationshipXP(15, 'intimacy');
+
+  if (!isSupabaseConfigured() || !supabase) return;
+
+  try {
+    const coupleId = await getCoupleId();
+    const userId = await getCurrentUserId();
+    if (!coupleId || !userId) return;
+
+    const { error } = await supabase.from('mood_logs').insert([
+      {
+        couple_id: coupleId,
+        user_id: userId,
+        mood,
+        intensity,
+        reason,
+      }
+    ]);
+    if (error) console.error('Gagal simpan mood log ke Supabase:', error.message);
+  } catch (err) {
+    console.warn('[db] Gagal simpan mood log ke Supabase:', err);
+  }
+};
+
+export const getMoodLogs = async (): Promise<MoodLog[]> => {
+  const localList = localStorage.getItem('local-mood-logs');
+  const local: MoodLog[] = localList ? JSON.parse(localList) : [];
+
+  if (!isSupabaseConfigured() || !supabase) {
+    return local;
+  }
+
+  try {
+    const coupleId = await getCoupleId();
+    if (!coupleId) return local;
+
+    const { data, error } = await supabase
+      .from('mood_logs')
+      .select('*')
+      .eq('couple_id', coupleId)
+      .order('created_at', { ascending: false });
+
+    if (error || !data) {
+      return local;
+    }
+
+    return data.map((item: any) => ({
+      id: item.id,
+      mood: item.mood,
+      intensity: item.intensity,
+      reason: item.reason,
+      created_at: item.created_at,
+      user_id: item.user_id
+    }));
+  } catch (err) {
+    console.warn('[db] Gagal ambil mood logs dari Supabase, menggunakan lokal:', err);
+    return local;
+  }
+};
+
+// =========================================================================
+// PUBLIC API - REALTIME COUPLE CHAT
+// =========================================================================
+export interface ChatMessage {
+  id: string;
+  sender_id: string;
+  message: string;
+  created_at: string;
+}
+
+export const getChatMessages = async (): Promise<ChatMessage[]> => {
+  const localVal = localStorage.getItem('local-chat-messages');
+  const local: ChatMessage[] = localVal ? JSON.parse(localVal) : [];
+
+  if (!isSupabaseConfigured() || !supabase) {
+    return local;
+  }
+
+  try {
+    const coupleId = await getCoupleId();
+    if (!coupleId) return local;
+
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .select('*')
+      .eq('couple_id', coupleId)
+      .order('created_at', { ascending: true });
+
+    if (error || !data) return local;
+
+    return data.map((item: any) => ({
+      id: item.id,
+      sender_id: item.sender_id,
+      message: item.message,
+      created_at: item.created_at
+    }));
+  } catch (err) {
+    console.warn('[db] Gagal ambil chat dari Supabase:', err);
+    return local;
+  }
+};
+
+export const saveChatMessage = async (messageText: string): Promise<ChatMessage> => {
+  const userId = await getCurrentUserId() || 'me';
+  const chat: ChatMessage = {
+    id: `chat-${Date.now()}`,
+    sender_id: userId,
+    message: messageText,
+    created_at: new Date().toISOString()
+  };
+
+  const localVal = localStorage.getItem('local-chat-messages');
+  const list: ChatMessage[] = localVal ? JSON.parse(localVal) : [];
+  localStorage.setItem('local-chat-messages', JSON.stringify([...list, chat]));
+
+  // Tambahkan XP RPG: +2 Trust XP untuk berbalas pesan
+  await addRelationshipXP(2, 'trust');
+
+  if (!isSupabaseConfigured() || !supabase) return chat;
+
+  try {
+    const coupleId = await getCoupleId();
+    if (!coupleId) return chat;
+
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .insert([
+        {
+          couple_id: coupleId,
+          sender_id: userId,
+          message: messageText
+        }
+      ])
+      .select()
+      .single();
+
+    if (error || !data) throw new Error(error?.message);
+
+    return {
+      id: data.id,
+      sender_id: data.sender_id,
+      message: data.message,
+      created_at: data.created_at
+    };
+  } catch (err) {
+    console.warn('[db] Gagal kirim chat ke Supabase:', err);
+    return chat;
+  }
+};
+
+// =========================================================================
+// PUBLIC API - REALTIME RICH STATUS & PRIVACY CONTROLS
+// =========================================================================
+export interface RichStatus {
+  battery_level?: number;
+  is_charging?: boolean;
+  current_activity?: string;
+  online_status?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+export const updateRichStatus = async (status: RichStatus): Promise<void> => {
+  localStorage.setItem('local-my-rich-status', JSON.stringify({ ...status, updated_at: new Date().toISOString() }));
+
+  if (!isSupabaseConfigured() || !supabase) return;
+
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) return;
+
+    const payload: any = {
+      ...status,
+      location_updated_at: new Date().toISOString()
+    };
+
+    const { error } = await supabase
+      .from('profiles')
+      .update(payload)
+      .eq('id', userId);
+
+    if (error) console.error('Gagal update rich status ke Supabase:', error.message);
+  } catch (err) {
+    console.warn('[db] Gagal update rich status ke Supabase:', err);
+  }
+};
+
+export const getPartnerRichStatus = async (): Promise<any | null> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    const local = localStorage.getItem('local-partner-rich-status');
+    return local ? JSON.parse(local) : null;
+  }
+
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) return null;
+
+    const { data: couple, error: coupleError } = await supabase
+      .from('couples')
+      .select('user_a_id, user_b_id')
+      .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
+      .not('connected_at', 'is', null)
+      .maybeSingle();
+
+    if (coupleError || !couple) return null;
+
+    const partnerId = couple.user_a_id === userId ? couple.user_b_id : couple.user_a_id;
+    if (!partnerId) return null;
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('name, battery_level, is_charging, current_activity, online_status, latitude, longitude, location_updated_at')
+      .eq('id', partnerId)
+      .maybeSingle();
+
+    if (profileError || !profile) return null;
+
+    return profile;
+  } catch (err) {
+    console.warn('[db] Gagal ambil partner rich status:', err);
+    return null;
+  }
+};
+
+// =========================================================================
+// PUBLIC API - RPG STATS & RELATIONSHIP GROWTH (XP / LEVEL)
+// =========================================================================
+export interface RPGStats {
+  level: number;
+  xp: number;
+  trust_xp: number;
+  intimacy_xp: number;
+}
+
+const DEFAULT_RPG_STATS: RPGStats = {
+  level: 1,
+  xp: 0,
+  trust_xp: 0,
+  intimacy_xp: 0
+};
+
+export const getRPGStats = async (): Promise<RPGStats> => {
+  const localVal = localStorage.getItem('local-rpg-stats');
+  const localStats: RPGStats = localVal ? JSON.parse(localVal) : DEFAULT_RPG_STATS;
+
+  if (!isSupabaseConfigured() || !supabase) {
+    return localStats;
+  }
+
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) return localStats;
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('level, xp, trust_xp, intimacy_xp')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (error || !data || data.level === null) {
+      return localStats;
+    }
+
+    return {
+      level: data.level ?? 1,
+      xp: data.xp ?? 0,
+      trust_xp: data.trust_xp ?? 0,
+      intimacy_xp: data.intimacy_xp ?? 0,
+    };
+  } catch (err) {
+    console.warn('[db] Gagal mengambil RPG stats dari Supabase, menggunakan lokal:', err);
+    return localStats;
+  }
+};
+
+export const addRelationshipXP = async (xpToAdd: number, type: 'intimacy' | 'trust'): Promise<RPGStats> => {
+  const current = await getRPGStats();
+  let newXp = current.xp + xpToAdd;
+  let newLevel = current.level;
+  let newIntimacy = current.intimacy_xp + (type === 'intimacy' ? xpToAdd : 0);
+  let newTrust = current.trust_xp + (type === 'trust' ? xpToAdd : 0);
+
+  // Setiap 100 XP naik 1 level
+  while (newXp >= 100) {
+    newXp -= 100;
+    newLevel += 1;
+  }
+
+  const updated: RPGStats = {
+    level: newLevel,
+    xp: newXp,
+    trust_xp: newTrust,
+    intimacy_xp: newIntimacy
+  };
+
+  localStorage.setItem('local-rpg-stats', JSON.stringify(updated));
+
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      const userId = await getCurrentUserId();
+      if (userId) {
+        await supabase
+          .from('profiles')
+          .update({
+            level: newLevel,
+            xp: newXp,
+            trust_xp: newTrust,
+            intimacy_xp: newIntimacy,
+          })
+          .eq('id', userId);
+      }
+    } catch (err) {
+      console.warn('[db] Gagal sinkronisasi RPG stats ke Supabase:', err);
+    }
+  }
+
+  return updated;
+};
+

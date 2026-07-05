@@ -19,6 +19,8 @@ import MapTracker from '@/pages/MapTracker';
 import Achievements from '@/pages/Achievements';
 import AuthPage from '@/pages/AuthPage';
 import CoupleConnect from '@/pages/CoupleConnect';
+import CheckIn from '@/pages/CheckIn';
+import Chat from '@/pages/Chat';
 
 // ============================================================
 // Protected Route: Hanya bisa diakses setelah login & connected
@@ -122,6 +124,8 @@ function AppContent() {
         <Route path="/dateplanner" element={<ProtectedRoute><DatePlanner /></ProtectedRoute>} />
         <Route path="/map" element={<ProtectedRoute><MapTracker /></ProtectedRoute>} />
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
+        <Route path="/checkin" element={<ProtectedRoute><CheckIn /></ProtectedRoute>} />
+        <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
       </Routes>
     </div>
   );
