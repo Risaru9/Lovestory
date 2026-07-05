@@ -43,23 +43,23 @@ const rarityStyles: Record<
   }
 > = {
   common: {
-    border: 'border-white/10',
-    glow: 'hover:shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:border-white/20',
-    badge: 'bg-white/10 text-white/80 border border-white/10',
+    border: 'border-[#1a1a2e]',
+    glow: 'hover:shadow-[4px_4px_0_#1a1a2e]',
+    badge: 'bg-[#e8e5da] text-[#1a1a2e] border-2 border-[#1a1a2e] font-bold',
     label: 'COMMON',
     emoji: '🥉',
   },
   rare: {
-    border: 'border-[#00FFFF]/20',
-    glow: 'hover:shadow-[0_0_20px_rgba(0,255,255,0.08)] hover:border-[#00FFFF]/40',
-    badge: 'bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/20',
+    border: 'border-[#1a1a2e]',
+    glow: 'hover:shadow-[4px_4px_0_#1a1a2e]',
+    badge: 'bg-[#2196f3]/15 text-[#2196f3] border-2 border-[#1a1a2e] font-bold',
     label: 'RARE',
     emoji: '🥈',
   },
   legendary: {
-    border: 'border-[#FFD700]/30',
-    glow: 'hover:shadow-[0_0_25px_rgba(255,215,0,0.12)] hover:border-[#FFD700]/50',
-    badge: 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20',
+    border: 'border-[#1a1a2e]',
+    glow: 'hover:shadow-[4px_4px_0_#1a1a2e]',
+    badge: 'bg-[#ffb300]/15 text-[#ffb300] border-2 border-[#1a1a2e] font-bold',
     label: 'LEGENDARY',
     emoji: '🥇',
   },
@@ -136,21 +136,21 @@ const Achievements: React.FC = () => {
   const completedCount = achievementItems.length;
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] bg-[#0c0a18] text-white flex flex-col relative overflow-hidden">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-black/60" />
+    <div className="h-[100dvh] max-h-[100dvh] bg-[#f4f0e6] text-[#1a1a2e] flex flex-col relative overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-black/[0.02]" />
 
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-[#1A1A2E] bg-[#080b18]/90 backdrop-blur-md px-4 py-3 w-full">
+      <header className="sticky top-0 z-40 border-b-4 border-[#1A1A2E] bg-[#e8e5da] px-4 py-3 w-full">
         <div className="max-w-7xl mx-auto flex justify-between items-center gap-4">
           <PixelButton onClick={() => navigate('/timeline')} variant="secondary" size="sm" className="text-[9px] shrink-0">
             ← TIMELINE
           </PixelButton>
 
           <div className="text-center select-none">
-            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-white leading-none">
+            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#1a1a2e] leading-none">
               ACHIEVEMENTS
             </h1>
-            <p className="font-['VT323'] text-xs text-white/50 mt-1 tracking-wider hidden sm:block">
+            <p className="font-['VT323'] text-xs text-[#ff69b4] mt-1 tracking-wider hidden sm:block font-bold">
               Koleksi pencapaian kisah petualangan kita
             </p>
           </div>
@@ -164,46 +164,46 @@ const Achievements: React.FC = () => {
       <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-6 overflow-y-auto z-10">
         {isLoading ? (
           <div className="text-center py-20">
-            <p className="font-['Press_Start_2P'] text-[9px] text-[#FF69B4] animate-pulse">
+            <p className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] animate-pulse font-bold">
               MEMUKAL KOTAK PENCAPAIAN...
             </p>
           </div>
         ) : (
           <>
             {/* Banner Section */}
-            <section className="mb-6 rounded-xl border-4 border-[#1a1a2e] bg-[#12121c] p-4 sm:p-5 shadow-[4px_4px_0_#000000]">
+            <section className="mb-6 rounded-xl border-4 border-[#1a1a2e] bg-[#ffffff] p-4 sm:p-5 shadow-[4px_4px_0_#1a1a2e] text-[#1a1a2e]">
               <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 items-center">
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-lg border-2 border-[#FFD700] bg-[#FFD700]/10 px-3 py-0.5 mb-2 select-none">
-                    <Trophy className="w-3.5 h-3.5 text-[#FFD700]" />
-                    <span className="font-['VT323'] text-sm text-[#FFD700] uppercase tracking-wider font-bold">
+                  <div className="inline-flex items-center gap-2 rounded-lg border-2 border-[#1a1a2e] bg-[#e8e5da] px-3 py-0.5 mb-2 select-none">
+                    <Trophy className="w-3.5 h-3.5 text-[#ff69b4]" />
+                    <span className="font-['VT323'] text-sm text-[#1a1a2e] uppercase tracking-wider font-bold">
                       Journey Rewards
                     </span>
                   </div>
 
-                  <h2 className="font-['Press_Start_2P'] text-[10px] sm:text-xs leading-relaxed text-white tracking-wide">
+                  <h2 className="font-['Press_Start_2P'] text-[10px] sm:text-xs leading-relaxed text-[#1a1a2e] tracking-wide font-bold">
                     Setiap kisah manis adalah pencapaian berharga
                   </h2>
 
-                  <p className="font-['VT323'] text-sm sm:text-base text-white/60 mt-2 leading-relaxed">
+                  <p className="font-['VT323'] text-sm sm:text-base text-[#1a1a2e]/60 mt-2 leading-relaxed font-semibold">
                     Halaman ini menampilkan seluruh piala pencapaian dari kisah petualangan yang telah kalian tulis bersama. Setiap kenangan memiliki lencana cintanya masing-masing. Ketuk piala untuk detail petualangan lengkap.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2.5">
-                  <div className="rounded-xl border-2 border-[#1a1a2e] bg-black/40 p-3 text-center shadow-[2px_2px_0_#000000] select-none">
-                    <div className="font-['Press_Start_2P'] text-[7px] text-white/40">TOTAL</div>
-                    <div className="mt-1 font-['VT323'] text-2xl text-white leading-none">{totalCount}</div>
+                  <div className="rounded-xl border-2 border-[#1a1a2e] bg-white p-3 text-center shadow-[2px_2px_0_#1a1a2e] select-none text-[#1a1a2e]">
+                    <div className="font-['Press_Start_2P'] text-[7px] text-[#1a1a2e]/40 font-bold">TOTAL</div>
+                    <div className="mt-1 font-['VT323'] text-2xl text-[#1a1a2e] leading-none font-bold">{totalCount}</div>
                   </div>
 
-                  <div className="rounded-xl border-2 border-[#1a1a2e] bg-black/40 p-3 text-center shadow-[2px_2px_0_#000000] select-none">
-                    <div className="font-['Press_Start_2P'] text-[7px] text-white/40">UNLOCKED</div>
-                    <div className="mt-1 font-['VT323'] text-2xl text-[#00FFFF] leading-none">{unlockedCount}</div>
+                  <div className="rounded-xl border-2 border-[#1a1a2e] bg-white p-3 text-center shadow-[2px_2px_0_#1a1a2e] select-none text-[#1a1a2e]">
+                    <div className="font-['Press_Start_2P'] text-[7px] text-[#1a1a2e]/40 font-bold">UNLOCKED</div>
+                    <div className="mt-1 font-['VT323'] text-2xl text-[#2196f3] leading-none font-bold">{unlockedCount}</div>
                   </div>
 
-                  <div className="rounded-xl border-2 border-[#1a1a2e] bg-black/40 p-3 text-center shadow-[2px_2px_0_#000000] select-none">
-                    <div className="font-['Press_Start_2P'] text-[7px] text-white/40">COMPLETED</div>
-                    <div className="mt-1 font-['VT323'] text-2xl text-[#32CD32] leading-none">{completedCount}</div>
+                  <div className="rounded-xl border-2 border-[#1a1a2e] bg-white p-3 text-center shadow-[2px_2px_0_#1a1a2e] select-none text-[#1a1a2e]">
+                    <div className="font-['Press_Start_2P'] text-[7px] text-[#1a1a2e]/40 font-bold">COMPLETED</div>
+                    <div className="mt-1 font-['VT323'] text-2xl text-[#4caf50] leading-none font-bold">{completedCount}</div>
                   </div>
                 </div>
               </div>
@@ -221,18 +221,18 @@ const Achievements: React.FC = () => {
                       navigate(`/chapter/${item.id}`);
                     }}
                     className={[
-                      'rounded-xl border-4 bg-[#12121c] overflow-hidden transition-all duration-150 hover:-translate-y-0.5 cursor-pointer relative shadow-[4px_4px_0_#000000]',
-                      rarity.border,
+                      'rounded-xl border-4 bg-[#ffffff] overflow-hidden transition-all duration-150 hover:-translate-y-0.5 cursor-pointer relative shadow-[4px_4px_0_#1a1a2e] border-[#1a1a2e] text-[#1a1a2e]',
+                      rarity.glow,
                     ].join(' ')}
                   >
-                    <div className="relative h-44 overflow-hidden border-b-4 border-[#1a1a2e] bg-black/40">
+                    <div className="relative h-44 overflow-hidden border-b-4 border-[#1a1a2e] bg-[#e8e5da]/30">
                       <img
                         src={item.image}
                         alt={item.title}
                         className="w-full h-full object-cover"
                       />
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a2e]/85 via-transparent to-transparent" />
 
                       <div className="absolute top-3 left-3 flex items-center gap-2 select-none">
                         <span className={`rounded-lg px-2 py-0.5 text-[7px] font-['Press_Start_2P'] tracking-wider ${rarity.badge}`}>
@@ -241,19 +241,19 @@ const Achievements: React.FC = () => {
                       </div>
 
                       <div className="absolute top-3 right-3 select-none">
-                        <div className="flex items-center gap-1.5 rounded-lg border border-[#32CD32]/30 bg-[#32CD32]/10 px-2 py-0.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#32CD32]" />
-                          <span className="font-['VT323'] text-xs text-[#32CD32] uppercase tracking-wider">
+                        <div className="flex items-center gap-1.5 rounded-lg border border-[#4caf50]/30 bg-[#4caf50]/15 px-2 py-0.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#4caf50]" />
+                          <span className="font-['VT323'] text-xs text-[#4caf50] uppercase tracking-wider font-bold">
                             Unlocked
                           </span>
                         </div>
                       </div>
 
                       <div className="absolute inset-x-0 bottom-0 p-3 select-none">
-                        <div className="font-['Press_Start_2P'] text-[7px] text-[#FFD700] mb-1">
+                        <div className="font-['Press_Start_2P'] text-[7px] text-[#ff69b4] mb-1 font-bold">
                           MONTH {item.month}
                         </div>
-                        <h3 className="font-['Press_Start_2P'] text-[10px] text-white leading-normal uppercase tracking-wide truncate">
+                        <h3 className="font-['Press_Start_2P'] text-[10px] text-white leading-normal uppercase tracking-wide truncate font-bold">
                           {item.title}
                         </h3>
                       </div>
@@ -261,34 +261,34 @@ const Achievements: React.FC = () => {
 
                     <div className="p-4">
                       <div className="mb-2">
-                        <div className="font-['Press_Start_2P'] text-[7px] text-white/40 mb-1 select-none">
+                        <div className="font-['Press_Start_2P'] text-[7px] text-[#1a1a2e]/40 mb-1 select-none font-bold">
                           PENCAPAIAN
                         </div>
-                        <p className="font-['VT323'] text-lg text-[#FFD700] leading-snug line-clamp-1">
+                        <p className="font-['VT323'] text-lg text-[#ff69b4] leading-snug line-clamp-1 font-bold">
                           {item.achievement}
                         </p>
                       </div>
 
                       <div className="mb-3">
-                        <div className="font-['Press_Start_2P'] text-[7px] text-white/40 mb-1 select-none">
+                        <div className="font-['Press_Start_2P'] text-[7px] text-[#1a1a2e]/40 mb-1 select-none font-bold">
                           HIGHLIGHT MOMEN
                         </div>
-                        <p className="font-['VT323'] text-base text-white/60 leading-snug line-clamp-2">
+                        <p className="font-['VT323'] text-base text-[#1a1a2e]/70 leading-snug line-clamp-2">
                           {item.description}
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/[0.04]">
+                      <div className="flex items-center justify-between gap-3 pt-3 border-t border-[#1a1a2e]/10">
                         <div className="flex items-center gap-1.5 select-none">
-                          <Star className="w-3.5 h-3.5 text-[#FFD700] fill-current animate-pulse" />
-                          <span className="font-['VT323'] text-base text-white/50">
+                          <Star className="w-3.5 h-3.5 text-[#ffb300] fill-current animate-pulse" />
+                          <span className="font-['VT323'] text-base text-[#1a1a2e]/50 font-semibold">
                             Reward Collected
                           </span>
                         </div>
 
                         <button
                           type="button"
-                          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-100 font-['Press_Start_2P'] text-[8px] bg-[#FF69B4] text-white hover:brightness-110 active:scale-95 shadow-sm"
+                          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-100 font-['Press_Start_2P'] text-[8px] bg-[#FF69B4] text-white hover:brightness-110 active:scale-95 shadow-sm font-bold"
                         >
                           BUKA
                           <ArrowRight className="w-3 h-3" />
@@ -302,11 +302,11 @@ const Achievements: React.FC = () => {
 
             {filteredItems.length === 0 && (
               <div className="text-center py-20">
-                <Trophy className="w-12 h-12 text-white/20 mx-auto mb-3 animate-pulse" />
-                <p className="font-['Press_Start_2P'] text-[9px] text-white/35 mb-2">
+                <Trophy className="w-12 h-12 text-[#1a1a2e]/20 mx-auto mb-3 animate-pulse" />
+                <p className="font-['Press_Start_2P'] text-[9px] text-[#1a1a2e]/35 mb-2 font-bold">
                   BELUM ADA PENCAPAIAN TERBUKA
                 </p>
-                <p className="font-['VT323'] text-lg text-white/40">
+                <p className="font-['VT323'] text-lg text-[#1a1a2e]/40 font-semibold">
                   Tulis kisah petualangan cinta kalian di timeline untuk memunculkan lencana di sini!
                 </p>
               </div>

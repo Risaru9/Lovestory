@@ -270,7 +270,7 @@ const Home: React.FC = () => {
 
   return (
     <div
-      className="relative h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-[#0a0813]"
+      className="relative h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-[#e8e5da]"
       style={{
         backgroundImage: 'url(/images/backgrounds/home-bg.png)',
         backgroundSize: 'cover',
@@ -280,7 +280,7 @@ const Home: React.FC = () => {
       <audio ref={audioRef} preload="auto" />
 
       {/* Retro background filters */}
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-[#f4f0e6]/90" />
 
       {/* Floating hearts */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -303,10 +303,10 @@ const Home: React.FC = () => {
         {/* Top bar: Title & Music Control */}
         <div className="w-full flex flex-col items-center gap-3">
           <div className="text-center">
-            <p className="mb-1.5 font-['VT323'] text-base md:text-lg text-[#FFD700] tracking-widest uppercase">
+            <p className="mb-1.5 font-['VT323'] text-base md:text-lg text-[#1a1a2e] tracking-widest uppercase">
               Press Start to Continue Our Journey
             </p>
-            <h1 className="font-['Press_Start_2P'] text-xl sm:text-2xl md:text-3xl leading-none text-white drop-shadow-[2.5px_2.5px_0_#1a1a2e] tracking-wider">
+            <h1 className="font-['Press_Start_2P'] text-xl sm:text-2xl md:text-3xl leading-none text-[#1a1a2e] drop-shadow-[2.5px_2.5px_0_#ffd700] tracking-wider">
               OUR LOVE STORY
             </h1>
           </div>
@@ -314,13 +314,13 @@ const Home: React.FC = () => {
           <button
             type="button"
             onClick={handleToggleMusic}
-            className="inline-flex items-center gap-2 rounded-full border-2 border-[#1a1a2e] bg-black/50 px-3.5 py-1.5 text-white/80 transition hover:bg-black/75 active:scale-95 text-xs shadow-[2px_2px_0_#000000]"
+            className="inline-flex items-center gap-2 rounded-full border-2 border-[#1a1a2e] bg-[#ffffff] px-3.5 py-1.5 text-[#1a1a2e] transition hover:bg-[#e8e5da] active:scale-95 text-xs shadow-[2px_2px_0_#1a1a2e]"
             aria-label={musicEnabled ? 'Turn music off' : 'Turn music on'}
           >
             {musicEnabled ? (
-              <Volume2 className="h-3.5 w-3.5 text-[#FFD700]" />
+              <Volume2 className="h-3.5 w-3.5 text-[#ff69b4]" />
             ) : (
-              <VolumeX className="h-3.5 w-3.5 text-white/40" />
+              <VolumeX className="h-3.5 w-3.5 text-[#1a1a2e]/40" />
             )}
             <span className="font-['VT323'] text-base tracking-wide">
               {musicEnabled ? 'BGM ON' : 'BGM OFF'}
@@ -329,12 +329,12 @@ const Home: React.FC = () => {
         </div>
 
         {/* Center: Main Menu Retro Console Board */}
-        <div className="w-full max-w-[340px] sm:max-w-[360px] bg-[#12121c] border-4 border-[#1a1a2e] rounded-2xl p-4 shadow-[6px_6px_0_#000000] relative">
+        <div className="w-full max-w-[340px] sm:max-w-[360px] bg-[#ffffff] border-4 border-[#1a1a2e] rounded-xl p-4 shadow-[6px_6px_0_#1a1a2e] relative">
           <div className="mb-3.5 flex items-center justify-between border-b-2 border-[#1a1a2e] pb-2 select-none">
-            <span className="font-['Press_Start_2P'] text-[9px] text-[#FF69B4] tracking-widest">
+            <span className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-widest">
               MAIN MENU
             </span>
-            <span className="font-['VT323'] text-base text-white/40">
+            <span className="font-['VT323'] text-base text-[#1a1a2e]/60">
               {selectedIndex + 1} / {menuItems.length}
             </span>
           </div>
@@ -356,9 +356,9 @@ const Home: React.FC = () => {
                     'w-full px-3.5 py-2.5 text-left transition-all duration-100 flex items-center gap-3 font-["Press_Start_2P"] text-[9px] border-2 rounded-xl',
                     isEnabled
                       ? isSelected
-                        ? 'border-[#1a1a2e] bg-[#FF69B4] text-white shadow-[2px_2px_0_#000000] translate-x-0.5 translate-y-0.5'
-                        : 'border-transparent bg-[#1a1a2e]/40 text-white/60 hover:bg-[#1a1a2e]/80 hover:text-white'
-                      : 'cursor-not-allowed border-transparent bg-white/[0.01] text-white/15',
+                        ? 'border-[#1a1a2e] bg-[#ff69b4] text-white shadow-[2px_2px_0_#1a1a2e] translate-x-0.5 translate-y-0.5'
+                        : 'border-transparent bg-[#e8e5da] text-[#1a1a2e]/70 hover:bg-[#dcd7c9] hover:text-[#1a1a2e]'
+                      : 'cursor-not-allowed border-transparent bg-black/[0.03] text-[#1a1a2e]/30',
                   ].join(' ')}
                   aria-label={item.label}
                 >
@@ -373,7 +373,7 @@ const Home: React.FC = () => {
                   )}
 
                   {!isEnabled && (
-                    <span className="ml-auto font-['VT323'] text-xs text-white/20">
+                    <span className="ml-auto font-['VT323'] text-xs text-[#1a1a2e]/40">
                       Soon
                     </span>
                   )}
@@ -386,7 +386,7 @@ const Home: React.FC = () => {
         {/* Bottom bar: Instruction & Walking Character Sprites */}
         <div className="w-full flex flex-col items-center gap-3">
           <div className="text-center">
-            <p className="font-['VT323'] text-sm md:text-base text-white/50 tracking-wider">
+            <p className="font-['VT323'] text-sm md:text-base text-[#1a1a2e]/70 tracking-wider">
               Use ↑ ↓ key to navigate · ENTER to select
             </p>
           </div>

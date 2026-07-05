@@ -128,22 +128,22 @@ const DatePlanner: React.FC = () => {
   const completedPlans = plans.filter((p) => p.status === 'completed');
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] bg-[#0c0a18] text-white flex flex-col relative overflow-hidden">
+    <div className="h-[100dvh] max-h-[100dvh] bg-[#f4f0e6] text-[#1a1a2e] flex flex-col relative overflow-hidden">
       {/* Background overlay */}
-      <div className="fixed inset-0 pointer-events-none bg-black/60" />
+      <div className="fixed inset-0 pointer-events-none bg-black/[0.02]" />
 
       {/* Header Sticky */}
-      <header className="relative z-20 border-b border-[#1A1A2E] bg-[#080b18]/90 backdrop-blur-md px-4 py-3">
+      <header className="relative z-20 border-b-4 border-[#1A1A2E] bg-[#e8e5da] px-4 py-3">
         <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
           <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px] shrink-0">
             ← MENU
           </PixelButton>
 
-          <div className="text-center">
-            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-white leading-none">
+          <div className="text-center select-none">
+            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#1a1a2e] leading-none">
               DATE PLANNER
             </h1>
-            <p className="font-['VT323'] text-xs text-[#FF69B4] mt-1 tracking-wider hidden sm:block">
+            <p className="font-['VT323'] text-xs text-[#ff69b4] mt-1 tracking-wider hidden sm:block font-bold">
               Rencana Kencan & Pelacak Memori
             </p>
           </div>
@@ -158,14 +158,14 @@ const DatePlanner: React.FC = () => {
       <main className="relative z-10 flex-1 max-w-4xl w-full mx-auto px-4 py-6 overflow-y-auto">
         
         {/* Banner Motivasi RPG */}
-        <section className="mb-6 rounded-2xl border border-white/[0.06] bg-[#111327]/80 p-4 shadow-lg">
+        <section className="mb-6 rounded-xl border-4 border-[#1a1a2e] bg-[#ffffff] p-4 shadow-[4px_4px_0_#1a1a2e] text-[#1a1a2e]">
           <div className="flex items-center gap-4">
             <div className="text-3xl animate-bounce shrink-0 select-none">📅</div>
             <div>
-              <h2 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] mb-1.5 leading-relaxed tracking-wider">
+              <h2 className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] mb-1.5 leading-relaxed tracking-wider font-bold">
                 TENTUKAN PETUALANGAN BERIKUTNYA!
               </h2>
-              <p className="font-['VT323'] text-sm sm:text-base text-white/60 leading-normal">
+              <p className="font-['VT323'] text-sm sm:text-base text-[#1a1a2e]/70 leading-normal">
                 Gunakan halaman ini untuk merencana kencan indah bersama pasanganmu, lalu simpan sebagai memori manis untuk dikenang selamanya.
               </p>
             </div>
@@ -178,8 +178,8 @@ const DatePlanner: React.FC = () => {
             onClick={() => setActiveTab('planned')}
             className={`py-3 px-2 border-2 rounded-xl text-center transition-all duration-100 ${
               activeTab === 'planned'
-                ? 'border-[#1a1a2e] bg-[#FF69B4] text-white shadow-[3px_3px_0_#000000] translate-x-0.5 translate-y-0.5 font-bold'
-                : 'border-transparent bg-[#1a1a2e]/40 text-white/50 hover:text-white hover:bg-[#1a1a2e]'
+                ? 'border-[#1a1a2e] bg-[#ff69b4] text-white shadow-[3px_3px_0_#1a1a2e] translate-x-0.5 translate-y-0.5 font-bold'
+                : 'border-transparent bg-[#e8e5da] text-[#1a1a2e]/50 hover:text-[#1a1a2e] hover:bg-[#dcd7c9]'
             }`}
           >
             📋 QUEST AKTIF ({activePlans.length})
@@ -188,8 +188,8 @@ const DatePlanner: React.FC = () => {
             onClick={() => setActiveTab('history')}
             className={`py-3 px-2 border-2 rounded-xl text-center transition-all duration-100 font-['Press_Start_2P'] text-[9px] ${
               activeTab === 'history'
-                ? 'border-[#1a1a2e] bg-[#32CD32] text-white shadow-[3px_3px_0_#000000] translate-x-0.5 translate-y-0.5 font-bold'
-                : 'border-transparent bg-[#1a1a2e]/40 text-white/50 hover:text-white hover:bg-[#1a1a2e]'
+                ? 'border-[#1a1a2e] bg-[#4caf50] text-white shadow-[3px_3px_0_#1a1a2e] translate-x-0.5 translate-y-0.5 font-bold'
+                : 'border-transparent bg-[#e8e5da] text-[#1a1a2e]/50 hover:text-[#1a1a2e] hover:bg-[#dcd7c9]'
             }`}
           >
             🏆 MEMORI SELESAI ({completedPlans.length})
@@ -199,7 +199,7 @@ const DatePlanner: React.FC = () => {
         {/* Loading Indicator */}
         {isLoading ? (
           <div className="text-center py-20">
-            <p className="font-['Press_Start_2P'] text-[9px] text-[#FF69B4] animate-pulse">
+            <p className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] animate-pulse font-bold">
               MEMUAT DATA QUEST...
             </p>
           </div>
@@ -209,11 +209,11 @@ const DatePlanner: React.FC = () => {
             {activeTab === 'planned' && (
               <div className="space-y-4">
                 {activePlans.length === 0 ? (
-                  <div className="text-center py-16 bg-white/[0.01] border border-dashed border-white/10 rounded-2xl p-6">
-                    <p className="font-['Press_Start_2P'] text-[9px] text-white/35 mb-2.5">
+                  <div className="text-center py-16 bg-black/[0.03] border border-dashed border-[#1a1a2e]/20 rounded-2xl p-6">
+                    <p className="font-['Press_Start_2P'] text-[9px] text-[#1a1a2e]/40 mb-2.5">
                       BELUM ADA RENCANA AKTIF
                     </p>
-                    <p className="font-['VT323'] text-base text-white/50 mb-5">
+                    <p className="font-['VT323'] text-base text-[#1a1a2e]/60 mb-5">
                       Yuk rencanakan kencan indah berikutnya bersama pasanganmu!
                     </p>
                     <PixelButton onClick={() => setIsModalOpen(true)} variant="primary" size="sm" className="text-[9px]">
@@ -224,42 +224,42 @@ const DatePlanner: React.FC = () => {
                   activePlans.map((plan) => (
                     <div
                       key={plan.id}
-                      className="bg-[#12121c] border-4 border-[#1a1a2e] rounded-2xl p-5 hover:border-[#FF69B4]/60 transition-all duration-150 shadow-[4px_4px_0_#000000] relative overflow-hidden"
+                      className="bg-[#ffffff] border-4 border-[#1a1a2e] rounded-xl p-5 hover:border-[#ff69b4] transition-all duration-150 shadow-[4px_4px_0_#1a1a2e] relative overflow-hidden text-[#1a1a2e]"
                     >
                       {/* Top-right quest badge */}
-                      <div className="absolute top-0 right-0 bg-[#FF69B4] border-l-2 border-b-2 border-[#1a1a2e] px-3 py-1 text-[7px] font-['Press_Start_2P'] text-white uppercase tracking-wider select-none rounded-bl-xl font-bold">
+                      <div className="absolute top-0 right-0 bg-[#ff69b4] border-l-2 border-b-2 border-[#1a1a2e] px-3 py-1 text-[7px] font-['Press_Start_2P'] text-white uppercase tracking-wider select-none rounded-bl-xl font-bold">
                         Quest
                       </div>
 
                       <div className="flex flex-col gap-4">
                         <div className="space-y-3">
-                          <h3 className="font-['Press_Start_2P'] text-xs text-[#FFD700] leading-normal pr-16 tracking-wide select-text">
+                          <h3 className="font-['Press_Start_2P'] text-xs text-[#1a1a2e] leading-normal pr-16 tracking-wide select-text font-bold">
                             {plan.title}
                           </h3>
                           
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-['VT323'] text-base text-white/70">
-                            <div className="flex items-center gap-2 bg-black/20 border border-white/[0.05] rounded-lg p-2 min-w-0">
-                              <Clock className="w-4 h-4 text-[#FF69B4] shrink-0" />
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-['VT323'] text-base text-[#1a1a2e]/70">
+                            <div className="flex items-center gap-2 bg-[#e8e5da]/40 border border-[#1a1a2e]/10 rounded-lg p-2 min-w-0">
+                              <Clock className="w-4 h-4 text-[#ff69b4] shrink-0" />
                               <span className="truncate">{plan.date_time}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-black/20 border border-white/[0.05] rounded-lg p-2 min-w-0">
-                              <MapPin className="w-4 h-4 text-[#00FFFF] shrink-0" />
+                            <div className="flex items-center gap-2 bg-[#e8e5da]/40 border border-[#1a1a2e]/10 rounded-lg p-2 min-w-0">
+                              <MapPin className="w-4 h-4 text-[#00bcd4] shrink-0" />
                               <span className="truncate">{plan.location}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-black/20 border border-white/[0.05] rounded-lg p-2 min-w-0">
-                              <MessageSquare className="w-4 h-4 text-green-400 shrink-0" />
+                            <div className="flex items-center gap-2 bg-[#e8e5da]/40 border border-[#1a1a2e]/10 rounded-lg p-2 min-w-0">
+                              <MessageSquare className="w-4 h-4 text-[#4caf50] shrink-0" />
                               <span className="truncate">Aktivitas: {plan.activity}</span>
                             </div>
                           </div>
 
                           {plan.notes && (
-                            <div className="mt-3 p-3 bg-black/30 border border-white/[0.05] rounded-xl text-sm font-['VT323'] text-white/50 leading-snug">
+                            <div className="mt-3 p-3 bg-[#e8e5da]/20 border border-[#1a1a2e]/10 rounded-xl text-sm font-['VT323'] text-[#1a1a2e]/60 leading-snug">
                               📌 Catatan: {plan.notes}
                             </div>
                           )}
                         </div>
 
-                        <div className="flex gap-2.5 pt-3.5 border-t border-white/[0.06] justify-end">
+                        <div className="flex gap-2.5 pt-3.5 border-t border-[#1a1a2e]/10 justify-end">
                           <PixelButton
                             onClick={() => handleComplete(plan.id)}
                             variant="primary"
@@ -272,7 +272,7 @@ const DatePlanner: React.FC = () => {
                             onClick={() => handleDelete(plan.id)}
                             variant="secondary"
                             size="sm"
-                            className="text-[9px] px-3 py-2 text-red-400/90"
+                            className="text-[9px] px-3 py-2 text-red-500/90"
                           >
                             🗑 HAPUS
                           </PixelButton>
@@ -288,11 +288,11 @@ const DatePlanner: React.FC = () => {
             {activeTab === 'history' && (
               <div className="space-y-4">
                 {completedPlans.length === 0 ? (
-                  <div className="text-center py-16 bg-white/[0.01] border border-dashed border-white/10 rounded-2xl p-6">
-                    <p className="font-['Press_Start_2P'] text-[9px] text-white/35 mb-2.5">
+                  <div className="text-center py-16 bg-black/[0.03] border border-dashed border-[#1a1a2e]/20 rounded-2xl p-6">
+                    <p className="font-['Press_Start_2P'] text-[9px] text-[#1a1a2e]/40 mb-2.5">
                       BELUM ADA MEMORI KENCAN
                     </p>
-                    <p className="font-['VT323'] text-base text-white/50">
+                    <p className="font-['VT323'] text-base text-[#1a1a2e]/60">
                       Selesaikan rencana kencan kalian untuk menjadikannya memori manis di sini!
                     </p>
                   </div>
@@ -300,50 +300,50 @@ const DatePlanner: React.FC = () => {
                   completedPlans.map((plan) => (
                     <div
                       key={plan.id}
-                      className="bg-[#12121c]/70 border-4 border-[#1a1a2e] rounded-2xl p-5 shadow-[4px_4px_0_#000000] relative overflow-hidden opacity-80"
+                      className="bg-[#ffffff] border-4 border-[#1a1a2e] rounded-xl p-5 shadow-[4px_4px_0_#1a1a2e] relative overflow-hidden opacity-90 text-[#1a1a2e]"
                     >
                       {/* Top-right completed badge */}
-                      <div className="absolute top-0 right-0 bg-[#32CD32] border-l-2 border-b-2 border-[#1a1a2e] px-3 py-1 text-[7px] font-['Press_Start_2P'] text-white uppercase tracking-wider select-none rounded-bl-xl font-bold">
+                      <div className="absolute top-0 right-0 bg-[#4caf50] border-l-2 border-b-2 border-[#1a1a2e] px-3 py-1 text-[7px] font-['Press_Start_2P'] text-white uppercase tracking-wider select-none rounded-bl-xl font-bold">
                         Completed
                       </div>
 
                       <div className="flex flex-col gap-4">
                         <div className="space-y-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg select-none">🏆</span>
-                            <h3 className="font-['Press_Start_2P'] text-xs text-[#FFD700] leading-normal tracking-wide pr-16">
+                          <div className="flex items-center gap-2 select-none">
+                            <span className="text-lg">🏆</span>
+                            <h3 className="font-['Press_Start_2P'] text-xs text-[#1a1a2e] leading-normal tracking-wide pr-16 font-bold">
                               {plan.title}
                             </h3>
                           </div>
                           
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-['VT323'] text-base text-white/60">
-                            <div className="flex items-center gap-2 bg-black/20 border border-white/[0.05] rounded-lg p-2 min-w-0">
-                              <Clock className="w-4 h-4 text-white/30 shrink-0" />
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-['VT323'] text-base text-[#1a1a2e]/60">
+                            <div className="flex items-center gap-2 bg-[#e8e5da]/40 border border-[#1a1a2e]/10 rounded-lg p-2 min-w-0">
+                              <Clock className="w-4 h-4 text-[#1a1a2e]/40 shrink-0" />
                               <span className="truncate">{plan.date_time}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-black/20 border border-white/[0.05] rounded-lg p-2 min-w-0">
-                              <MapPin className="w-4 h-4 text-white/30 shrink-0" />
+                            <div className="flex items-center gap-2 bg-[#e8e5da]/40 border border-[#1a1a2e]/10 rounded-lg p-2 min-w-0">
+                              <MapPin className="w-4 h-4 text-[#1a1a2e]/40 shrink-0" />
                               <span className="truncate">{plan.location}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-black/20 border border-white/[0.05] rounded-lg p-2 min-w-0">
-                              <CheckCircle2 className="w-4 h-4 text-green-500/80 shrink-0" />
+                            <div className="flex items-center gap-2 bg-[#e8e5da]/40 border border-[#1a1a2e]/10 rounded-lg p-2 min-w-0">
+                              <CheckCircle2 className="w-4 h-4 text-[#4caf50] shrink-0" />
                               <span className="truncate">Aktivitas: {plan.activity}</span>
                             </div>
                           </div>
 
                           {plan.notes && (
-                            <div className="mt-3 p-3 bg-black/20 border border-white/[0.03] rounded-xl text-sm font-['VT323'] text-white/40 leading-snug">
+                            <div className="mt-3 p-3 bg-[#e8e5da]/20 border border-[#1a1a2e]/10 rounded-xl text-sm font-['VT323'] text-[#1a1a2e]/50 leading-snug">
                               📌 Catatan: {plan.notes}
                             </div>
                           )}
                         </div>
 
-                        <div className="flex gap-2.5 pt-3.5 border-t border-white/[0.04] justify-end">
+                        <div className="flex gap-2.5 pt-3.5 border-t border-[#1a1a2e]/10 justify-end">
                           <PixelButton
                             onClick={() => handleDelete(plan.id)}
                             variant="secondary"
                             size="sm"
-                            className="text-[9px] px-3 py-2 text-red-400/80"
+                            className="text-[9px] px-3 py-2 text-red-500/90"
                           >
                             🗑 HAPUS
                           </PixelButton>
@@ -360,10 +360,10 @@ const DatePlanner: React.FC = () => {
 
       {/* Modal: Buat Rencana Baru */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#12121c] border-4 border-[#1a1a2e] rounded-xl w-full max-w-md p-5 shadow-[6px_6px_0_#000000] max-h-[85vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#ffffff] border-4 border-[#1a1a2e] rounded-xl w-full max-w-md p-5 shadow-[6px_6px_0_#1a1a2e] max-h-[85vh] overflow-y-auto text-[#1a1a2e]">
             <div className="flex justify-between items-center border-b-2 border-[#1a1a2e] pb-3 mb-4 select-none">
-              <h3 className="font-['Press_Start_2P'] text-[#FFD700] text-[9px] tracking-wide uppercase">
+              <h3 className="font-['Press_Start_2P'] text-[#ff69b4] text-[9px] tracking-wide uppercase font-bold">
                 ⚔️ CREATE NEW QUEST
               </h3>
               <button
@@ -371,7 +371,7 @@ const DatePlanner: React.FC = () => {
                   setIsModalOpen(false);
                   setError(null);
                 }}
-                className="font-['Press_Start_2P'] text-white/40 text-[9px] hover:text-[#FF69B4] transition-colors"
+                className="font-['Press_Start_2P'] text-[#1a1a2e]/40 text-[9px] hover:text-[#ff69b4] transition-colors"
               >
                 [CLOSE]
               </button>
@@ -379,7 +379,7 @@ const DatePlanner: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block font-['Press_Start_2P'] text-[8px] text-[#FF69B4] mb-2 tracking-wide">
+                <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 tracking-wide font-bold">
                   NAMA RENCANA / JUDUL
                 </label>
                 <input
@@ -388,12 +388,12 @@ const DatePlanner: React.FC = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Piknik di Taman, Dinner Romantis, dll..."
-                  className="w-full px-3.5 py-2.5 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4] transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#1a1a2e]/40"
                 />
               </div>
 
               <div>
-                <label className="block font-['Press_Start_2P'] text-[8px] text-[#FF69B4] mb-2 tracking-wide">
+                <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 tracking-wide font-bold">
                   TANGGAL & WAKTU
                 </label>
                 <input
@@ -402,12 +402,12 @@ const DatePlanner: React.FC = () => {
                   value={dateTime}
                   onChange={(e) => setDateTime(e.target.value)}
                   placeholder="Minggu, 10 Juli 2026 pukul 15:00"
-                  className="w-full px-3.5 py-2.5 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4] transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#1a1a2e]/40"
                 />
               </div>
 
               <div>
-                <label className="block font-['Press_Start_2P'] text-[8px] text-[#FF69B4] mb-2 tracking-wide">
+                <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 tracking-wide font-bold">
                   LOKASI KENCAN
                 </label>
                 <input
@@ -416,12 +416,12 @@ const DatePlanner: React.FC = () => {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="Taman Hutan Raya, Cafe Cinta, dll..."
-                  className="w-full px-3.5 py-2.5 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4] transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#1a1a2e]/40"
                 />
               </div>
 
               <div>
-                <label className="block font-['Press_Start_2P'] text-[8px] text-[#FF69B4] mb-2 tracking-wide">
+                <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 tracking-wide font-bold">
                   AKTIVITAS UTAMA
                 </label>
                 <input
@@ -430,12 +430,12 @@ const DatePlanner: React.FC = () => {
                   value={activity}
                   onChange={(e) => setActivity(e.target.value)}
                   placeholder="Jalan-jalan sore, main sepeda, makan es krim..."
-                  className="w-full px-3.5 py-2.5 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4] transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#1a1a2e]/40"
                 />
               </div>
 
               <div>
-                <label className="block font-['Press_Start_2P'] text-[8px] text-[#FFD700] mb-2 tracking-wide">
+                <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 tracking-wide font-bold">
                   CATATAN TAMBAHAN (OPSIONAL)
                 </label>
                 <textarea
@@ -443,13 +443,13 @@ const DatePlanner: React.FC = () => {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Jangan lupa bawa kamera, payung, atau dresscode..."
-                  className="w-full px-3.5 py-2.5 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base focus:outline-none focus:border-[#FFD700] resize-none transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] resize-none transition-colors placeholder-[#1a1a2e]/40"
                 />
               </div>
 
               {error && (
-                <div className="bg-red-950/20 border border-red-500/20 rounded-xl px-3 py-2">
-                  <p className="font-['VT323'] text-red-400 text-sm">⚠ {error}</p>
+                <div className="bg-red-50 border border-red-500/30 rounded-xl px-3 py-2">
+                  <p className="font-['VT323'] text-red-600 text-sm">⚠ {error}</p>
                 </div>
               )}
 

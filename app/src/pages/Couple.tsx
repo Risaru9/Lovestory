@@ -10,12 +10,12 @@ interface StatPanelProps {
 
 const StatPanel: React.FC<StatPanelProps> = ({ character }) => {
   return (
-    <div className="w-full bg-[#12121c] border-4 border-[#1a1a2e] rounded-xl p-4 shadow-[4px_4px_0_#000000] animate-slide-up flex flex-col gap-3">
+    <div className="w-full bg-[#ffffff] border-4 border-[#1a1a2e] rounded-xl p-4 shadow-[4px_4px_0_#1a1a2e] animate-slide-up flex flex-col gap-3 text-[#1a1a2e]">
       <div className="flex justify-between items-center border-b-2 border-[#1a1a2e] pb-1.5 select-none">
-        <span className="font-['Press_Start_2P'] text-[9px] text-[#FF69B4] tracking-wider uppercase">
+        <span className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-wider uppercase">
           STATUS: {character.name}
         </span>
-        <span className="font-['VT323'] text-base text-white/50 tracking-wider">
+        <span className="font-['VT323'] text-base text-[#1a1a2e]/60 tracking-wider font-bold">
           CLASS: {character.class}
         </span>
       </div>
@@ -23,34 +23,34 @@ const StatPanel: React.FC<StatPanelProps> = ({ character }) => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
         {/* LVL Bar */}
         <div className="flex flex-col gap-1 w-full">
-          <div className="flex justify-between text-[8px] font-['Press_Start_2P'] text-white/70">
+          <div className="flex justify-between text-[8px] font-['Press_Start_2P'] text-[#1a1a2e]">
             <span>LVL:</span>
-            <span className="text-[#FFD700]">{character.level}</span>
+            <span className="text-[#c7a008] font-bold">{character.level}</span>
           </div>
-          <div className="h-3 w-full bg-black/40 border-2 border-[#1a1a2e] p-[1px]">
-            <div className="h-full bg-[#FFD700]" style={{ width: '100%' }} />
+          <div className="h-3 w-full bg-black/10 border-2 border-[#1a1a2e] p-[1px]">
+            <div className="h-full bg-[#ffb300]" style={{ width: '100%' }} />
           </div>
         </div>
 
         {/* HP Bar */}
         <div className="flex flex-col gap-1 w-full">
-          <div className="flex justify-between text-[8px] font-['Press_Start_2P'] text-white/70">
+          <div className="flex justify-between text-[8px] font-['Press_Start_2P'] text-[#1a1a2e]">
             <span>HP:</span>
-            <span className="text-[#32CD32]">{character.hp}</span>
+            <span className="text-[#2e7d32] font-bold">{character.hp}</span>
           </div>
-          <div className="h-3 w-full bg-black/40 border-2 border-[#1a1a2e] p-[1px]">
-            <div className="h-full bg-[#32CD32]" style={{ width: '100%' }} />
+          <div className="h-3 w-full bg-black/10 border-2 border-[#1a1a2e] p-[1px]">
+            <div className="h-full bg-[#4caf50]" style={{ width: '100%' }} />
           </div>
         </div>
 
         {/* MP Bar */}
         <div className="flex flex-col gap-1 w-full">
-          <div className="flex justify-between text-[8px] font-['Press_Start_2P'] text-white/70">
+          <div className="flex justify-between text-[8px] font-['Press_Start_2P'] text-[#1a1a2e]">
             <span>MP:</span>
-            <span className="text-[#00FFFF]">{character.mp}</span>
+            <span className="text-[#1565c0] font-bold">{character.mp}</span>
           </div>
-          <div className="h-3 w-full bg-black/40 border-2 border-[#1a1a2e] p-[1px]">
-            <div className="h-full bg-[#00FFFF]" style={{ width: '100%' }} />
+          <div className="h-3 w-full bg-black/10 border-2 border-[#1a1a2e] p-[1px]">
+            <div className="h-full bg-[#2196f3]" style={{ width: '100%' }} />
           </div>
         </div>
       </div>
@@ -90,7 +90,7 @@ const Couple: React.FC = () => {
 
   return (
     <div 
-      className="h-[100dvh] max-h-[100dvh] w-full relative overflow-hidden bg-[#0c0a18]"
+      className="h-[100dvh] max-h-[100dvh] w-full relative overflow-hidden bg-[#e8e5da]"
       style={{
         backgroundImage: 'url(/images/backgrounds/couple-bg.png)',
         backgroundSize: 'cover',
@@ -98,17 +98,17 @@ const Couple: React.FC = () => {
       }}
     >
       {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-[#f4f0e6]/85" />
 
       {/* Content wrapper */}
       <div className="relative z-10 h-full flex flex-col items-center justify-between px-4 py-6 md:py-8">
         
         {/* Title */}
         <div className="text-center select-none">
-          <h1 className="font-['Press_Start_2P'] text-lg sm:text-xl md:text-2xl text-white mb-1.5 drop-shadow-[2.5px_2.5px_0_#1a1a2e] tracking-wider">
+          <h1 className="font-['Press_Start_2P'] text-lg sm:text-xl md:text-2xl text-[#1a1a2e] mb-1.5 drop-shadow-[2.5px_2.5px_0_#ffd700] tracking-wider">
             SELECT CHARACTER
           </h1>
-          <p className="font-['VT323'] text-sm sm:text-base text-[#FFD700] tracking-widest uppercase">
+          <p className="font-['VT323'] text-sm sm:text-base text-[#1a1a2e]/60 tracking-widest uppercase">
             Klik karakter untuk melihat statistik RPG
           </p>
         </div>
@@ -121,8 +121,8 @@ const Couple: React.FC = () => {
               type="button"
               className={`cursor-pointer transition-all duration-150 outline-none p-2 border-4 rounded-2xl ${
                 showStat1 
-                  ? 'border-[#FF69B4] bg-[#FF69B4]/10 scale-105 opacity-100 shadow-[3px_3px_0_#000000]' 
-                  : 'border-transparent opacity-60 hover:opacity-90'
+                  ? 'border-[#ff69b4] bg-[#ff69b4]/10 scale-105 opacity-100 shadow-[3px_3px_0_#1a1a2e]' 
+                  : 'border-transparent opacity-60 hover:opacity-95'
               }`}
               onClick={() => handleCharacterClick(0)}
               aria-label={`Select ${characters[0].name}`}
@@ -133,13 +133,13 @@ const Couple: React.FC = () => {
                 className="w-20 h-20 sm:w-28 md:w-36 pixel-art"
               />
             </button>
-            <p className="font-['Press_Start_2P'] text-[9px] text-white mt-3.5 tracking-wider select-none">
+            <p className="font-['Press_Start_2P'] text-[9px] text-[#1a1a2e] mt-3.5 tracking-wider select-none">
               {characters[0].name}
             </p>
           </div>
 
           {/* Heart between */}
-          <div className="text-xl sm:text-3xl animate-pulse text-[#FF69B4] select-none">
+          <div className="text-xl sm:text-3xl animate-pulse text-[#ff69b4] select-none">
             💕
           </div>
 
@@ -149,8 +149,8 @@ const Couple: React.FC = () => {
               type="button"
               className={`cursor-pointer transition-all duration-150 outline-none p-2 border-4 rounded-2xl ${
                 showStat2 
-                  ? 'border-[#FF69B4] bg-[#FF69B4]/10 scale-105 opacity-100 shadow-[3px_3px_0_#000000]' 
-                  : 'border-transparent opacity-60 hover:opacity-90'
+                  ? 'border-[#ff69b4] bg-[#ff69b4]/10 scale-105 opacity-100 shadow-[3px_3px_0_#1a1a2e]' 
+                  : 'border-transparent opacity-60 hover:opacity-95'
               }`}
               onClick={() => handleCharacterClick(1)}
               aria-label={`Select ${characters[1].name}`}
@@ -161,7 +161,7 @@ const Couple: React.FC = () => {
                 className="w-20 h-20 sm:w-28 md:w-36 pixel-art"
               />
             </button>
-            <p className="font-['Press_Start_2P'] text-[9px] text-white mt-3.5 tracking-wider select-none">
+            <p className="font-['Press_Start_2P'] text-[9px] text-[#1a1a2e] mt-3.5 tracking-wider select-none">
               {characters[1].name}
             </p>
           </div>
@@ -174,7 +174,7 @@ const Couple: React.FC = () => {
           ) : showStat2 ? (
             <StatPanel character={characters[1]} />
           ) : (
-            <div className="text-center font-['VT323'] text-sm sm:text-base text-white/35 border-2 border-dashed border-white/10 rounded-xl px-4 py-5 flex items-center justify-center h-full tracking-wide">
+            <div className="text-center font-['VT323'] text-sm sm:text-base text-[#1a1a2e]/55 border-2 border-dashed border-[#1a1a2e]/20 rounded-xl px-4 py-5 flex items-center justify-center h-full tracking-wide">
               ✨ KETUK KARAKTER UNTUK MENYINGKAP STATUS RPG
             </div>
           )}

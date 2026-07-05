@@ -626,7 +626,7 @@ const Music: React.FC = () => {
   }, [currentSong, isPlaying]);
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] bg-[#0c0a18] relative flex flex-col overflow-hidden">
+    <div className="h-[100dvh] max-h-[100dvh] bg-[#f4f0e6] relative flex flex-col overflow-hidden text-[#1a1a2e]">
       {/* Inline Styles for Animation to ensure they work without separate CSS files */}
       <style>{`
         @keyframes breathe {
@@ -657,16 +657,16 @@ const Music: React.FC = () => {
           imageRendering: 'pixelated'
         }}
       >
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-[#f4f0e6]/85" />
       </div>
 
-      <div className="absolute inset-0 opacity-5 pointer-events-none">
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
         <div 
           className="absolute inset-0 animate-grid"
           style={{
             backgroundImage: `
-              linear-gradient(to right, #FF69B4 1px, transparent 1px),
-              linear-gradient(to bottom, #FF69B4 1px, transparent 1px)
+              linear-gradient(to right, #1a1a2e 1px, transparent 1px),
+              linear-gradient(to bottom, #1a1a2e 1px, transparent 1px)
             `,
             backgroundSize: '32px 32px'
           }}
@@ -677,7 +677,7 @@ const Music: React.FC = () => {
         {[...Array(15)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-[#FFD700] animate-twinkle"
+            className="absolute w-1 h-1 bg-[#ff69b4] animate-twinkle"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -704,17 +704,17 @@ const Music: React.FC = () => {
         onError={(e) => console.log("Audio Error:", e)}
       />
 
-      <header className="sticky top-0 z-40 border-b border-[#1A1A2E] bg-[#080b18]/90 backdrop-blur-md px-4 py-3 w-full">
+      <header className="sticky top-0 z-40 border-b-4 border-[#1A1A2E] bg-[#e8e5da] px-4 py-3 w-full">
         <div className="flex justify-between items-center max-w-4xl mx-auto gap-4">
           <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px] shrink-0">
             ← MENU
           </PixelButton>
 
-          <div className="text-center">
-            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-white leading-none">
+          <div className="text-center select-none">
+            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#1a1a2e] leading-none">
               8-BIT JUKEBOX
             </h1>
-            <p className="font-['VT323'] text-xs text-white/50 mt-1 tracking-wider hidden sm:block">
+            <p className="font-['VT323'] text-xs text-[#ff69b4] mt-1 tracking-wider hidden sm:block font-bold">
               Koleksi lagu kencan pilihan kita
             </p>
           </div>
@@ -758,7 +758,7 @@ const Music: React.FC = () => {
           />
         </div>
 
-        <div className="bg-[#12121c] border-4 border-[#1a1a2e] p-4 md:p-5 mb-5 shadow-[6px_6px_0_#000000] relative rounded-xl">
+        <div className="bg-[#ffffff] border-4 border-[#1a1a2e] p-4 md:p-5 mb-5 shadow-[6px_6px_0_#1a1a2e] relative rounded-xl text-[#1a1a2e]">
           <div className="absolute top-2 left-2 w-1.5 h-1.5 bg-[#1a1a2e]" />
           <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-[#1a1a2e]" />
           <div className="absolute bottom-2 left-2 w-1.5 h-1.5 bg-[#1a1a2e]" />
@@ -770,19 +770,19 @@ const Music: React.FC = () => {
             </div>
 
             <div className="flex-1 text-center md:text-left w-full">
-              <h2 className="font-pixel text-[9px] md:text-[10px] text-white/40 mb-1 tracking-wider uppercase select-none">
+              <h2 className="font-pixel text-[9px] md:text-[10px] text-[#ff69b4] mb-1 tracking-wider uppercase select-none font-bold">
                 {currentSong ? 'NOW PLAYING' : 'SELECT A SONG'}
               </h2>
-              <h3 className="font-pixel text-xs md:text-sm text-white mb-1.5 truncate leading-relaxed">
+              <h3 className="font-pixel text-xs md:text-sm text-[#1a1a2e] mb-1.5 truncate leading-relaxed font-bold">
                 {currentSong ? currentSong.title : '---'}
               </h3>
-              <p className="font-retro text-xl md:text-2xl text-[#FFD700] mb-3">
+              <p className="font-retro text-xl md:text-2xl text-[#1a1a2e]/60 mb-3 font-semibold">
                 {currentSong ? currentSong.artist : '---'}
               </p>
               
               <div className="mb-4">
                 <div 
-                  className="h-5 bg-black/40 border-4 border-[#1a1a2e] cursor-pointer relative overflow-hidden progress-bar shadow-[2px_2px_0_#000000] rounded-md"
+                  className="h-5 bg-black/10 border-4 border-[#1a1a2e] cursor-pointer relative overflow-hidden progress-bar shadow-[2px_2px_0_#1a1a2e] rounded-md"
                   onClick={handleProgressBarClick}
                 >
                   <div 
@@ -845,7 +845,7 @@ const Music: React.FC = () => {
                 
                 {showVolumeSlider && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 z-50">
-                    <div className="bg-[#12121c] border-4 border-[#1a1a2e] p-2 rounded-lg shadow-[3px_3px_0_#000000]">
+                    <div className="bg-[#ffffff] border-4 border-[#1a1a2e] p-2 rounded-lg shadow-[3px_3px_0_#1a1a2e]">
                       <input
                         type="range"
                         min="0"
@@ -859,7 +859,7 @@ const Music: React.FC = () => {
                         className="w-24 h-2.5 cursor-pointer accent-[#FF69B4]"
                         style={{ background: `linear-gradient(to right, #FF69B4 ${volume * 100}%, #1a1a2e ${volume * 100}%)` }}
                       />
-                      <div className="text-center mt-1 font-retro text-[10px] text-[#FFD700]">
+                      <div className="text-center mt-1 font-retro text-[10px] text-[#ff69b4] font-bold">
                         {Math.round((isMuted ? 0 : volume) * 100)}%
                       </div>
                     </div>
@@ -875,25 +875,25 @@ const Music: React.FC = () => {
               ref={visualizerRef}
               width={500}
               height={64}
-              className="w-full h-12 bg-black/50 border-4 border-[#1a1a2e] rounded-lg"
+              className="w-full h-12 bg-[#e8e5da] border-4 border-[#1a1a2e] rounded-lg"
               style={{ imageRendering: 'pixelated' }}
             />
           </div>
         </div>
 
-        <div className="bg-[#12121c] border-4 border-[#1a1a2e] p-4 shadow-[6px_6px_0_#000000] rounded-xl mb-8">
+        <div className="bg-[#ffffff] border-4 border-[#1a1a2e] p-4 shadow-[6px_6px_0_#1a1a2e] rounded-xl mb-8 text-[#1a1a2e]">
           <div className="flex items-center justify-between mb-4 border-b-2 border-[#1a1a2e] pb-2 select-none">
-            <h3 className="font-pixel text-[9px] text-[#FFD700] tracking-wide">
+            <h3 className="font-pixel text-[9px] text-[#ff69b4] tracking-wide font-bold">
               💿 PLAYLIST ({allSongs.length} CASSETTES)
             </h3>
             <div className="flex items-center gap-3">
               {isShuffle && (
-                <span className="font-pixel text-[8px] text-[#FF69B4] animate-pulse">
+                <span className="font-pixel text-[8px] text-[#ff69b4] animate-pulse font-bold">
                   SHUFFLE
                 </span>
                )}
                {repeatMode !== 'none' && (
-                <span className="font-pixel text-[8px] text-[#00FFFF] tracking-wider">
+                <span className="font-pixel text-[8px] text-[#2196f3] tracking-wider font-bold">
                   LOOP
                 </span>
                )}
@@ -914,16 +914,16 @@ const Music: React.FC = () => {
                   className={cn(
                     'flex items-center gap-3 p-2.5 cursor-pointer transition-all border-4 rounded-xl relative overflow-hidden',
                     isActive
-                      ? 'bg-[#FF69B4] border-[#1a1a2e] text-white shadow-[2px_2px_0_#000000]'
-                      : 'bg-black/35 border-[#1a1a2e]/60 text-white/70 hover:bg-black/55 hover:text-white'
+                      ? 'bg-[#ff69b4] border-[#1a1a2e] text-white shadow-[2px_2px_0_#1a1a2e]'
+                      : 'bg-[#e8e5da]/40 border-[#1a1a2e]/40 text-[#1a1a2e]/85 hover:bg-[#e8e5da]/80'
                   )}
                 >
-                  <div className="w-8 h-8 flex items-center justify-center bg-black/40 border border-white/10 rounded flex-shrink-0 relative">
+                  <div className="w-8 h-8 flex items-center justify-center bg-black/10 border border-[#1a1a2e]/10 rounded flex-shrink-0 relative">
                     {isActive && isPlaying ? (
                       <div className="flex gap-0.5 items-end h-3">
-                        <div className="w-0.5 bg-[#FFD700] equalizer-bar" style={{ height: '60%', animationDelay: '0s' }} />
-                        <div className="w-0.5 bg-[#FFD700] equalizer-bar" style={{ height: '100%', animationDelay: '0.1s' }} />
-                        <div className="w-0.5 bg-[#FFD700] equalizer-bar" style={{ height: '40%', animationDelay: '0.2s' }} />
+                        <div className="w-0.5 bg-white equalizer-bar" style={{ height: '60%', animationDelay: '0s' }} />
+                        <div className="w-0.5 bg-white equalizer-bar" style={{ height: '100%', animationDelay: '0.1s' }} />
+                        <div className="w-0.5 bg-white equalizer-bar" style={{ height: '40%', animationDelay: '0.2s' }} />
                       </div>
                     ) : (
                       <span className={cn("text-base select-none", isActive ? 'brightness-125' : 'opacity-40')}>
@@ -933,23 +933,23 @@ const Music: React.FC = () => {
                   </div>
 
                   <div className="flex-1 min-w-0 select-text">
-                    <p className={cn('font-pixel text-[8px] uppercase tracking-wide truncate', isActive ? 'text-white' : 'text-white/80')}>
+                    <p className={cn('font-pixel text-[8px] uppercase tracking-wide truncate font-bold', isActive ? 'text-white' : 'text-[#1a1a2e]')}>
                       {song.title}
                     </p>
-                    <p className={cn('font-retro text-base truncate', isActive ? 'text-white/80' : 'text-white/45')}>
+                    <p className={cn('font-retro text-base truncate', isActive ? 'text-white/80' : 'text-[#1a1a2e]/55')}>
                       {song.artist}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0 select-none">
-                    <span className={cn('font-retro text-sm', isActive ? 'text-white/70' : 'text-white/45')}>
+                    <span className={cn('font-retro text-sm', isActive ? 'text-white/70' : 'text-[#1a1a2e]/55')}>
                       {song.duration}
                     </span>
                     {isHovered && !isActive && (
-                      <PlayIcon size={14} className="text-[#FFD700] animate-bounce" />
+                      <PlayIcon size={14} className="text-[#ff69b4] animate-bounce" />
                     )}
                     {isActive && (
-                      <div className="w-1.5 h-1.5 bg-[#FFD700] animate-pulse rounded-full" />
+                      <div className="w-1.5 h-1.5 bg-white animate-pulse rounded-full" />
                     )}
                   </div>
                 </div>
@@ -959,28 +959,28 @@ const Music: React.FC = () => {
         </div>
 
         <div className="mt-4 pb-6 text-center select-none">
-          <p className="font-retro text-white/40 text-xs">
-            Use <kbd className="bg-[#1a1a2e]/60 px-1.5 py-0.5 border border-white/15 text-[#FFD700] font-pixel text-[8px]">←</kbd>
-            <kbd className="bg-[#1a1a2e]/60 px-1.5 py-0.5 border border-white/15 text-[#FFD700] font-pixel text-[8px] mx-1">→</kbd> 
+          <p className="font-retro text-[#1a1a2e]/55 text-xs font-semibold">
+            Use <kbd className="bg-[#ffffff] px-1.5 py-0.5 border border-[#1a1a2e]/25 text-[#1a1a2e] font-pixel text-[8px]">←</kbd>
+            <kbd className="bg-[#ffffff] px-1.5 py-0.5 border border-[#1a1a2e]/25 text-[#1a1a2e] font-pixel text-[8px] mx-1">→</kbd> 
             to navigate • 
-            <kbd className="bg-[#1a1a2e]/60 px-1.5 py-0.5 border border-white/15 text-[#FFD700] font-pixel text-[8px] mx-1">SPACE</kbd> 
+            <kbd className="bg-[#ffffff] px-1.5 py-0.5 border border-[#1a1a2e]/25 text-[#1a1a2e] font-pixel text-[8px] mx-1">SPACE</kbd> 
             to play/pause • 
-            <kbd className="bg-[#1a1a2e]/60 px-1.5 py-0.5 border border-white/15 text-[#FFD700] font-pixel text-[8px] mx-1">↑</kbd>
-            <kbd className="bg-[#1a1a2e]/60 px-1.5 py-0.5 border border-white/15 text-[#FFD700] font-pixel text-[8px]">↓</kbd> 
+            <kbd className="bg-[#ffffff] px-1.5 py-0.5 border border-[#1a1a2e]/25 text-[#1a1a2e] font-pixel text-[8px] mx-1">↑</kbd>
+            <kbd className="bg-[#ffffff] px-1.5 py-0.5 border border-[#1a1a2e]/25 text-[#1a1a2e] font-pixel text-[8px]">↓</kbd> 
             for volume
           </p>
         </div>
         {/* Retro Upload Modal */}
         {showUploadModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-xl border-4 border-[#1a1a2e] bg-[#12121c] p-6 shadow-[6px_6px_0_#000000]">
-              <h2 className="font-pixel text-[10px] text-white mb-6 text-center select-none">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-xl border-4 border-[#1a1a2e] bg-[#ffffff] p-6 shadow-[6px_6px_0_#1a1a2e] text-[#1a1a2e]">
+              <h2 className="font-pixel text-[10px] text-[#ff69b4] mb-6 text-center select-none font-bold">
                 ADD NEW MUSIC
               </h2>
               
               <form onSubmit={handleUploadSong} className="space-y-4 font-retro text-lg">
                 <div>
-                  <label className="block text-[#FFD700] mb-2 font-pixel text-[8px] tracking-wider select-none">
+                  <label className="block text-[#ff69b4] mb-2 font-pixel text-[8px] tracking-wider select-none font-bold">
                     CHOOSE AUDIO FILE (.MP3)
                   </label>
                   <input
@@ -988,12 +988,12 @@ const Music: React.FC = () => {
                     accept="audio/*"
                     onChange={handleAudioFileChange}
                     required
-                    className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[9px] file:font-pixel file:bg-[#FF69B4] file:text-white file:cursor-pointer hover:file:brightness-110"
+                    className="w-full px-3 py-2 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[9px] file:font-pixel file:bg-[#FF69B4] file:text-white file:cursor-pointer hover:file:brightness-110"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[#FFD700] mb-2 font-pixel text-[8px] tracking-wider select-none">
+                  <label className="block text-[#ff69b4] mb-2 font-pixel text-[8px] tracking-wider select-none font-bold">
                     SONG TITLE
                   </label>
                   <input
@@ -1002,12 +1002,12 @@ const Music: React.FC = () => {
                     value={uploadTitle}
                     onChange={(e) => setUploadTitle(e.target.value)}
                     required
-                    className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white focus:outline-none focus:border-[#FF69B4] text-base"
+                    className="w-full px-3 py-2 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] focus:outline-none focus:border-[#ff69b4] text-base placeholder-[#1a1a2e]/40"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[#FFD700] mb-2 font-pixel text-[8px] tracking-wider select-none">
+                  <label className="block text-[#ff69b4] mb-2 font-pixel text-[8px] tracking-wider select-none font-bold">
                     ARTIST
                   </label>
                   <input
@@ -1016,12 +1016,12 @@ const Music: React.FC = () => {
                     value={uploadArtist}
                     onChange={(e) => setUploadArtist(e.target.value)}
                     required
-                    className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white focus:outline-none focus:border-[#FF69B4] text-base"
+                    className="w-full px-3 py-2 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] focus:outline-none focus:border-[#ff69b4] text-base placeholder-[#1a1a2e]/40"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[#FFD700] mb-2 font-pixel text-[8px] tracking-wider select-none">
+                  <label className="block text-[#ff69b4] mb-2 font-pixel text-[8px] tracking-wider select-none font-bold">
                     DURATION
                   </label>
                   <input
@@ -1030,7 +1030,7 @@ const Music: React.FC = () => {
                     value={uploadDuration}
                     onChange={(e) => setUploadDuration(e.target.value)}
                     required
-                    className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-lg text-white focus:outline-none focus:border-[#FF69B4] text-base"
+                    className="w-full px-3 py-2 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] focus:outline-none focus:border-[#ff69b4] text-base placeholder-[#1a1a2e]/40"
                   />
                 </div>
 

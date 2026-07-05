@@ -48,11 +48,11 @@ const FilterButton = memo(function FilterButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'flex items-center gap-2 rounded-2xl border px-4 py-3 transition-all duration-200',
-        'font-["Press_Start_2P"] text-[10px] md:text-xs shadow-sm',
+        'flex items-center gap-2 rounded-xl border-2 px-4 py-2.5 transition-all duration-100',
+        'font-["Press_Start_2P"] text-[9px] shadow-[2px_2px_0_#1a1a2e]',
         active
-          ? 'bg-[#FF69B4] text-white border-[#FF69B4] shadow-[0_0_20px_rgba(255,105,180,0.25)]'
-          : 'bg-white/5 text-white/80 border-white/10 hover:bg-white/10 hover:border-white/20'
+          ? 'bg-[#FF69B4] text-white border-[#1a1a2e]'
+          : 'bg-[#ffffff] text-[#1a1a2e] border-[#1a1a2e] hover:bg-[#e8e5da]'
       )}
       aria-pressed={active}
     >
@@ -77,7 +77,7 @@ const GalleryCard = memo(function GalleryCard({
     <button
       type="button"
       onClick={onClick}
-      className="group relative overflow-hidden rounded-xl border-4 border-[#1a1a2e] bg-[#12121c] p-2 text-left shadow-[4px_4px_0_#000000] transition-all duration-150 hover:-translate-y-0.5 hover:border-[#FF69B4]/60"
+      className="group relative overflow-hidden rounded-xl border-4 border-[#1a1a2e] bg-[#ffffff] p-2 text-left shadow-[4px_4px_0_#1a1a2e] transition-all duration-150 hover:-translate-y-0.5 hover:border-[#FF69B4]"
       style={{
         contentVisibility: 'auto',
         containIntrinsicSize: '0 300px',
@@ -86,9 +86,9 @@ const GalleryCard = memo(function GalleryCard({
       }}
       aria-label={`Open photo ${label}`}
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-black/40 border border-white/[0.04]">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-[#e8e5da] border-2 border-[#1a1a2e]">
         {!loaded && (
-          <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-white/10 via-white/5 to-transparent" />
+          <div className="absolute inset-0 animate-pulse bg-black/5" />
         )}
 
         <img
@@ -105,18 +105,18 @@ const GalleryCard = memo(function GalleryCard({
           style={{ imageRendering: 'auto' }}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-80" />
       </div>
 
       <div className="mt-2 px-1 pb-1">
-        <p className="font-['VT323'] text-base text-white/80 leading-snug line-clamp-1 group-hover:text-white transition-colors">
+        <p className="font-['VT323'] text-base text-[#1a1a2e]/90 leading-snug line-clamp-1 group-hover:text-[#FF69B4] transition-colors font-bold">
           {label}
         </p>
-        <div className="flex justify-between items-center mt-1">
-          <span className="font-['VT323'] text-xs text-white/30 tracking-wider uppercase">
+        <div className="flex justify-between items-center mt-1 select-none">
+          <span className="font-['VT323'] text-xs text-[#1a1a2e]/50 tracking-wider uppercase font-semibold">
             {photo.category}
           </span>
-          <Heart className="w-3.5 h-3.5 text-white/10 group-hover:text-[#FF69B4] group-hover:scale-110 transition-all duration-200 shrink-0" />
+          <Heart className="w-3.5 h-3.5 text-[#1a1a2e]/20 group-hover:text-[#FF69B4] group-hover:scale-110 transition-all duration-200 shrink-0" />
         </div>
       </div>
     </button>
@@ -142,7 +142,7 @@ function PhotoModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -154,7 +154,7 @@ function PhotoModal({
           e.stopPropagation();
           onPrev();
         }}
-        className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 rounded-xl border-4 border-[#1a1a2e] bg-[#12121c] p-2 text-white/60 transition hover:bg-[#FF69B4] hover:text-white shadow-[2px_2px_0_#000000] active:scale-95 z-40"
+        className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 rounded-xl border-4 border-[#1a1a2e] bg-[#ffffff] p-2 text-[#1a1a2e] transition hover:bg-[#FF69B4] hover:text-white shadow-[2px_2px_0_#1a1a2e] active:scale-95 z-40"
         aria-label="Previous photo"
       >
         <ChevronLeft className="h-6 w-6 md:h-7 md:w-7" />
@@ -166,60 +166,60 @@ function PhotoModal({
           e.stopPropagation();
           onNext();
         }}
-        className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 rounded-xl border-4 border-[#1a1a2e] bg-[#12121c] p-2 text-white/60 transition hover:bg-[#FF69B4] hover:text-white shadow-[2px_2px_0_#000000] active:scale-95 z-40"
+        className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 rounded-xl border-4 border-[#1a1a2e] bg-[#ffffff] p-2 text-[#1a1a2e] transition hover:bg-[#FF69B4] hover:text-white shadow-[2px_2px_0_#1a1a2e] active:scale-95 z-40"
         aria-label="Next photo"
       >
         <ChevronRight className="h-6 w-6 md:h-7 md:w-7" />
       </button>
 
       <div
-        className="relative w-full max-w-3xl overflow-y-auto max-h-[85vh] rounded-xl border-4 border-[#1a1a2e] bg-[#12121c] shadow-[6px_6px_0_#000000]"
+        className="relative w-full max-w-3xl overflow-y-auto max-h-[85vh] rounded-xl border-4 border-[#1a1a2e] bg-[#ffffff] shadow-[6px_6px_0_#1a1a2e]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 rounded-full border-2 border-white/20 bg-black/50 p-2 text-white/60 transition hover:bg-[#FF69B4] hover:text-white active:scale-95"
+          className="absolute right-4 top-4 z-10 rounded-full border-2 border-[#1a1a2e] bg-[#ffffff] p-2 text-[#1a1a2e] transition hover:bg-[#FF69B4] hover:text-white active:scale-95"
           aria-label="Close photo preview"
         >
           <X className="h-5 w-5" />
         </button>
 
-        <div className="absolute left-4 top-4 z-10 rounded-lg border-2 border-white/20 bg-black/50 px-3 py-1 font-['Press_Start_2P'] text-[7px] text-white/70">
+        <div className="absolute left-4 top-4 z-10 rounded-lg border-2 border-[#1a1a2e] bg-[#ffffff] px-3 py-1 font-['Press_Start_2P'] text-[7px] text-[#1a1a2e] font-bold">
           {currentIndex + 1} / {total}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr]">
-          <div className="flex min-h-[300px] items-center justify-center bg-black/30 p-2">
+          <div className="flex min-h-[300px] items-center justify-center bg-[#e8e5da]/30 p-2">
             <img
               src={photo.src}
               alt={label}
-              className="max-h-[70vh] w-full object-contain rounded-lg"
+              className="max-h-[70vh] w-full object-contain rounded-lg border-2 border-[#1a1a2e]"
             />
           </div>
 
-          <div className="flex flex-col justify-between border-t md:border-t-0 md:border-l border-white/[0.08] bg-[#090b1e] p-5">
+          <div className="flex flex-col justify-between border-t md:border-t-0 md:border-l border-[#1a1a2e]/10 bg-[#fcfaf2] p-5 text-[#1a1a2e]">
             <div>
-              <div className="mb-3 inline-flex rounded-xl border border-[#FF69B4]/30 bg-[#FF69B4]/10 px-2.5 py-1 font-['VT323'] text-sm uppercase text-[#FF69B4] tracking-wider select-none">
+              <div className="mb-3 inline-flex rounded-lg border border-[#FF69B4]/30 bg-[#FF69B4]/10 px-2.5 py-1 font-['VT323'] text-sm uppercase text-[#FF69B4] tracking-wider select-none font-bold">
                 {photo.category}
               </div>
 
-              <h3 className="font-['Press_Start_2P'] text-[9px] text-[#FFD700] tracking-wide uppercase">
+              <h3 className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-wide uppercase font-bold">
                 MEMORY DETAIL
               </h3>
 
-              <p className="mt-3 font-['VT323'] text-xl leading-snug text-white/90">
+              <p className="mt-3 font-['VT323'] text-xl leading-snug text-[#1a1a2e] font-bold">
                 {label}
               </p>
             </div>
 
-            <div className="mt-6 space-y-2 pt-4 border-t border-white/[0.04]">
-              <div className="flex items-center gap-2 text-white/70">
+            <div className="mt-6 space-y-2 pt-4 border-t border-[#1a1a2e]/10">
+              <div className="flex items-center gap-2 text-[#1a1a2e]/80">
                 <Heart className="h-3.5 w-3.5 text-[#FF69B4] fill-current animate-pulse" />
-                <span className="font-['VT323'] text-base">Momen spesial kita</span>
+                <span className="font-['VT323'] text-base font-semibold">Momen spesial kita</span>
               </div>
 
-              <div className="flex items-center gap-2 text-white/40">
+              <div className="flex items-center gap-2 text-[#1a1a2e]/40">
                 <ImageIcon className="h-3.5 w-3.5" />
                 <span className="font-['VT323'] text-base">Gunakan tombol arah untuk navigasi</span>
               </div>
@@ -388,30 +388,30 @@ const Gallery: React.FC = () => {
   }, [filteredPhotos.length, selectedIndex]);
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] bg-[#0c0a18] text-white flex flex-col relative overflow-hidden">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-black/60" />
+    <div className="h-[100dvh] max-h-[100dvh] bg-[#f4f0e6] text-[#1a1a2e] flex flex-col relative overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-black/[0.02]" />
 
-      <header className="sticky top-0 z-40 border-b border-[#1A1A2E] bg-[#080b18]/90 backdrop-blur-md px-4 py-3">
+      <header className="sticky top-0 z-40 border-b-4 border-[#1A1A2E] bg-[#e8e5da] px-4 py-3">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
           <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px] shrink-0">
             ← MENU
           </PixelButton>
 
-          <div className="text-center">
-            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-white leading-none">
+          <div className="text-center select-none">
+            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#1a1a2e] leading-none">
               MEMORY GALLERY
             </h1>
-            <p className="mt-1 font-['VT323'] text-xs text-white/50 tracking-wider hidden sm:block">
+            <p className="mt-1 font-['VT323'] text-xs text-[#ff69b4] tracking-wider hidden sm:block font-bold">
               Koleksi momen terbaik kita
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-3 shrink-0 select-none">
             <PixelButton onClick={() => setShowUploadModal(true)} variant="primary" size="sm" className="text-[9px]">
               + FOTO
             </PixelButton>
             <div className="hidden md:block min-w-[50px] text-right">
-              <span className="font-['VT323'] text-base text-[#00FFFF] tracking-wider">
+              <span className="font-['VT323'] text-base text-[#ff69b4] tracking-wider font-bold">
                 {filteredPhotos.length} pics
               </span>
             </div>
@@ -422,44 +422,44 @@ const Gallery: React.FC = () => {
       <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 py-6 overflow-y-auto">
         
         {/* Banner Section */}
-        <section className="mb-6 rounded-2xl border border-white/[0.06] bg-[#111327]/80 p-4 sm:p-5 shadow-lg">
+        <section className="mb-6 rounded-xl border-4 border-[#1a1a2e] bg-[#ffffff] p-4 sm:p-5 shadow-[4px_4px_0_#1a1a2e] text-[#1a1a2e]">
           <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr] md:items-center">
             <div>
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#FF69B4]/20 bg-[#FF69B4]/10 px-3 py-0.5 text-[#FF69B4]">
+              <div className="mb-2 inline-flex items-center gap-2 rounded-lg border border-[#FF69B4]/20 bg-[#FF69B4]/10 px-3 py-0.5 text-[#FF69B4] select-none">
                 <Heart className="h-3.5 w-3.5 fill-current animate-pulse" />
-                <span className="font-['VT323'] text-sm tracking-wider uppercase">Our Memory Space</span>
+                <span className="font-['VT323'] text-sm tracking-wider uppercase font-bold">Our Memory Space</span>
               </div>
 
-              <h2 className="font-['Press_Start_2P'] text-[10px] sm:text-xs md:text-sm leading-relaxed text-white tracking-wide">
+              <h2 className="font-['Press_Start_2P'] text-[10px] sm:text-xs md:text-sm leading-relaxed text-[#1a1a2e] tracking-wide font-bold">
                 Semua kenangan manis kita tersimpan di sini
               </h2>
 
-              <p className="mt-2 font-['VT323'] text-sm sm:text-base leading-normal text-white/60">
+              <p className="mt-2 font-['VT323'] text-sm sm:text-base leading-normal text-[#1a1a2e]/70">
                 Jelajahi petualangan kita lewat foto. Pilih kategori di bawah ini untuk menyaring memori yang ingin Anda kenang kembali.
               </p>
             </div>
 
             <div className="grid grid-cols-3 gap-2.5">
-              <div className="rounded-xl border border-white/[0.05] bg-black/30 p-2.5 text-center">
-                <div className="font-['Press_Start_2P'] text-[7px] text-white/40">TOTAL</div>
-                <div className="mt-1 font-['VT323'] text-2xl text-white leading-none">{allPhotos.length}</div>
+              <div className="rounded-xl border-2 border-[#1a1a2e] bg-[#e8e5da]/40 p-2.5 text-center shadow-[2px_2px_0_#1a1a2e]">
+                <div className="font-['Press_Start_2P'] text-[7px] text-[#1a1a2e]/40 font-bold">TOTAL</div>
+                <div className="mt-1 font-['VT323'] text-2xl text-[#1a1a2e] leading-none font-bold">{allPhotos.length}</div>
               </div>
 
-              <div className="rounded-xl border border-white/[0.05] bg-black/30 p-2.5 text-center">
-                <div className="font-['Press_Start_2P'] text-[7px] text-white/40">SHOW</div>
-                <div className="mt-1 font-['VT323'] text-2xl text-white leading-none">{displayedPhotos.length}</div>
+              <div className="rounded-xl border-2 border-[#1a1a2e] bg-[#e8e5da]/40 p-2.5 text-center shadow-[2px_2px_0_#1a1a2e]">
+                <div className="font-['Press_Start_2P'] text-[7px] text-[#1a1a2e]/40 font-bold">SHOW</div>
+                <div className="mt-1 font-['VT323'] text-2xl text-[#1a1a2e] leading-none font-bold">{displayedPhotos.length}</div>
               </div>
 
-              <div className="rounded-xl border border-white/[0.05] bg-black/30 p-2.5 text-center">
-                <div className="font-['Press_Start_2P'] text-[7px] text-white/40">FILTER</div>
-                <div className="mt-1.5 font-['VT323'] text-sm uppercase text-[#00FFFF] leading-none truncate">{activeFilter}</div>
+              <div className="rounded-xl border-2 border-[#1a1a2e] bg-[#e8e5da]/40 p-2.5 text-center shadow-[2px_2px_0_#1a1a2e]">
+                <div className="font-['Press_Start_2P'] text-[7px] text-[#1a1a2e]/40 font-bold">FILTER</div>
+                <div className="mt-1.5 font-['VT323'] text-sm uppercase text-[#ff69b4] leading-none truncate font-bold">{activeFilter}</div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Filters Tabs */}
-        <section className="mb-6 flex flex-wrap justify-center gap-2">
+        <section className="mb-6 flex flex-wrap justify-center gap-2 select-none">
           {FILTERS.map((filter) => (
             <FilterButton
               key={filter.value}
@@ -490,7 +490,7 @@ const Gallery: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleLoadMore}
-                  className="rounded-xl border border-[#00FFFF]/30 bg-[#00FFFF]/10 px-5 py-3.5 font-['Press_Start_2P'] text-[8px] text-white transition hover:bg-[#00FFFF]/20 active:scale-95 duration-100 shadow-sm"
+                  className="rounded-xl border-2 border-[#1a1a2e] bg-[#ffffff] px-5 py-3.5 font-['Press_Start_2P'] text-[8px] text-[#1a1a2e] transition hover:bg-[#e8e5da] active:scale-95 duration-100 shadow-[3px_3px_0_#1a1a2e] font-bold"
                 >
                   LOAD MORE ({filteredPhotos.length - visibleCount} remaining)
                 </button>
@@ -498,19 +498,19 @@ const Gallery: React.FC = () => {
             )}
 
             {visibleCount >= filteredPhotos.length && (
-              <div className="py-10 text-center">
+              <div className="py-10 text-center select-none">
                 <Heart className="mx-auto mb-2 h-8 w-8 text-[#FF69B4] fill-current animate-pulse" />
-                <p className="font-['VT323'] text-xl text-white/40 tracking-wider">Semua kenangan telah ditampilkan 💕</p>
+                <p className="font-['VT323'] text-xl text-[#1a1a2e]/40 tracking-wider">Semua kenangan telah ditampilkan 💕</p>
               </div>
             )}
           </>
         ) : (
-          <div className="py-20 text-center">
-            <Camera className="mx-auto mb-4 h-12 w-12 text-white/20" />
-            <p className="font-['Press_Start_2P'] text-[10px] text-white/45">
+          <div className="py-20 text-center select-none">
+            <Camera className="mx-auto mb-4 h-12 w-12 text-[#1a1a2e]/20" />
+            <p className="font-['Press_Start_2P'] text-[10px] text-[#1a1a2e]/40 font-bold">
               TIDAK ADA FOTO DITEMUKAN
             </p>
-            <p className="mt-1 font-['VT323'] text-lg text-white/30">
+            <p className="mt-1 font-['VT323'] text-lg text-[#1a1a2e]/30">
               Silakan ganti penyaring kategori filter Anda
             </p>
           </div>
@@ -528,12 +528,11 @@ const Gallery: React.FC = () => {
         />
       )}
 
-      {/* Retro Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-[#090b1e]/98 border-4 border-[#1a1a2e] rounded-2xl p-5 shadow-[4px_4px_0_#FF69B4,inset_-4px_-4px_0_rgba(0,0,0,0.2)] max-h-[85vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-white/[0.08] pb-3 mb-4">
-              <h2 className="font-['Press_Start_2P'] text-[9px] text-white tracking-wide uppercase">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-[#ffffff] border-4 border-[#1a1a2e] rounded-xl p-5 shadow-[6px_6px_0_#1a1a2e] max-h-[85vh] overflow-y-auto text-[#1a1a2e]">
+            <div className="flex justify-between items-center border-b-2 border-[#1a1a2e] pb-3 mb-4 select-none">
+              <h2 className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-wide uppercase font-bold">
                 ⚔️ ADD NEW MEMORY
               </h2>
               <button
@@ -543,7 +542,7 @@ const Gallery: React.FC = () => {
                   setUploadFile(null);
                   setUploadCaption('');
                 }}
-                className="font-['Press_Start_2P'] text-white/45 text-[9px] hover:text-[#FF69B4]"
+                className="font-['Press_Start_2P'] text-[#1a1a2e]/45 text-[9px] hover:text-[#ff69b4]"
               >
                 [CLOSE]
               </button>
@@ -551,7 +550,7 @@ const Gallery: React.FC = () => {
             
             <form onSubmit={handleUploadPhoto} className="space-y-4">
               <div>
-                <label className="block text-[#FFD700] mb-2 font-['Press_Start_2P'] text-[8px] tracking-wide">
+                <label className="block text-[#ff69b4] mb-2 font-['Press_Start_2P'] text-[8px] tracking-wide font-bold">
                   CHOOSE IMAGE FILE
                 </label>
                 <input
@@ -559,12 +558,12 @@ const Gallery: React.FC = () => {
                   accept="image/*"
                   onChange={handleFileChange}
                   required
-                  className="w-full px-3 py-2 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base file:mr-4 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[8px] file:font-['Press_Start_2P'] file:bg-[#FF69B4] file:text-white file:cursor-pointer hover:file:brightness-110"
+                  className="w-full px-3 py-2 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] font-['VT323'] text-base file:mr-4 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[8px] file:font-['Press_Start_2P'] file:bg-[#FF69B4] file:text-white file:cursor-pointer hover:file:brightness-110"
                 />
               </div>
 
               <div>
-                <label className="block text-[#FF69B4] mb-2 font-['Press_Start_2P'] text-[8px] tracking-wide">
+                <label className="block text-[#ff69b4] mb-2 font-['Press_Start_2P'] text-[8px] tracking-wide font-bold">
                   CAPTION / MEMORY INFO
                 </label>
                 <input
@@ -572,23 +571,23 @@ const Gallery: React.FC = () => {
                   placeholder="Tulis caption memori kencan kita..."
                   value={uploadCaption}
                   onChange={(e) => setUploadCaption(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4] transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4] transition-colors placeholder-[#1a1a2e]/40"
                 />
               </div>
 
               <div>
-                <label className="block text-[#FFD700] mb-2 font-['Press_Start_2P'] text-[8px] tracking-wide">
+                <label className="block text-[#ff69b4] mb-2 font-['Press_Start_2P'] text-[8px] tracking-wide font-bold">
                   CATEGORY
                 </label>
                 <select
                   value={uploadCategory}
                   onChange={(e) => setUploadCategory(e.target.value as FilterType)}
-                  className="w-full px-3.5 py-2.5 bg-black/40 border-2 border-white/10 rounded-xl text-white font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4] transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#e8e5da]/40 border-2 border-[#1a1a2e] rounded-xl text-[#1a1a2e] font-['VT323'] text-base focus:outline-none focus:border-[#FF69B4] transition-colors"
                 >
-                  <option value="date" className="bg-[#111327]">💕 DATE</option>
-                  <option value="travel" className="bg-[#111327]">✈️ TRAVEL</option>
-                  <option value="food" className="bg-[#111327]">🍜 FOOD</option>
-                  <option value="selfie" className="bg-[#111327]">📸 SELFIE</option>
+                  <option value="date" className="bg-[#ffffff] text-[#1a1a2e]">💕 DATE</option>
+                  <option value="travel" className="bg-[#ffffff] text-[#1a1a2e]">✈️ TRAVEL</option>
+                  <option value="food" className="bg-[#ffffff] text-[#1a1a2e]">🍜 FOOD</option>
+                  <option value="selfie" className="bg-[#ffffff] text-[#1a1a2e]">📸 SELFIE</option>
                 </select>
               </div>
 
