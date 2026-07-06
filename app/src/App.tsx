@@ -21,14 +21,11 @@ import AuthPage from '@/pages/AuthPage';
 import CoupleConnect from '@/pages/CoupleConnect';
 import CheckIn from '@/pages/CheckIn';
 import Chat from '@/pages/Chat';
-import LoveCoupons from '@/pages/LoveCoupons';
-import HeartbeatSync from '@/pages/HeartbeatSync';
 import TimeCapsule from '@/pages/TimeCapsule';
 import QuizQuest from '@/pages/QuizQuest';
 import DoodleCanvas from '@/pages/DoodleCanvas';
 import FortuneWheel from '@/pages/FortuneWheel';
 import DreamVault from '@/pages/DreamVault';
-import LovePostbox from '@/pages/LovePostbox';
 
 // ============================================================
 // Protected Route: Hanya bisa diakses setelah login & connected
@@ -134,14 +131,11 @@ function AppContent() {
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
         <Route path="/checkin" element={<ProtectedRoute><CheckIn /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-        <Route path="/lovecoupons" element={<ProtectedRoute><LoveCoupons /></ProtectedRoute>} />
-        <Route path="/heartbeat" element={<ProtectedRoute><HeartbeatSync /></ProtectedRoute>} />
         <Route path="/timecapsule" element={<ProtectedRoute><TimeCapsule /></ProtectedRoute>} />
         <Route path="/quizquest" element={<ProtectedRoute><QuizQuest /></ProtectedRoute>} />
         <Route path="/doodle" element={<ProtectedRoute><DoodleCanvas /></ProtectedRoute>} />
         <Route path="/fortunewheel" element={<ProtectedRoute><FortuneWheel /></ProtectedRoute>} />
         <Route path="/dreamvault" element={<ProtectedRoute><DreamVault /></ProtectedRoute>} />
-        <Route path="/lovepostbox" element={<ProtectedRoute><LovePostbox /></ProtectedRoute>} />
       </Routes>
     </div>
   );
