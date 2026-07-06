@@ -16,6 +16,39 @@ const MOOD_OPTIONS = [
   { id: 'other', label: 'Mood Lainnya', emoji: '❤️', color: '#e91e63' },
 ];
 
+const getExpressionPath = (moodId: string, role: 'boy' | 'girl') => {
+  let filename = 'smiling.png';
+  switch (moodId) {
+    case 'happy':
+      filename = 'smiling.png';
+      break;
+    case 'sad':
+      filename = 'sad.png';
+      break;
+    case 'angry':
+      filename = 'angry.png';
+      break;
+    case 'anxious':
+      filename = 'scared.png';
+      break;
+    case 'tired':
+      filename = 'sad.png';
+      break;
+    case 'in_love':
+      filename = 'happy.png';
+      break;
+    case 'calm':
+      filename = 'smiling.png';
+      break;
+    case 'other':
+      filename = 'embarrassed.png';
+      break;
+    default:
+      filename = 'smiling.png';
+  }
+  return `/images/expressions/${role}/${filename}`;
+};
+
 const MONTH_NAMES = [
   'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
   'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'
@@ -443,6 +476,15 @@ const CheckIn: React.FC = () => {
                 {!isEditing && myLog ? (
                   <div className="space-y-3 flex-grow flex flex-col justify-between">
                     <div className="space-y-3">
+                      {/* Realtime Wajah Ekspresi P1 (Boy) */}
+                      <div className="flex justify-center bg-black/20 p-2 rounded border border-black/30 select-none">
+                        <img 
+                          src={getExpressionPath(myLog.mood, 'boy')} 
+                          alt="Wajah Saya" 
+                          className="h-24 w-24 object-contain pixel-art rounded border border-white/5 bg-black/15 shadow-inner"
+                        />
+                      </div>
+
                       <div className="flex items-center gap-3 bg-black/20 p-2 rounded border border-black/30">
                         <span className="text-3xl select-none">{MOOD_OPTIONS.find(m => m.id === myLog.mood)?.emoji}</span>
                         <div>
@@ -485,6 +527,15 @@ const CheckIn: React.FC = () => {
                 ) : (
                   <form onSubmit={handleFormSubmit} className="space-y-3 flex-grow flex flex-col justify-between">
                     <div className="space-y-3">
+                      {/* Realtime Expression Preview P1 */}
+                      <div className="flex justify-center bg-black/20 p-2 rounded border border-black/30 select-none">
+                        <img 
+                          src={getExpressionPath(selectedMood, 'boy')} 
+                          alt="Pratinjau Wajah" 
+                          className="h-20 w-20 object-contain pixel-art rounded border border-white/5 bg-black/15 shadow-inner animate-pulse"
+                        />
+                      </div>
+
                       <div>
                         <h4 className="font-['Press_Start_2P'] text-[7px] text-[#ff69b4] mb-1.5 font-bold uppercase select-none">
                           PILIH EMOSI:
@@ -590,6 +641,15 @@ const CheckIn: React.FC = () => {
 
                 {partnerLog && partnerMoodObj ? (
                   <div className="space-y-3 flex-grow flex flex-col justify-start">
+                    {/* Wajah Ekspresi P2 (Girl) */}
+                    <div className="flex justify-center bg-black/20 p-2 rounded border border-black/30 select-none">
+                      <img 
+                        src={getExpressionPath(partnerLog.mood, 'girl')} 
+                        alt="Wajah Pasangan" 
+                        className="h-24 w-24 object-contain pixel-art rounded border border-white/5 bg-black/15 shadow-inner"
+                      />
+                    </div>
+
                     <div className="flex items-center gap-3 bg-black/20 p-2 rounded border border-black/30">
                       <span className="text-3xl select-none">{partnerMoodObj.emoji}</span>
                       <div>
