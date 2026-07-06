@@ -7,10 +7,10 @@ const MobileOnly: React.FC = () => {
   const navigate = useNavigate();
 
   const handleDownload = () => {
-    // Triggers actual download of the lovestory.apk from public folder
+    // Triggers actual download of the lovestory.zip from public folder
     const link = document.createElement('a');
-    link.href = '/download/lovestory.apk';
-    link.download = 'lovestory.apk';
+    link.href = '/download/lovestory.zip';
+    link.download = 'lovestory.zip';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -85,11 +85,11 @@ const MobileOnly: React.FC = () => {
           </div>
 
           <p className="font-['VT323'] text-sm text-[#a0a0b0] text-left leading-normal">
-            Unduh file installer Android (APK) sekarang untuk mengakses seluruh petualangan kita secara lengkap!
+            Unduh file ZIP berisi installer Android sekarang. Ekstrak file ZIP untuk mendapatkan file APK, lalu pasang di HP Anda!
           </p>
 
           <PixelButton onClick={handleDownload} size="lg" className="w-full text-xs py-3.5 flex items-center justify-center gap-2">
-            <Download className="h-4 w-4" /> UNDUH APK SEKARANG
+            <Download className="h-4 w-4" /> UNDUH ZIP (APK) SEKARANG
           </PixelButton>
         </div>
 

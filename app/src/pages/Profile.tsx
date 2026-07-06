@@ -135,8 +135,8 @@ const ProfilePage: React.FC = () => {
 
   const handleDownload = () => {
     const link = document.createElement('a');
-    link.href = '/download/lovestory.apk';
-    link.download = 'lovestory.apk';
+    link.href = '/download/lovestory.zip';
+    link.download = 'lovestory.zip';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -326,10 +326,10 @@ const ProfilePage: React.FC = () => {
               </span>
             </div>
             <p className="font-['VT323'] text-sm text-[#a0a0b0] leading-relaxed">
-              Mainkan LoveStory secara normal, halus, dan responsif langsung di smartphone Anda sekarang!
+              Unduh file ZIP berisi installer Android sekarang. Ekstrak file ZIP untuk mendapatkan file APK, lalu pasang di HP Anda!
             </p>
             <PixelButton onClick={handleDownload} className="w-full text-[10px] py-3.5 flex items-center justify-center gap-2">
-              <Download className="h-4 w-4" /> UNDUH APLIKASI (APK)
+              <Download className="h-4 w-4" /> UNDUH APLIKASI (ZIP)
             </PixelButton>
           </div>
 

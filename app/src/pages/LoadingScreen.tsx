@@ -10,8 +10,8 @@ const LandingPage: React.FC = () => {
 
   const handleDownload = () => {
     const link = document.createElement('a');
-    link.href = '/download/lovestory.apk';
-    link.download = 'lovestory.apk';
+    link.href = '/download/lovestory.zip';
+    link.download = 'lovestory.zip';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -97,7 +97,7 @@ const LandingPage: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md mt-2">
             <PixelButton onClick={handleDownload} size="lg" className="flex-1 text-xs py-3.5 flex items-center justify-center gap-2">
-              <Download className="h-4 w-4" /> DOWNLOAD APK (ANDROID)
+              <Download className="h-4 w-4" /> DOWNLOAD ZIP (APK)
             </PixelButton>
             <PixelButton onClick={handleGoToApp} variant="secondary" size="lg" className="flex-1 text-xs py-3.5 flex items-center justify-center gap-2">
               <User className="h-4 w-4" /> KELOLA AKUN WEB
@@ -142,10 +142,10 @@ const LandingPage: React.FC = () => {
           <div className="bg-[#121224] border-4 border-black p-4 rounded-xl shadow-[3px_3px_0_#000] space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               {[
-                { step: '1', title: 'UNDUH APK', desc: 'Klik tombol unduh untuk mengunduh installer APK di HP Android.' },
-                { step: '2', title: 'DAFTAR AKUN', desc: 'Buka aplikasi di HP, pilih Daftar, lalu buat karakter baru Anda.' },
-                { step: '3', title: 'PAIRING KODE', desc: 'Salin Kode Couple Anda dan masukkan di akun pasangan Anda untuk pairing.' },
-                { step: '4', title: 'NIKMATI DUNIA', desc: 'Akun terhubung! Mainkan semua fitur romantis berdua secara real-time.' }
+                { step: '1', title: 'UNDUH ZIP', desc: 'Unduh file ZIP berisi installer aplikasi LoveStory.' },
+                { step: '2', title: 'EKSTRAK APK', desc: 'Ekstrak file ZIP untuk mendapatkan installer lovestory.apk.' },
+                { step: '3', title: 'INSTAL DI HP', desc: 'Buka file APK tersebut di HP Android Anda untuk memasangnya.' },
+                { step: '4', title: 'PAIRING KODE', desc: 'Buka aplikasi HP, masuk akun, dan hubungkan dengan pasangan.' }
               ].map((item, idx) => (
                 <div key={idx} className="relative p-3 bg-black/15 rounded-lg border border-black/30 flex flex-col gap-2">
                   <div className="absolute top-2 right-2 font-['Press_Start_2P'] text-[10px] text-[#00bcd4] bg-[#00bcd4]/10 h-5 w-5 rounded-full flex items-center justify-center border border-[#00bcd4]/30 font-bold">
@@ -181,9 +181,9 @@ const LandingPage: React.FC = () => {
             </div>
             <div className="border-t border-black/35 my-2" />
             <div className="space-y-1">
-              <h4 className="font-['Press_Start_2P'] text-[7px] text-white font-bold">Q: Bagaimana cara menginstal APK di Android?</h4>
+              <h4 className="font-['Press_Start_2P'] text-[7px] text-white font-bold">Q: Bagaimana cara menginstal aplikasi dari file ZIP?</h4>
               <p className="font-['VT323'] text-sm text-[#a0a0b0] leading-normal">
-                A: Setelah unduhan selesai, klik file APK tersebut di HP Anda. Jika muncul peringatan keamanan, izinkan "Instal aplikasi dari sumber tidak dikenal" (Install from Unknown Sources) di pengaturan keamanan HP Anda.
+                A: Setelah unduhan ZIP selesai, ekstrak file ZIP tersebut (atau gunakan File Manager bawaan HP) untuk mendapatkan berkas `lovestory.apk`. Klik file APK tersebut. Jika muncul peringatan keamanan, izinkan "Instal aplikasi dari sumber tidak dikenal" (Install from Unknown Sources) di pengaturan HP Anda.
               </p>
             </div>
           </div>
