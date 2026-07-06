@@ -11,7 +11,7 @@ interface Category {
 }
 interface PlaylistItem { title: string; src: string; }
 
-// Character can walk, dance, or show a reaction expression
+// Character actions and reaction states
 type CharAction = 'walk' | 'dance';
 type CharReact  = 'idle' | 'hover' | 'click';
 
@@ -19,17 +19,17 @@ interface CharState {
   action:  CharAction;
   frame:   number;
   react:   CharReact;
-  entered: boolean; // entrance animation done
+  entered: boolean; // entrance animation status
 }
 
 // ─── Animation Constants ──────────────────────────────────────────────────────
 const WALK_FRAMES   = 8;
 const DANCE_FRAMES  = 12;
-const WALK_MS       = 120;   // snappier walk
-const DANCE_MS      = 90;    // faster dance = more energy
-const IDLE_DELAY_MS = 7000;  // 7s idle → dance
+const WALK_MS       = 120;   // Snappier walking
+const DANCE_MS      = 90;    // Faster dance frame swapping
+const IDLE_DELAY_MS = 7000;  // 7s idle → dance loop
 
-// ─── Asset helpers ────────────────────────────────────────────────────────────
+// ─── Asset Helpers ────────────────────────────────────────────────────────────
 const getWalkFrame = (role: 'boy' | 'girl', action: CharAction, frame: number) => {
   const p = String(frame).padStart(2, '0');
   return `/images/asset_baru_karakter/${role}/${action}/${action}_${p}.png`;
@@ -37,7 +37,7 @@ const getWalkFrame = (role: 'boy' | 'girl', action: CharAction, frame: number) =
 const getExpr = (role: 'boy' | 'girl', name: string) =>
   `/images/asset_baru_karakter/${role}/expressions/${name}.png`;
 
-// React expressions per character state
+// Reaction expressions per character state
 const BOY_REACT_EXPR: Record<CharReact, string> = {
   idle:  'smile',
   hover: 'happy',
@@ -49,7 +49,7 @@ const GIRL_REACT_EXPR: Record<CharReact, string> = {
   click: 'laugh',
 };
 
-// ─── Static data ──────────────────────────────────────────────────────────────
+// ─── Static Data ──────────────────────────────────────────────────────────────
 const STORAGE_KEYS = { musicEnabled: 'home-music-enabled', trackIndex: 'home-track-index' };
 const HOME_PLAYLIST: PlaylistItem[] = [
   { title: 'Pixel', src: '/audio/home/Pixelated_Reverie.mp3' },
@@ -58,27 +58,32 @@ const HOME_PLAYLIST: PlaylistItem[] = [
   { title: 'Rainy', src: '/audio/home/Rainy_Day_Vinyl_Dreams.mp3' },
   { title: 'Rainy', src: '/audio/home/Golden_Hour_Drift.mp3' },
 ];
-const createId = () =>
-  typeof crypto !== 'undefined' && 'randomUUID' in crypto
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+
+const createId = () => {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+};
+
 const getInitialMusic = () => {
   if (typeof window === 'undefined') return true;
   const s = window.localStorage.getItem(STORAGE_KEYS.musicEnabled);
   return s === null ? true : s === 'true';
 };
+
 const getInitialTrack = () => {
   if (typeof window === 'undefined') return 0;
   const s = window.localStorage.getItem(STORAGE_KEYS.trackIndex);
   const n = Number(s);
   return Number.isInteger(n) && n >= 0 && n < HOME_PLAYLIST.length ? n : 0;
 };
+
 const CATEGORIES: Category[] = [
   { id: 'journey',    label: 'JOURNEY',    icon: '📖', description: 'Petualangan & Lini Masa Kenangan Kita', color: '#ff69b4' },
   { id: 'connection', label: 'CONNECTION', icon: '💬', description: 'Obrolan Real-Time & Mood Pasangan',     color: '#00bcd4' },
   { id: 'playroom',   label: 'PLAYROOM',   icon: '🎮', description: 'Aktivitas Seru, Doodle & Game Arcade', color: '#4caf50' },
   { id: 'vault',      label: 'VAULT',      icon: '🔒', description: 'Peti Impian & Kenangan Kapsul Waktu',  color: '#ffb300' },
 ];
+
 const SUB_MENU_ITEMS: Record<'journey'|'connection'|'playroom'|'vault', MenuItem[]> = {
   journey:    [
     { label: 'NEW GAME',     path: '/couple',      icon: '✨', enabled: true },
@@ -106,13 +111,12 @@ const SUB_MENU_ITEMS: Record<'journey'|'connection'|'playroom'|'vault', MenuItem
   ],
 };
 
-// ─── Pixel Shadow component ────────────────────────────────────────────────────
 const PixelShadow: React.FC<{ className?: string }> = ({ className = '' }) => (
   <div
     className={`absolute bottom-0 left-1/2 -translate-x-1/2 ${className}`}
     style={{
       width: '60%', height: '8px',
-      background: 'radial-gradient(ellipse at center, rgba(255,105,180,0.35) 0%, transparent 70%)',
+      background: 'radial-gradient(ellipse at center, rgba(255,105,180,0.3) 0%, transparent 70%)',
       filter: 'blur(3px)',
     }}
   />
@@ -134,17 +138,34 @@ const Home: React.FC = () => {
   const [isPlaying,         setIsPlaying]         = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(getInitialTrack);
 
-  // Separate frame rates for walk vs dance
   const [isIdle, setIsIdle] = useState(false);
 
   const [boyState,  setBoyState]  = useState<CharState>({ action: 'walk', frame: 1, react: 'idle', entered: false });
   const [girlState, setGirlState] = useState<CharState>({ action: 'walk', frame: 1, react: 'idle', entered: false });
 
-  // Hover state for interactivity
   const [boyHovered,  setBoyHovered]  = useState(false);
   const [girlHovered, setGirlHovered] = useState(false);
 
   const currentTrack = HOME_PLAYLIST[currentTrackIndex];
+
+  // ── Preload walk, dance, and expression assets for mobile instant caching ────
+  useEffect(() => {
+    const roles: ('boy' | 'girl')[] = ['boy', 'girl'];
+    const actions: CharAction[] = ['walk', 'dance'];
+    roles.forEach(role => {
+      actions.forEach(action => {
+        const maxFrames = action === 'dance' ? DANCE_FRAMES : WALK_FRAMES;
+        for (let i = 1; i <= maxFrames; i++) {
+          const img = new Image();
+          img.src = getWalkFrame(role, action, i);
+        }
+      });
+      ['smile', 'happy', 'laugh', 'shy'].forEach(expr => {
+        const img = new Image();
+        img.src = getExpr(role, expr);
+      });
+    });
+  }, []);
 
   // ── Heart particles ───────────────────────────────────────────────────────
   const spawnHeart = useCallback((x: number, y: number) => {
@@ -260,13 +281,6 @@ const Home: React.FC = () => {
     return () => window.removeEventListener('keydown', kd);
   }, [activeCategory, selectedIndex, navigate]);
 
-  // ── Body scroll lock ──────────────────────────────────────────────────────
-  useEffect(() => {
-    const pB = document.body.style.overflow; const pH = document.documentElement.style.overflow;
-    document.body.style.overflow = 'hidden'; document.documentElement.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = pB; document.documentElement.style.overflow = pH; };
-  }, []);
-
   // ── Entrance animation on mount ───────────────────────────────────────────
   useEffect(() => {
     const t = setTimeout(() => {
@@ -288,7 +302,6 @@ const Home: React.FC = () => {
         return { ...prev, frame: prev.frame >= maxF ? 1 : prev.frame + 1 };
       });
     };
-    // Start with walk speed; react to action changes via isIdle flag
     const ms = isIdle ? DANCE_MS : WALK_MS;
     if (frameIntervalRef.current) clearInterval(frameIntervalRef.current);
     frameIntervalRef.current = setInterval(tick, ms);
@@ -323,10 +336,9 @@ const Home: React.FC = () => {
     };
   }, []);
 
-  // ── Character interaction handlers ────────────────────────────────────────
+  // ── Character reaction triggers ───────────────────────────────────────────
   const triggerReact = useCallback((who: 'boy' | 'girl', react: CharReact) => {
     if (react === 'click') {
-      // Spawn hearts above the character
       const cx = who === 'boy' ? window.innerWidth * 0.15 : window.innerWidth * 0.85;
       for (let i = 0; i < 3; i++) {
         setTimeout(() => spawnHeart(cx + (Math.random()-0.5)*40, window.innerHeight * 0.75), i * 120);
@@ -334,6 +346,7 @@ const Home: React.FC = () => {
     }
     if (who === 'boy')  setBoyState(p  => ({ ...p,  react }));
     else                setGirlState(p => ({ ...p, react }));
+
     if (reactTimerRef.current) clearTimeout(reactTimerRef.current);
     reactTimerRef.current = setTimeout(() => {
       if (who === 'boy')  setBoyState(p  => ({ ...p,  react: 'idle' }));
@@ -345,25 +358,19 @@ const Home: React.FC = () => {
   const boySrc  = getWalkFrame('boy',  boyState.action,  boyState.frame);
   const girlSrc = getWalkFrame('girl', girlState.action, girlState.frame);
 
-  // Show expression bubble when hovering or after click (only during walk, not dance)
   const boyShowBubble  = boyState.action === 'walk'  && boyState.react  !== 'idle';
   const girlShowBubble = girlState.action === 'walk' && girlState.react !== 'idle';
 
   // ═══════════════════════════════════════════════════════════════════════════
   return (
     <div
-      className="relative h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-[#080710]"
+      className="relative h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-[#1e1c2e]"
       style={{ backgroundImage: 'url(/images/backgrounds/home-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}
     >
       <audio ref={audioRef} preload="auto" />
 
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-[#080710]/90" />
-
-      {/* Subtle scanline effect — lightweight CSS only */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.04]"
-        style={{ backgroundImage: 'repeating-linear-gradient(0deg, #000 0px, #000 1px, transparent 1px, transparent 4px)' }}
-      />
+      {/* Very soft translucent overlay (no dark/black shadow screen overlay) */}
+      <div className="absolute inset-0 bg-[#ffe4e1]/10 backdrop-blur-[0.2px] pointer-events-none" />
 
       {/* Floating hearts */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden z-20">
@@ -377,7 +384,6 @@ const Home: React.FC = () => {
       {/* ── DESKTOP LEFT CHARACTER (Boy) ────────────────────────────────────── */}
       <div className="hidden xl:flex pointer-events-auto absolute left-0 bottom-0 flex-col items-center z-30"
            style={{ width: '220px' }}>
-        {/* Expression bubble */}
         <div className={`mb-1 transition-all duration-300 ${boyShowBubble ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
           <div className="relative bg-[#121224] border-2 border-white/20 rounded-xl px-2 py-1 shadow-lg">
             <img
@@ -385,12 +391,10 @@ const Home: React.FC = () => {
               alt="reaction"
               className="h-10 w-10 object-contain pixel-art mx-auto"
             />
-            {/* speech bubble tail */}
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white/20" />
           </div>
         </div>
 
-        {/* Character sprite */}
         <div
           className={`relative cursor-pointer select-none transition-all duration-700 ${boyState.entered ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}`}
           onMouseEnter={() => { setBoyHovered(true); triggerReact('boy', 'hover'); }}
@@ -408,11 +412,9 @@ const Home: React.FC = () => {
               filter: boyHovered ? 'brightness(1.15)' : 'brightness(1)',
             }}
           />
-          {/* Pixel shadow */}
           <PixelShadow className="w-24" />
         </div>
 
-        {/* Name tag */}
         <div className={`mt-1 px-2 py-0.5 bg-[#121224]/80 border border-[#ff69b4]/40 rounded font-['Press_Start_2P'] text-[6px] text-[#ff69b4] select-none transition-opacity duration-500 ${boyState.entered ? 'opacity-100' : 'opacity-0'}`}>
           {isIdle ? '♪ DANCE ♪' : boyHovered ? '( ´ ▽ ` )' : 'BOY'}
         </div>
@@ -421,7 +423,6 @@ const Home: React.FC = () => {
       {/* ── DESKTOP RIGHT CHARACTER (Girl) ──────────────────────────────────── */}
       <div className="hidden xl:flex pointer-events-auto absolute right-0 bottom-0 flex-col items-center z-30"
            style={{ width: '220px' }}>
-        {/* Expression bubble */}
         <div className={`mb-1 transition-all duration-300 ${girlShowBubble ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
           <div className="relative bg-[#121224] border-2 border-white/20 rounded-xl px-2 py-1 shadow-lg">
             <img
@@ -464,10 +465,10 @@ const Home: React.FC = () => {
 
         {/* ── TOP BAR ─────────────────────────────────────────────────────── */}
         <div className="w-full flex flex-col items-center gap-2">
-          <p className="font-['VT323'] text-sm sm:text-base text-[#a0a0b0] tracking-widest uppercase font-bold select-none">
+          <p className="font-['VT323'] text-sm sm:text-base text-white tracking-widest uppercase font-bold select-none drop-shadow-[1px_1px_2px_#000]">
             Press Start to Continue Our Journey
           </p>
-          <h1 className="font-['Press_Start_2P'] text-xl sm:text-2xl md:text-3xl leading-none text-white drop-shadow-[2px_2px_0_#ff69b4] tracking-wider font-bold select-none">
+          <h1 className="font-['Press_Start_2P'] text-xl sm:text-2xl md:text-3xl leading-none text-white drop-shadow-[3px_3px_0_#ff69b4] tracking-wider font-bold select-none">
             OUR LOVE STORY
           </h1>
           <button
@@ -482,7 +483,7 @@ const Home: React.FC = () => {
         </div>
 
         {/* ── CENTER CONSOLE ───────────────────────────────────────────────── */}
-        <div className="w-full max-w-[310px] sm:max-w-[360px] bg-[#121224] border-2 sm:border-4 border-black rounded-xl p-3 sm:p-4 shadow-[4px_4px_0_#000] sm:shadow-[6px_6px_0_#000] relative">
+        <div className="w-full max-w-[310px] sm:max-w-[360px] bg-[#121224]/90 border-2 sm:border-4 border-black rounded-xl p-3 sm:p-4 shadow-[4px_4px_0_#000] sm:shadow-[6px_6px_0_#000] relative">
           <div className="mb-2.5 sm:mb-3.5 flex items-center justify-between border-b-2 border-black pb-2 select-none">
             <span className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-widest font-bold uppercase">
               {activeCategory === null ? 'MAIN MENU' : activeCategory}
@@ -583,7 +584,7 @@ const Home: React.FC = () => {
 
         {/* ── BOTTOM BAR ──────────────────────────────────────────────────── */}
         <div className="w-full flex flex-col items-center gap-1.5">
-          <p className="font-['VT323'] text-xs sm:text-sm text-[#a0a0b0]/70 tracking-wider font-bold select-none">
+          <p className="font-['VT323'] text-xs sm:text-sm text-white/80 tracking-wider font-bold select-none drop-shadow-[1px_1px_2px_#000]">
             Use ↑ ↓ key to navigate · ENTER to select
           </p>
 
@@ -593,34 +594,27 @@ const Home: React.FC = () => {
             {/* Boy */}
             <div
               className={`relative flex flex-col items-center transition-all duration-700 ${boyState.entered ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
-              onClick={() => triggerReact('boy', 'click')}
-              onTouchStart={() => triggerReact('boy', 'click')}
+              onClick={(e) => { e.stopPropagation(); triggerReact('boy', 'click'); }}
             >
-              {/* Expression bubble on mobile */}
               <div className={`mb-1 transition-all duration-200 ${boyShowBubble ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
-                <div className="bg-[#121224]/90 border border-white/20 rounded-lg p-1">
+                <div className="bg-[#121224] border border-white/20 rounded-lg p-1">
                   <img src={getExpr('boy', BOY_REACT_EXPR[boyState.react])} alt="" className="h-7 w-7 object-contain pixel-art" />
                 </div>
               </div>
               <img
                 src={boySrc}
                 alt="Boy"
-                className={`object-contain pixel-art cursor-pointer transition-transform duration-150 ${boyHovered || boyShowBubble ? 'scale-110' : ''}`}
-                style={{ width: '72px', height: '72px', imageRendering: 'pixelated' }}
-                onMouseEnter={() => { setBoyHovered(true); triggerReact('boy', 'hover'); }}
-                onMouseLeave={() => setBoyHovered(false)}
+                className="object-contain pixel-art cursor-pointer"
+                style={{ width: '76px', height: '76px', imageRendering: 'pixelated' }}
               />
               <PixelShadow className="w-10" />
-              <span className="font-['Press_Start_2P'] text-[5px] text-[#ff69b4]/50 mt-0.5 select-none">
-                {isIdle ? '♪' : '◻'}
-              </span>
             </div>
 
-            {/* Center: animated pulse heart */}
+            {/* Center heart node */}
             <div className="mb-4 flex flex-col items-center gap-1">
               <span className={`text-lg select-none ${isIdle ? 'animate-bounce' : 'animate-pulse'}`}>💕</span>
               {isIdle && (
-                <span className="font-['Press_Start_2P'] text-[5px] text-[#ff69b4]/60 animate-pulse select-none whitespace-nowrap">
+                <span className="font-['Press_Start_2P'] text-[5px] text-[#ff69b4] animate-pulse select-none whitespace-nowrap">
                   ★ DANCE ★
                 </span>
               )}
@@ -629,26 +623,20 @@ const Home: React.FC = () => {
             {/* Girl */}
             <div
               className={`relative flex flex-col items-center transition-all duration-700 delay-100 ${girlState.entered ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
-              onClick={() => triggerReact('girl', 'click')}
-              onTouchStart={() => triggerReact('girl', 'click')}
+              onClick={(e) => { e.stopPropagation(); triggerReact('girl', 'click'); }}
             >
               <div className={`mb-1 transition-all duration-200 ${girlShowBubble ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
-                <div className="bg-[#121224]/90 border border-white/20 rounded-lg p-1">
+                <div className="bg-[#121224] border border-white/20 rounded-lg p-1">
                   <img src={getExpr('girl', GIRL_REACT_EXPR[girlState.react])} alt="" className="h-7 w-7 object-contain pixel-art" />
                 </div>
               </div>
               <img
                 src={girlSrc}
                 alt="Girl"
-                className={`object-contain pixel-art cursor-pointer transition-transform duration-150 ${girlHovered || girlShowBubble ? 'scale-110' : ''}`}
-                style={{ width: '72px', height: '72px', imageRendering: 'pixelated', transform: 'scaleX(-1)' }}
-                onMouseEnter={() => { setGirlHovered(true); triggerReact('girl', 'hover'); }}
-                onMouseLeave={() => setGirlHovered(false)}
+                className="object-contain pixel-art cursor-pointer"
+                style={{ width: '76px', height: '76px', imageRendering: 'pixelated', transform: 'scaleX(-1)' }}
               />
               <PixelShadow className="w-10" />
-              <span className="font-['Press_Start_2P'] text-[5px] text-[#ff69b4]/50 mt-0.5 select-none">
-                {isIdle ? '♪' : '◻'}
-              </span>
             </div>
           </div>
         </div>
