@@ -563,14 +563,14 @@ const QuizQuest: React.FC = () => {
                       key={i}
                       onClick={() => handleAnswer(i)}
                       disabled={answerResult !== null}
-                      className={`p-4 border-4 shadow-[3px_3px_0_#000000] text-left transition-all flex items-center gap-3 disabled:cursor-not-allowed ${optionStyle}`}
+                      className={`p-4 border-4 shadow-[3px_3px_0_#000000] text-left transition-all flex items-center gap-3 disabled:cursor-not-allowed w-full min-h-[52px] ${optionStyle}`}
                     >
                       <span className={`font-['Press_Start_2P'] text-[10px] w-7 h-7 flex items-center justify-center border-2 border-[#000000] shrink-0 ${
                         answerResult && isCorrectAnswer ? 'bg-[#4caf50] text-white' : 'bg-[#0c0a18]'
                       }`}>
                         {OPTION_LABELS[i]}
                       </span>
-                      <span className="font-['VT323'] text-lg">
+                      <span className="font-['VT323'] text-lg break-words flex-1">
                         {opt}
                       </span>
                     </button>

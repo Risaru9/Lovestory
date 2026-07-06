@@ -118,7 +118,7 @@ const CoupleConnect: React.FC = () => {
         </div>
 
         {/* INSTRUKSI PENTING */}
-        <div className="bg-[#121224] border-4 border-[#000000] rounded-xl p-4 shadow-[4px_4px_0_#000000] text-center">
+        <div className="bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl p-4 shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000] text-center">
           <p className="font-['VT323'] text-[#ffb300] text-lg font-bold">
             📌 Hanya <strong>SATU ORANG</strong> yang membuat kode.
           </p>
@@ -128,7 +128,7 @@ const CoupleConnect: React.FC = () => {
         </div>
 
         {/* Opsi A: Buat kode (untuk orang pertama) */}
-        <div className="bg-[#121224] border-4 border-[#000000] rounded-2xl p-5 shadow-[4px_4px_0_#000000]">
+        <div className="bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000]">
           <h2 className="font-['Press_Start_2P'] text-[8px] text-[#ffb300] mb-3 font-bold">
             OPSI A: BUAT KODE
           </h2>
@@ -138,14 +138,14 @@ const CoupleConnect: React.FC = () => {
 
           {myCode ? (
             <div className="flex items-center gap-3">
-              <div className="flex-1 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg px-4 py-3 text-center">
-                <span className="font-['Press_Start_2P'] text-[#ff69b4] text-sm tracking-widest font-bold">
+              <div className="flex-1 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg px-4 py-2.5 sm:py-3 text-center min-h-[44px] flex items-center justify-center">
+                <span className="font-['Press_Start_2P'] text-[#ff69b4] text-xs sm:text-sm tracking-widest font-bold">
                   {myCode}
                 </span>
               </div>
               <button
                 onClick={handleCopy}
-                className="px-4 py-3 bg-[#ff69b4]/10 border border-[#000000] rounded-lg font-['VT323'] text-sm text-[#ff69b4] hover:bg-[#ff69b4]/20 transition-colors font-bold shadow-[2px_2px_0_#000000]"
+                className="px-4 py-2.5 sm:py-3 bg-[#ff69b4]/10 border border-[#000000] rounded-lg font-['VT323'] text-sm text-[#ff69b4] hover:bg-[#ff69b4]/20 transition-colors font-bold shadow-[2px_2px_0_#000000] min-h-[44px]"
               >
                 {copied ? '✓' : '📋'}
               </button>
@@ -154,7 +154,7 @@ const CoupleConnect: React.FC = () => {
             <button
               onClick={handleGenerateCode}
               disabled={isGenerating}
-              className="w-full py-3 bg-[#ff69b4] rounded-lg font-['Press_Start_2P'] text-[9px] text-[#000000] disabled:opacity-50 hover:bg-[#ff69b4]/90 transition-all border-2 border-[#000000] shadow-[4px_4px_0_#000000] font-bold"
+              className="w-full py-3 bg-[#ff69b4] rounded-lg font-['Press_Start_2P'] text-[9px] text-[#000000] disabled:opacity-50 hover:bg-[#ff69b4]/90 transition-all border-2 border-[#000000] shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000] font-bold min-h-[44px]"
             >
               {isGenerating ? 'MEMBUAT KODE...' : '✨ BUAT KODE SAYA'}
             </button>
@@ -168,7 +168,7 @@ const CoupleConnect: React.FC = () => {
         </div>
 
         {/* Opsi B: Masukkan kode pasangan */}
-        <div className="bg-[#121224] border-4 border-[#000000] rounded-2xl p-5 shadow-[4px_4px_0_#000000]">
+        <div className="bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000]">
           <h2 className="font-['Press_Start_2P'] text-[8px] text-[#ffb300] mb-3 font-bold">
             OPSI B: MASUKKAN KODE PASANGAN
           </h2>
@@ -183,12 +183,12 @@ const CoupleConnect: React.FC = () => {
               onChange={(e) => setInputCode(e.target.value.toUpperCase())}
               placeholder="LOVE-1234"
               maxLength={12}
-              className="flex-1 px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['Press_Start_2P'] text-[10px] focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/20 uppercase tracking-wider transition-colors"
+              className="flex-1 px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['Press_Start_2P'] text-[9px] sm:text-[10px] focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/20 uppercase tracking-wider transition-colors min-h-[44px]"
             />
             <button
               type="submit"
               disabled={isConnecting || !inputCode.trim()}
-              className="px-4 py-2.5 bg-[#ff69b4] rounded-lg font-['Press_Start_2P'] text-[9px] text-[#000000] disabled:opacity-50 hover:bg-[#ff69b4]/90 transition-all border-2 border-[#000000] shadow-[2px_2px_0_#000000] font-bold"
+              className="px-4 py-2.5 bg-[#ff69b4] rounded-lg font-['Press_Start_2P'] text-[9px] text-[#000000] disabled:opacity-50 hover:bg-[#ff69b4]/90 transition-all border-2 border-[#000000] shadow-[2px_2px_0_#000000] font-bold min-h-[44px]"
             >
               {isConnecting ? '...' : 'LINK!'}
             </button>
@@ -203,7 +203,7 @@ const CoupleConnect: React.FC = () => {
 
         {/* Already connected indicator */}
         {isConnected && partner && (
-          <div className="bg-green-950/20 border border-green-500/20 rounded-2xl p-4 text-center">
+          <div className="bg-green-950/20 border border-green-500/20 rounded-xl sm:rounded-2xl p-4 text-center">
             <p className="font-['VT323'] text-green-400 text-lg font-bold">
               💕 Sudah terhubung dengan {partner.name}!
             </p>

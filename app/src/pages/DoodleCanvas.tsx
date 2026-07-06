@@ -5,7 +5,6 @@ import { addRelationshipXP } from '@/lib/db';
 
 const STORAGE_KEY = 'lovestory-doodle-canvas';
 const GRID_SIZE = 16;
-const CELL_SIZE = 20;
 
 const PALETTE_COLORS = [
   { name: 'Black', hex: '#000000' },
@@ -279,29 +278,31 @@ const DoodleCanvas: React.FC = () => {
 
         {/* Color Palette */}
         <div className="bg-[#121224] border-4 border-[#000000] p-3 shadow-[4px_4px_0_#000000]">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-1 flex-wrap">
-              <span className="font-['Press_Start_2P'] text-[7px] text-[#a0a0b0] mr-2 select-none">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="font-['Press_Start_2P'] text-[7px] text-[#a0a0b0] mr-2 select-none shrink-0">
                 WARNA:
               </span>
-              {PALETTE_COLORS.map(c => (
-                <button
-                  key={c.hex}
-                  onClick={() => { setSelectedColor(c.hex); setIsEraser(false); }}
-                  className={`w-8 h-8 border-2 transition-all ${
-                    !isEraser && selectedColor === c.hex
-                      ? 'border-[#ffb300] scale-110 shadow-[2px_2px_0_#000000]'
-                      : 'border-[#000000] hover:scale-105'
-                  }`}
-                  style={{ backgroundColor: c.hex }}
-                  title={c.name}
-                />
-              ))}
+              <div className="flex gap-1.5 flex-wrap">
+                {PALETTE_COLORS.map(c => (
+                  <button
+                    key={c.hex}
+                    onClick={() => { setSelectedColor(c.hex); setIsEraser(false); }}
+                    className={`w-8 h-8 border-2 transition-all ${
+                      !isEraser && selectedColor === c.hex
+                        ? 'border-[#ffb300] scale-110 shadow-[2px_2px_0_#000000]'
+                        : 'border-[#000000] hover:scale-105'
+                    }`}
+                    style={{ backgroundColor: c.hex }}
+                    title={c.name}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto justify-between sm:justify-end">
               <button
                 onClick={() => setIsEraser(!isEraser)}
-                className={`font-['Press_Start_2P'] text-[7px] px-3 py-2 border-2 border-[#000000] transition-all select-none ${
+                className={`font-['Press_Start_2P'] text-[7px] px-3 py-2 border-2 border-[#000000] transition-all select-none flex-1 sm:flex-none ${
                   isEraser
                     ? 'bg-[#ffb300] text-[#000000] shadow-[2px_2px_0_#000000]'
                     : 'bg-[#1a1a2a] text-[#a0a0b0] hover:bg-[#222235]'
@@ -311,7 +312,7 @@ const DoodleCanvas: React.FC = () => {
               </button>
               <button
                 onClick={handleClearAll}
-                className="font-['Press_Start_2P'] text-[7px] px-3 py-2 border-2 border-[#000000] bg-[#1a1a2a] text-[#a0a0b0] hover:bg-[#222235] transition-all select-none"
+                className="font-['Press_Start_2P'] text-[7px] px-3 py-2 border-2 border-[#000000] bg-[#1a1a2a] text-[#a0a0b0] hover:bg-[#222235] transition-all select-none flex-1 sm:flex-none"
               >
                 🗑️ CLEAR
               </button>
@@ -337,11 +338,11 @@ const DoodleCanvas: React.FC = () => {
         <div className="bg-[#121224] border-4 border-[#000000] p-4 shadow-[4px_4px_0_#000000] flex justify-center">
           <div
             ref={canvasRef}
-            className="border-2 border-[#000000] select-none touch-none"
+            className="w-full max-w-md aspect-square border-2 border-[#000000] select-none touch-none"
             style={{
               display: 'grid',
-              gridTemplateColumns: `repeat(${GRID_SIZE}, ${CELL_SIZE}px)`,
-              gridTemplateRows: `repeat(${GRID_SIZE}, ${CELL_SIZE}px)`,
+              gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
+              gridTemplateRows: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
               cursor: isEraser ? 'crosshair' : 'pointer',
             }}
             onTouchMove={handleTouchMove}
@@ -360,10 +361,8 @@ const DoodleCanvas: React.FC = () => {
                     paintCell(ri, ci);
                     playClickSound();
                   }}
-                  className="border border-[#1a1a2a]/30 hover:border-[#ff69b4]/50 transition-colors"
+                  className="border border-[#1a1a2a]/30 hover:border-[#ff69b4]/50 transition-colors aspect-square"
                   style={{
-                    width: CELL_SIZE,
-                    height: CELL_SIZE,
                     backgroundColor: cell || '#0c0a18',
                   }}
                 />

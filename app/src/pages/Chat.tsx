@@ -239,32 +239,32 @@ const Chat: React.FC = () => {
 
       {/* Partner Rich Status Banner - Realtime voluntary info */}
       <div className="bg-[#1a1a32] border-b-4 border-[#000000] px-4 py-2 text-white shrink-0 select-none">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3 text-xs font-['VT323'] tracking-wide">
-          <div className="flex items-center gap-2">
-            <div className={`w-2.5 h-2.5 rounded-full ${
+        <div className="max-w-4xl mx-auto flex flex-row flex-wrap items-center justify-between gap-2 text-xs font-['VT323'] tracking-wide">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full shrink-0 ${
               partnerStatus?.online_status === 'dnd'
                 ? 'bg-red-500 animate-pulse'
                 : partnerStatus?.online_status === 'online' || !isSupabaseConfigured()
                 ? 'bg-green-500 animate-ping'
                 : 'bg-gray-500'
             }`} />
-            <span className="font-['Press_Start_2P'] text-[7px] text-white font-bold">
+            <span className="font-['Press_Start_2P'] text-[6px] sm:text-[7px] text-white font-bold shrink-0">
               {partner?.name || 'Partner'}:
             </span>
-            <span className="text-[#a0a0b0] font-semibold">
+            <span className="text-[#a0a0b0] font-semibold truncate text-[11px] sm:text-xs">
               {partnerStatus?.current_activity || 'Sedang memikirkanmu...'}
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 shrink-0">
             {partnerStatus?.battery_level !== undefined && (
-              <div className="flex items-center gap-1.5 bg-black/30 px-2 py-0.5 rounded border border-black/45">
+              <div className="flex items-center gap-1 bg-black/30 px-1.5 py-0.5 rounded border border-black/45 text-[10px] sm:text-xs">
                 <span>🔋 {partnerStatus.battery_level}%</span>
                 {partnerStatus.is_charging && <span className="text-[#ffb300]">⚡</span>}
               </div>
             )}
             {partnerStatus?.online_status === 'dnd' && (
-              <span className="text-red-400 bg-red-950/20 px-1.5 py-0.5 rounded border border-red-500/30 text-[8px] font-['Press_Start_2P']">
+              <span className="text-red-400 bg-red-950/20 px-1.5 py-0.5 rounded border border-red-500/30 text-[7px] sm:text-[8px] font-['Press_Start_2P']">
                 DND
               </span>
             )}
@@ -284,7 +284,7 @@ const Chat: React.FC = () => {
           return (
             <div
               key={msg.id}
-              className={`flex flex-col max-w-[80%] ${
+              className={`flex flex-col max-w-[85%] md:max-w-[70%] ${
                 isMe ? 'self-end items-end' : 'self-start items-start'
               }`}
             >
@@ -295,9 +295,9 @@ const Chat: React.FC = () => {
                     : 'bg-[#ff69b4] border-black text-black shadow-[2px_2px_0_#000000] font-semibold'
                 }`}
               >
-                <p className="font-['VT323'] text-lg break-words">{msg.message}</p>
+                <p className="font-['VT323'] text-base sm:text-lg break-words">{msg.message}</p>
               </div>
-              <span className="text-[9px] text-[#a0a0b0] mt-1 font-['VT323'] select-none">
+              <span className="text-[9px] text-[#a0a0b0] mt-1 font-['VT323'] select-none px-1">
                 {timeString}
               </span>
             </div>
@@ -311,13 +311,13 @@ const Chat: React.FC = () => {
         <div className="max-w-4xl mx-auto space-y-3">
           
           {/* Voluntary settings panel */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-black/20 p-2 rounded-lg border border-black/40 text-xs font-['VT323'] select-none">
-            <div className="flex items-center gap-3">
-              <span className="text-[#ffb300] font-bold">STATUS KU:</span>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-black/20 p-2.5 rounded-lg border border-black/40 text-xs font-['VT323'] select-none">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
+              <span className="text-[#ffb300] font-bold shrink-0">STATUS KU:</span>
               <select
                 value={myOnlineStatus}
                 onChange={(e) => setMyOnlineStatus(e.target.value)}
-                className="bg-[#1a1a2a] border border-[#000000] px-2 py-0.5 text-white rounded focus:outline-none"
+                className="bg-[#1a1a2a] border border-[#000000] px-2 py-1 text-white rounded focus:outline-none text-xs min-h-[36px]"
               >
                 <option value="online">🟢 ONLINE</option>
                 <option value="dnd">🔴 FOKUS (DND)</option>
@@ -330,27 +330,27 @@ const Chat: React.FC = () => {
                 onChange={(e) => setMyActivity(e.target.value)}
                 maxLength={40}
                 placeholder="Aktivitas saat ini..."
-                className="bg-[#1a1a2a] border border-[#000000] px-2 py-0.5 text-white rounded focus:outline-none placeholder:text-white/20 text-xs w-36 sm:w-48"
+                className="bg-[#1a1a2a] border border-[#000000] px-2 py-1 text-white rounded focus:outline-none placeholder:text-white/20 text-xs flex-1 sm:flex-initial sm:w-48 min-h-[36px]"
               />
             </div>
 
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-1.5 cursor-pointer text-[#a0a0b0]">
+            <div className="flex flex-wrap items-center gap-4 border-t border-black/20 pt-2 md:pt-0 md:border-t-0 w-full md:w-auto justify-start md:justify-end">
+              <label className="flex items-center gap-2 cursor-pointer text-[#a0a0b0] py-1">
                 <input
                   type="checkbox"
                   checked={shareBattery}
                   onChange={(e) => setShareBattery(e.target.checked)}
-                  className="accent-[#ff69b4] cursor-pointer"
+                  className="accent-[#ff69b4] cursor-pointer w-4 h-4"
                 />
                 Share Baterai
               </label>
 
-              <label className="flex items-center gap-1.5 cursor-pointer text-[#a0a0b0]">
+              <label className="flex items-center gap-2 cursor-pointer text-[#a0a0b0] py-1">
                 <input
                   type="checkbox"
                   checked={shareActivity}
                   onChange={(e) => setShareActivity(e.target.checked)}
-                  className="accent-[#ff69b4] cursor-pointer"
+                  className="accent-[#ff69b4] cursor-pointer w-4 h-4"
                 />
                 Share Aktivitas
               </label>
@@ -364,12 +364,12 @@ const Chat: React.FC = () => {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Ketik pesan manismu..."
-              className="flex-1 px-3 py-2 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-white focus:outline-none focus:border-[#ff69b4] font-['VT323'] text-lg placeholder-[#a0a0b0]/40"
+              className="flex-1 px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-white focus:outline-none focus:border-[#ff69b4] font-['VT323'] text-base placeholder-[#a0a0b0]/40 min-h-[44px]"
             />
             <PixelButton
               type="submit"
               disabled={!inputText.trim()}
-              className="px-6 text-[9px]"
+              className="px-6 text-[9px] min-h-[44px] shrink-0"
             >
               KIRIM
             </PixelButton>

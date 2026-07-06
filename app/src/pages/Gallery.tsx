@@ -77,7 +77,7 @@ const GalleryCard = memo(function GalleryCard({
     <button
       type="button"
       onClick={onClick}
-      className="group relative overflow-hidden rounded-xl border-4 border-[#000000] bg-[#121224] p-2 text-left shadow-[4px_4px_0_#000000] transition-all duration-150 hover:-translate-y-0.5 hover:border-[#ff69b4]"
+      className="group relative overflow-hidden rounded-xl border-2 sm:border-4 border-[#000000] bg-[#121224] p-1.5 sm:p-2 text-left shadow-[2.5px_2.5px_0_#000000] sm:shadow-[4px_4px_0_#000000] transition-all duration-150 hover:-translate-y-0.5 hover:border-[#ff69b4]"
       style={{
         contentVisibility: 'auto',
         containIntrinsicSize: '0 300px',
@@ -173,7 +173,7 @@ function PhotoModal({
       </button>
 
       <div
-        className="relative w-full max-w-3xl overflow-y-auto max-h-[85vh] rounded-xl border-4 border-[#000000] bg-[#121224] shadow-[6px_6px_0_#000000]"
+        className="relative w-full max-w-3xl overflow-y-auto max-h-[90vh] rounded-xl border-2 sm:border-4 border-[#000000] bg-[#121224] shadow-[4px_4px_0_#000000] sm:shadow-[6px_6px_0_#000000] custom-scrollbar"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -394,13 +394,13 @@ const Gallery: React.FC = () => {
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-black/[0.05]" />
 
       <header className="sticky top-0 z-40 border-b-4 border-[#000000] bg-[#121224] px-4 py-3">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
-          <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px] shrink-0">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-3">
+          <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[8px] sm:text-[9px] shrink-0">
             ← MENU
           </PixelButton>
 
           <div className="text-center select-none">
-            <h1 className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#ffffff] leading-none">
+            <h1 className="font-['Press_Start_2P'] text-[9px] sm:text-[10px] md:text-xs text-[#ffffff] leading-none">
               MEMORY GALLERY
             </h1>
             <p className="mt-1 font-['VT323'] text-xs text-[#ff69b4] tracking-wider hidden sm:block font-bold">
@@ -408,8 +408,8 @@ const Gallery: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0 select-none">
-            <PixelButton onClick={() => setShowUploadModal(true)} variant="primary" size="sm" className="text-[9px]">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 select-none">
+            <PixelButton onClick={() => setShowUploadModal(true)} variant="primary" size="sm" className="text-[8px] sm:text-[9px]">
               + FOTO
             </PixelButton>
             <div className="hidden md:block min-w-[50px] text-right">
@@ -477,7 +477,7 @@ const Gallery: React.FC = () => {
         {/* Gallery Cards Grid */}
         {filteredPhotos.length > 0 ? (
           <>
-            <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 md:gap-5">
+            <section className="grid grid-cols-2 gap-2.5 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 md:gap-5">
               {displayedPhotos.map((photo, index) => (
                 <GalleryCard
                   key={photo.id}
@@ -532,7 +532,7 @@ const Gallery: React.FC = () => {
 
       {showUploadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-[#121224] border-4 border-[#000000] rounded-xl p-5 shadow-[6px_6px_0_#000000] max-h-[85vh] overflow-y-auto text-[#ffffff]">
+          <div className="w-full max-w-md bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl p-4 sm:p-5 shadow-[4px_4px_0_#000000] sm:shadow-[6px_6px_0_#000000] max-h-[90vh] overflow-y-auto custom-scrollbar text-[#ffffff]">
             <div className="flex justify-between items-center border-b-2 border-[#000000] pb-3 mb-4 select-none">
               <h2 className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-wide uppercase font-bold">
                 ⚔️ ADD NEW MEMORY

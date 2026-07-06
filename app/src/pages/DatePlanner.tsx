@@ -174,10 +174,10 @@ const DatePlanner: React.FC = () => {
         </section>
 
         {/* Tab Controls */}
-        <section className="grid grid-cols-2 gap-2 mb-6 font-['Press_Start_2P'] text-[8px] sm:text-[9px]">
+        <section className="flex flex-col sm:flex-row flex-wrap gap-2 mb-6 font-['Press_Start_2P'] text-[8px] sm:text-[9px]">
           <button
             onClick={() => setActiveTab('planned')}
-            className={`py-3 px-2 border-2 rounded-xl text-center transition-all duration-100 ${
+            className={`flex-1 py-3.5 px-2 border-2 rounded-xl text-center transition-all duration-100 min-h-[44px] ${
               activeTab === 'planned'
                 ? 'border-[#000000] bg-[#ff69b4] text-[#000000] shadow-[3px_3px_0_#000000] translate-x-0.5 translate-y-0.5 font-bold'
                 : 'border-transparent bg-[#222230] text-[#a0a0b0] hover:text-white hover:bg-[#2a2a3e]'
@@ -187,7 +187,7 @@ const DatePlanner: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`py-3 px-2 border-2 rounded-xl text-center transition-all duration-100 font-['Press_Start_2P'] text-[9px] ${
+            className={`flex-1 py-3.5 px-2 border-2 rounded-xl text-center transition-all duration-100 min-h-[44px] ${
               activeTab === 'history'
                 ? 'border-[#000000] bg-[#4caf50] text-white shadow-[3px_3px_0_#000000] translate-x-0.5 translate-y-0.5 font-bold'
                 : 'border-transparent bg-[#222230] text-[#a0a0b0] hover:text-white hover:bg-[#2a2a3e]'
@@ -217,7 +217,7 @@ const DatePlanner: React.FC = () => {
                     <p className="font-['VT323'] text-base text-[#a0a0b0] mb-5 font-semibold">
                       Yuk rencanakan kencan indah berikutnya bersama pasanganmu!
                     </p>
-                    <PixelButton onClick={() => setIsModalOpen(true)} variant="primary" size="sm" className="text-[9px]">
+                    <PixelButton onClick={() => setIsModalOpen(true)} variant="primary" size="sm" className="text-[9px] min-h-[44px] px-6">
                       ✨ Buat Rencana
                     </PixelButton>
                   </div>
@@ -225,29 +225,31 @@ const DatePlanner: React.FC = () => {
                   activePlans.map((plan) => (
                     <div
                       key={plan.id}
-                      className="bg-[#121224] border-4 border-[#000000] rounded-xl p-5 hover:border-[#ff69b4] transition-all duration-150 shadow-[4px_4px_0_#000000] relative overflow-hidden text-[#ffffff]"
+                      className="bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl p-4 sm:p-5 hover:border-[#ff69b4] transition-all duration-150 shadow-[4px_4px_0_#000000] text-[#ffffff]"
                     >
-                      {/* Top-right quest badge */}
-                      <div className="absolute top-0 right-0 bg-[#ff69b4] border-l-2 border-b-2 border-[#000000] px-3 py-1 text-[7px] font-['Press_Start_2P'] text-[#000000] uppercase tracking-wider select-none rounded-bl-xl font-bold">
-                        Quest
-                      </div>
-
                       <div className="flex flex-col gap-4">
-                        <div className="space-y-3">
-                          <h3 className="font-['Press_Start_2P'] text-xs text-white leading-normal pr-16 tracking-wide select-text font-bold">
+                        {/* Card Header (flex-row wrap) */}
+                        <div className="flex flex-row flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#000000]/25">
+                          <h3 className="font-['Press_Start_2P'] text-[10px] sm:text-xs text-white leading-normal tracking-wide select-text font-bold flex-1 min-w-0 break-words">
                             {plan.title}
                           </h3>
                           
+                          <div className="bg-[#ff69b4] border-2 border-[#000000] px-2.5 py-0.5 text-[7px] font-['Press_Start_2P'] text-[#000000] uppercase tracking-wider select-none rounded font-bold shrink-0">
+                            Quest
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-['VT323'] text-base text-[#a0a0b0] font-semibold">
-                            <div className="flex items-center gap-2 bg-[#1a1a2e]/60 border border-[#000000]/30 rounded-lg p-2 min-w-0">
+                            <div className="flex items-center gap-2 bg-[#1a1a2e]/60 border border-[#000000]/30 rounded-lg p-2 min-w-0 min-h-[40px]">
                               <Clock className="w-4 h-4 text-[#ff69b4] shrink-0" />
                               <span className="truncate">{plan.date_time}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-[#1a1a2e]/60 border border-[#000000]/30 rounded-lg p-2 min-w-0">
+                            <div className="flex items-center gap-2 bg-[#1a1a2e]/60 border border-[#000000]/30 rounded-lg p-2 min-w-0 min-h-[40px]">
                               <MapPin className="w-4 h-4 text-[#00ffff] shrink-0" />
                               <span className="truncate">{plan.location}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-[#1a1a2e]/60 border border-[#000000]/30 rounded-lg p-2 min-w-0">
+                            <div className="flex items-center gap-2 bg-[#1a1a2e]/60 border border-[#000000]/30 rounded-lg p-2 min-w-0 min-h-[40px]">
                               <MessageSquare className="w-4 h-4 text-[#00ff00] shrink-0" />
                               <span className="truncate">Aktivitas: {plan.activity}</span>
                             </div>
@@ -260,12 +262,12 @@ const DatePlanner: React.FC = () => {
                           )}
                         </div>
 
-                        <div className="flex gap-2.5 pt-3.5 border-t border-[#000000]/40 justify-end">
+                        <div className="flex flex-wrap gap-2.5 pt-3.5 border-t border-[#000000]/40 justify-end">
                           <PixelButton
                             onClick={() => handleComplete(plan.id)}
                             variant="primary"
                             size="sm"
-                            className="text-[9px] px-4 py-2"
+                            className="text-[9px] px-4 py-2 min-h-[44px] flex-1 sm:flex-initial"
                           >
                             ✓ QUEST SELESAI
                           </PixelButton>
@@ -273,7 +275,7 @@ const DatePlanner: React.FC = () => {
                             onClick={() => handleDelete(plan.id)}
                             variant="secondary"
                             size="sm"
-                            className="text-[9px] px-3 py-2 text-red-500/90"
+                            className="text-[9px] px-3 py-2 text-red-500/90 min-h-[44px] flex-1 sm:flex-initial"
                           >
                             🗑 HAPUS
                           </PixelButton>
@@ -301,32 +303,34 @@ const DatePlanner: React.FC = () => {
                   completedPlans.map((plan) => (
                     <div
                       key={plan.id}
-                      className="bg-[#121224] border-4 border-[#000000] rounded-xl p-5 shadow-[4px_4px_0_#000000] relative overflow-hidden text-[#ffffff]"
+                      className="bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl p-4 sm:p-5 shadow-[4px_4px_0_#000000] text-[#ffffff]"
                     >
-                      {/* Top-right completed badge */}
-                      <div className="absolute top-0 right-0 bg-[#4caf50] border-l-2 border-b-2 border-[#000000] px-3 py-1 text-[7px] font-['Press_Start_2P'] text-white uppercase tracking-wider select-none rounded-bl-xl font-bold">
-                        Completed
-                      </div>
-
                       <div className="flex flex-col gap-4">
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2 select-none">
-                            <span className="text-lg">🏆</span>
-                            <h3 className="font-['Press_Start_2P'] text-xs text-[#ffffff] leading-normal tracking-wide pr-16 font-bold">
+                        {/* Card Header (flex-row wrap) */}
+                        <div className="flex flex-row flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#000000]/25">
+                          <div className="flex items-center gap-2 select-none flex-1 min-w-0">
+                            <span className="text-base sm:text-lg shrink-0">🏆</span>
+                            <h3 className="font-['Press_Start_2P'] text-[10px] sm:text-xs text-[#ffffff] leading-normal tracking-wide select-text font-bold break-words min-w-0">
                               {plan.title}
                             </h3>
                           </div>
                           
+                          <div className="bg-[#4caf50] border-2 border-[#000000] px-2.5 py-0.5 text-[7px] font-['Press_Start_2P'] text-white uppercase tracking-wider select-none rounded font-bold shrink-0">
+                            Completed
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-['VT323'] text-base text-[#a0a0b0] font-semibold">
-                            <div className="flex items-center gap-2 bg-[#1a1a2e]/60 border border-[#000000]/30 rounded-lg p-2 min-w-0">
+                            <div className="flex items-center gap-2 bg-[#1a1a2e]/60 border border-[#000000]/30 rounded-lg p-2 min-w-0 min-h-[40px]">
                               <Clock className="w-4 h-4 text-[#a0a0b0] shrink-0" />
                               <span className="truncate">{plan.date_time}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-[#1a1a2e]/60 border border-[#000000]/30 rounded-lg p-2 min-w-0">
+                            <div className="flex items-center gap-2 bg-[#1a1a2e]/60 border border-[#000000]/30 rounded-lg p-2 min-w-0 min-h-[40px]">
                               <MapPin className="w-4 h-4 text-[#a0a0b0] shrink-0" />
                               <span className="truncate">{plan.location}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-[#1a1a2e]/60 border border-[#000000]/30 rounded-lg p-2 min-w-0">
+                            <div className="flex items-center gap-2 bg-[#1a1a2e]/60 border border-[#000000]/30 rounded-lg p-2 min-w-0 min-h-[40px]">
                               <CheckCircle2 className="w-4 h-4 text-[#4caf50] shrink-0" />
                               <span className="truncate">Aktivitas: {plan.activity}</span>
                             </div>
@@ -344,7 +348,7 @@ const DatePlanner: React.FC = () => {
                             onClick={() => handleDelete(plan.id)}
                             variant="secondary"
                             size="sm"
-                            className="text-[9px] px-3 py-2 text-red-500/90"
+                            className="text-[9px] px-3 py-2 text-red-500/90 min-h-[44px] w-full sm:w-auto"
                           >
                             🗑 HAPUS
                           </PixelButton>
@@ -362,9 +366,9 @@ const DatePlanner: React.FC = () => {
       {/* Modal: Buat Rencana Baru */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#121224] border-4 border-[#000000] rounded-xl w-full max-w-md p-5 shadow-[6px_6px_0_#000000] max-h-[85vh] overflow-y-auto text-[#ffffff]">
+          <div className="bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl w-full max-w-md p-4 sm:p-5 shadow-[6px_6px_0_#000000] max-h-[90vh] overflow-y-auto custom-scrollbar text-[#ffffff]">
             <div className="flex justify-between items-center border-b-2 border-[#000000] pb-3 mb-4 select-none">
-              <h3 className="font-['Press_Start_2P'] text-[#ff69b4] text-[9px] tracking-wide uppercase font-bold">
+              <h3 className="font-['Press_Start_2P'] text-[#ff69b4] text-[8px] sm:text-[9px] tracking-wide uppercase font-bold">
                 ⚔️ CREATE NEW QUEST
               </h3>
               <button
@@ -372,7 +376,7 @@ const DatePlanner: React.FC = () => {
                   setIsModalOpen(false);
                   setError(null);
                 }}
-                className="font-['Press_Start_2P'] text-[#a0a0b0]/50 text-[9px] hover:text-[#ff69b4] transition-colors"
+                className="font-['Press_Start_2P'] text-[#a0a0b0]/50 text-[8px] sm:text-[9px] hover:text-[#ff69b4] transition-colors p-1"
               >
                 [CLOSE]
               </button>
@@ -389,7 +393,7 @@ const DatePlanner: React.FC = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Piknik di Taman, Dinner Romantis, dll..."
-                  className="w-full px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
                 />
               </div>
 
@@ -403,7 +407,7 @@ const DatePlanner: React.FC = () => {
                   value={dateTime}
                   onChange={(e) => setDateTime(e.target.value)}
                   placeholder="Minggu, 10 Juli 2026 pukul 15:00"
-                  className="w-full px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
                 />
               </div>
 
@@ -417,7 +421,7 @@ const DatePlanner: React.FC = () => {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="Taman Hutan Raya, Cafe Cinta, dll..."
-                  className="w-full px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
                 />
               </div>
 
@@ -431,7 +435,7 @@ const DatePlanner: React.FC = () => {
                   value={activity}
                   onChange={(e) => setActivity(e.target.value)}
                   placeholder="Jalan-jalan sore, main sepeda, makan es krim..."
-                  className="w-full px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
                 />
               </div>
 
@@ -444,7 +448,7 @@ const DatePlanner: React.FC = () => {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Jangan lupa bawa kamera, payung, atau dresscode..."
-                  className="w-full px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] resize-none transition-colors placeholder-[#a0a0b0]/40"
+                  className="w-full px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] resize-none transition-colors placeholder-[#a0a0b0]/40 min-h-[80px]"
                 />
               </div>
 
@@ -459,7 +463,7 @@ const DatePlanner: React.FC = () => {
                 disabled={isSubmitting}
                 variant="primary"
                 size="sm"
-                className="w-full text-[9px] py-3.5 mt-2"
+                className="w-full text-[9px] py-3.5 mt-2 min-h-[44px]"
               >
                 {isSubmitting ? 'MENYIMPAN RENCANA...' : '▶ MULAI QUEST BARU'}
               </PixelButton>

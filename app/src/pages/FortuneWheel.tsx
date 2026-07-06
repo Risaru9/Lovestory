@@ -213,7 +213,7 @@ const FortuneWheel: React.FC = () => {
           <div className="text-2xl select-none">▼</div>
 
           {/* Wheel */}
-          <div className="relative w-64 h-64 sm:w-72 sm:h-72">
+          <div className="relative w-full max-w-[280px] max-h-[280px] aspect-square sm:max-w-[320px] sm:max-h-[320px]">
             <div
               ref={wheelRef}
               className="w-full h-full rounded-full border-4 border-[#000000] shadow-[4px_4px_0_#000000] overflow-hidden"

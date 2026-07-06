@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trophy, CheckCircle2, Star, ArrowRight } from 'lucide-react';
+import { Trophy, CheckCircle2, Star } from 'lucide-react';
 import { PixelButton } from '@/components/custom/PixelButton';
 import { getChapters } from '@/lib/db';
 import type { Chapter } from '@/types';
@@ -94,6 +94,7 @@ const Achievements: React.FC = () => {
 
   const [chaptersList, setChaptersList] = useState<Chapter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedAchievement, setSelectedAchievement] = useState<AchievementItem | null>(null);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -106,6 +107,17 @@ const Achievements: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (selectedAchievement) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedAchievement]);
 
   useEffect(() => {
     loadData();
@@ -209,7 +221,7 @@ const Achievements: React.FC = () => {
               </div>
             </section>
 
-            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <section className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4 md:gap-5">
               {filteredItems.map((item) => {
                 const rarity = rarityStyles[item.rarity];
 
@@ -218,14 +230,14 @@ const Achievements: React.FC = () => {
                     key={item.id}
                     onClick={() => {
                       playUnlockSound();
-                      navigate(`/chapter/${item.id}`);
+                      setSelectedAchievement(item);
                     }}
                     className={[
-                      'rounded-xl border-4 bg-[#121224] overflow-hidden transition-all duration-150 hover:-translate-y-0.5 cursor-pointer relative shadow-[4px_4px_0_#000000] border-[#000000] text-white',
+                      'rounded-xl border-2 sm:border-4 bg-[#121224] overflow-hidden transition-all duration-150 hover:-translate-y-0.5 cursor-pointer relative shadow-[2.5px_2.5px_0_#000000] sm:shadow-[4px_4px_0_#000000] border-[#000000] text-white',
                       rarity.glow,
                     ].join(' ')}
                   >
-                    <div className="relative h-44 overflow-hidden border-b-4 border-[#000000] bg-[#0c0a18]">
+                    <div className="relative h-28 sm:h-44 overflow-hidden border-b-2 sm:border-b-4 border-[#000000] bg-[#0c0a18]">
                       <img
                         src={item.image}
                         alt={item.title}
@@ -234,64 +246,63 @@ const Achievements: React.FC = () => {
 
                       <div className="absolute inset-0 bg-gradient-to-t from-[#080710]/95 via-transparent to-transparent" />
 
-                      <div className="absolute top-3 left-3 flex items-center gap-2 select-none">
-                        <span className={`rounded-lg px-2 py-0.5 text-[7px] font-['Press_Start_2P'] tracking-wider ${rarity.badge}`}>
-                          {rarity.emoji} {rarity.label}
+                      <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex items-center gap-2 select-none">
+                        <span className={`rounded-lg px-1.5 sm:px-2 py-0.5 text-[6px] sm:text-[7px] font-['Press_Start_2P'] tracking-wider ${rarity.badge}`}>
+                          {rarity.emoji} <span className="hidden xs:inline">{rarity.label}</span>
                         </span>
                       </div>
 
-                      <div className="absolute top-3 right-3 select-none">
-                        <div className="flex items-center gap-1.5 rounded-lg border border-[#000000]/40 bg-[#4caf50]/15 px-2 py-0.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#4caf50]" />
-                          <span className="font-['VT323'] text-xs text-[#4caf50] uppercase tracking-wider font-bold">
+                      <div className="absolute top-2 sm:top-3 right-2 sm:right-3 select-none">
+                        <div className="flex items-center gap-1 sm:gap-1.5 rounded-lg border border-[#000000]/40 bg-[#4caf50]/15 px-1.5 py-0.5">
+                          <CheckCircle2 className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-[#4caf50]" />
+                          <span className="font-['VT323'] text-[10px] sm:text-xs text-[#4caf50] uppercase tracking-wider font-bold">
                             Unlocked
                           </span>
                         </div>
                       </div>
 
-                      <div className="absolute inset-x-0 bottom-0 p-3 select-none">
-                        <div className="font-['Press_Start_2P'] text-[7px] text-[#ff69b4] mb-1 font-bold">
+                      <div className="absolute inset-x-0 bottom-0 p-2 sm:p-3 select-none">
+                        <div className="font-['Press_Start_2P'] text-[6px] sm:text-[7px] text-[#ff69b4] mb-1 font-bold">
                           MONTH {item.month}
                         </div>
-                        <h3 className="font-['Press_Start_2P'] text-[10px] text-white leading-normal uppercase tracking-wide truncate font-bold">
+                        <h3 className="font-['Press_Start_2P'] text-[8px] sm:text-[10px] text-white leading-normal uppercase tracking-wide truncate font-bold">
                           {item.title}
                         </h3>
                       </div>
                     </div>
 
-                    <div className="p-4">
+                    <div className="p-2 sm:p-4">
                       <div className="mb-2">
-                        <div className="font-['Press_Start_2P'] text-[7px] text-[#a0a0b0]/40 mb-1 select-none font-bold">
+                        <div className="font-['Press_Start_2P'] text-[6px] sm:text-[7px] text-[#a0a0b0]/40 mb-1 select-none font-bold">
                           PENCAPAIAN
                         </div>
-                        <p className="font-['VT323'] text-lg text-[#ff69b4] leading-snug line-clamp-1 font-bold">
+                        <p className="font-['VT323'] text-base sm:text-lg text-[#ff69b4] leading-snug line-clamp-1 font-bold">
                           {item.achievement}
                         </p>
                       </div>
 
                       <div className="mb-3">
-                        <div className="font-['Press_Start_2P'] text-[7px] text-[#a0a0b0]/40 mb-1 select-none font-bold">
+                        <div className="font-['Press_Start_2P'] text-[6px] sm:text-[7px] text-[#a0a0b0]/40 mb-1 select-none font-bold">
                           HIGHLIGHT MOMEN
                         </div>
-                        <p className="font-['VT323'] text-base text-[#a0a0b0] leading-snug line-clamp-2">
+                        <p className="font-['VT323'] text-sm sm:text-base text-[#a0a0b0] leading-snug line-clamp-2">
                           {item.description}
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-between gap-3 pt-3 border-t border-[#000000]/40">
-                        <div className="flex items-center gap-1.5 select-none">
-                          <Star className="w-3.5 h-3.5 text-[#ffb300] fill-current animate-pulse" />
-                          <span className="font-['VT323'] text-base text-[#a0a0b0]/55 font-semibold">
-                            Reward Collected
+                      <div className="flex items-center justify-between gap-1.5 sm:gap-3 pt-2.5 sm:pt-3 border-t border-[#000000]/40">
+                        <div className="flex items-center gap-1 sm:gap-1.5 select-none">
+                          <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#ffb300] fill-current animate-pulse" />
+                          <span className="font-['VT323'] text-sm sm:text-base text-[#a0a0b0]/55 font-semibold">
+                            Collected
                           </span>
                         </div>
 
                         <button
                           type="button"
-                          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-100 font-['Press_Start_2P'] text-[8px] bg-[#ff69b4] text-[#000000] hover:bg-[#ff69b4]/85 active:scale-95 shadow-sm font-bold"
+                          className="inline-flex items-center gap-1 rounded-lg px-2 py-1 sm:px-3 sm:py-1.5 transition-all duration-100 font-['Press_Start_2P'] text-[7px] sm:text-[8px] bg-[#ff69b4] text-[#000000] hover:bg-[#ff69b4]/85 active:scale-95 shadow-sm font-bold animate-pulse"
                         >
-                          BUKA
-                          <ArrowRight className="w-3 h-3" />
+                          DETAIL
                         </button>
                       </div>
                     </div>
@@ -314,6 +325,100 @@ const Achievements: React.FC = () => {
           </>
         )}
       </div>
+
+      {selectedAchievement && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          onClick={() => setSelectedAchievement(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Trophy Detail"
+        >
+          <div
+            className="relative w-full max-w-md bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl p-4 sm:p-5 shadow-[4px_4px_0_#000000] sm:shadow-[6px_6px_0_#000000] text-white max-h-[90vh] overflow-y-auto custom-scrollbar"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center border-b-2 border-[#000000] pb-3 mb-4 select-none">
+              <h2 className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-wide uppercase font-bold">
+                🏆 TROPHY DETAIL
+              </h2>
+              <button
+                type="button"
+                onClick={() => setSelectedAchievement(null)}
+                className="font-['Press_Start_2P'] text-[#a0a0b0]/45 text-[9px] hover:text-[#ff69b4]"
+              >
+                [CLOSE]
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="relative h-44 overflow-hidden border-2 sm:border-4 border-[#000000] bg-[#0c0a18] rounded-xl select-none">
+                <img
+                  src={selectedAchievement.image}
+                  alt={selectedAchievement.title}
+                  className="w-full h-full object-cover pixel-art"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#080710]/95 via-transparent to-transparent" />
+                
+                <div className="absolute top-3 left-3 flex items-center gap-2">
+                  <span className={`rounded-lg px-2 py-0.5 text-[7px] font-['Press_Start_2P'] tracking-wider ${rarityStyles[selectedAchievement.rarity].badge}`}>
+                    {rarityStyles[selectedAchievement.rarity].emoji} {rarityStyles[selectedAchievement.rarity].label}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <span className="font-['Press_Start_2P'] text-[7px] text-[#ff69b4] font-bold">
+                  MONTH {selectedAchievement.month} • {selectedAchievement.date}
+                </span>
+                <h3 className="font-['Press_Start_2P'] text-[9px] sm:text-[10px] text-white font-bold leading-normal uppercase mt-1">
+                  {selectedAchievement.title}
+                </h3>
+              </div>
+
+              <div className="rounded-lg bg-[#1a1a2e]/60 border border-[#000000]/30 p-3">
+                <div className="font-['Press_Start_2P'] text-[7px] text-[#a0a0b0]/60 mb-2 font-bold uppercase">
+                  Pencapaian Cinta
+                </div>
+                <p className="font-['VT323'] text-xl text-[#ff69b4] leading-snug font-bold">
+                  {selectedAchievement.achievement}
+                </p>
+              </div>
+
+              <div className="rounded-lg bg-[#1a1a2e]/60 border border-[#000000]/30 p-3">
+                <div className="font-['Press_Start_2P'] text-[7px] text-[#a0a0b0]/60 mb-2 font-bold uppercase">
+                  Highlight Petualangan
+                </div>
+                <p className="font-['VT323'] text-base text-[#a0a0b0] leading-snug">
+                  {selectedAchievement.description}
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <PixelButton
+                  type="button"
+                  onClick={() => setSelectedAchievement(null)}
+                  variant="secondary"
+                  className="flex-1 text-[8px] sm:text-[9px]"
+                >
+                  KEMBALI
+                </PixelButton>
+
+                <PixelButton
+                  type="button"
+                  onClick={() => {
+                    setSelectedAchievement(null);
+                    navigate(`/chapter/${selectedAchievement.id}`);
+                  }}
+                  className="flex-1 text-[8px] sm:text-[9px]"
+                >
+                  BUKA KISAH →
+                </PixelButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

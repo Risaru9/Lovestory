@@ -10,24 +10,24 @@ interface StatPanelProps {
 
 const StatPanel: React.FC<StatPanelProps> = ({ character }) => {
   return (
-    <div className="w-full bg-[#121224] border-4 border-[#000000] rounded-xl p-4 shadow-[4px_4px_0_#000000] animate-slide-up flex flex-col gap-3 text-[#ffffff]">
-      <div className="flex justify-between items-center border-b-2 border-[#000000] pb-1.5 select-none">
-        <span className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-wider uppercase font-bold">
+    <div className="w-full bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl p-3 sm:p-4 shadow-[3px_3px_0_#000000] sm:shadow-[4px_4px_0_#000000] animate-slide-up flex flex-col gap-2.5 sm:gap-3 text-[#ffffff]">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-[#000000] pb-1.5 select-none gap-1 sm:gap-0">
+        <span className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] text-[#ff69b4] tracking-wider uppercase font-bold">
           STATUS: {character.name}
         </span>
-        <span className="font-['VT323'] text-base text-[#a0a0b0] tracking-wider font-bold">
+        <span className="font-['VT323'] text-sm sm:text-base text-[#a0a0b0] tracking-wider font-bold">
           CLASS: {character.class}
         </span>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2.5">
         {/* LVL Bar */}
         <div className="flex flex-col gap-1 w-full">
           <div className="flex justify-between text-[8px] font-['Press_Start_2P'] text-[#e2e8f0]">
             <span>LVL:</span>
             <span className="text-[#ffb300] font-bold">{character.level}</span>
           </div>
-          <div className="h-3 w-full bg-black/40 border-2 border-[#000000] p-[1px]">
+          <div className="h-3 w-full bg-black/40 border-[1px] sm:border-2 border-[#000000] p-[1px]">
             <div className="h-full bg-[#ffb300]" style={{ width: '100%' }} />
           </div>
         </div>
@@ -38,18 +38,18 @@ const StatPanel: React.FC<StatPanelProps> = ({ character }) => {
             <span>HP:</span>
             <span className="text-[#4caf50] font-bold">{character.hp}</span>
           </div>
-          <div className="h-3 w-full bg-black/40 border-2 border-[#000000] p-[1px]">
+          <div className="h-3 w-full bg-black/40 border-[1px] sm:border-2 border-[#000000] p-[1px]">
             <div className="h-full bg-[#4caf50]" style={{ width: '100%' }} />
           </div>
         </div>
 
         {/* MP Bar */}
-        <div className="flex flex-col gap-1 w-full">
+        <div className="flex flex-col gap-1 w-full md:col-span-2">
           <div className="flex justify-between text-[8px] font-['Press_Start_2P'] text-[#e2e8f0]">
             <span>MP:</span>
             <span className="text-[#2196f3] font-bold">{character.mp}</span>
           </div>
-          <div className="h-3 w-full bg-black/40 border-2 border-[#000000] p-[1px]">
+          <div className="h-3 w-full bg-black/40 border-[1px] sm:border-2 border-[#000000] p-[1px]">
             <div className="h-full bg-[#2196f3]" style={{ width: '100%' }} />
           </div>
         </div>
@@ -101,27 +101,27 @@ const Couple: React.FC = () => {
       <div className="absolute inset-0 bg-[#080710]/92" />
 
       {/* Content wrapper */}
-      <div className="relative z-10 h-full flex flex-col items-center justify-between px-4 py-6 md:py-8">
+      <div className="relative z-10 h-full flex flex-col items-center justify-between px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         
         {/* Title */}
-        <div className="text-center select-none">
-          <h1 className="font-['Press_Start_2P'] text-lg sm:text-xl md:text-2xl text-[#ffffff] mb-1.5 drop-shadow-[2.5px_2.5px_0_#ff69b4] tracking-wider font-bold">
+        <div className="text-center select-none mt-2">
+          <h1 className="font-['Press_Start_2P'] text-base sm:text-lg md:text-2xl text-[#ffffff] mb-1 drop-shadow-[2px_2px_0_#ff69b4] tracking-wider font-bold">
             SELECT CHARACTER
           </h1>
-          <p className="font-['VT323'] text-sm sm:text-base text-[#a0a0b0] tracking-widest uppercase font-bold">
+          <p className="font-['VT323'] text-xs sm:text-base text-[#a0a0b0] tracking-widest uppercase font-bold">
             Klik karakter untuk melihat statistik RPG
           </p>
         </div>
 
         {/* Characters Selection Grid */}
-        <div className="flex justify-center items-center gap-6 sm:gap-16 md:gap-24 my-auto">
+        <div className="flex justify-center items-center gap-4 sm:gap-16 md:gap-24 my-auto">
           {/* Character 1 */}
           <div className="flex flex-col items-center">
             <button 
               type="button"
-              className={`cursor-pointer transition-all duration-150 outline-none p-2 border-4 rounded-2xl ${
+              className={`cursor-pointer transition-all duration-150 outline-none p-1 sm:p-2 border-2 sm:border-4 rounded-2xl ${
                 showStat1 
-                  ? 'border-[#ff69b4] bg-[#ff69b4]/10 scale-105 opacity-100 shadow-[3px_3px_0_#000000]' 
+                  ? 'border-[#ff69b4] bg-[#ff69b4]/10 scale-105 opacity-100 shadow-[2px_2px_0_#000000] sm:shadow-[3px_3px_0_#000000]' 
                   : 'border-transparent opacity-60 hover:opacity-95'
               }`}
               onClick={() => handleCharacterClick(0)}
@@ -130,16 +130,16 @@ const Couple: React.FC = () => {
               <img 
                 src={characters[0].sprite}
                 alt={characters[0].name}
-                className="w-20 h-20 sm:w-28 md:w-36 pixel-art"
+                className="w-14 h-14 sm:w-24 md:w-36 pixel-art"
               />
             </button>
-            <p className="font-['Press_Start_2P'] text-[9px] text-[#ffffff] mt-3.5 tracking-wider select-none font-bold">
+            <p className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] text-[#ffffff] mt-2 sm:mt-3.5 tracking-wider select-none font-bold">
               {characters[0].name}
             </p>
           </div>
 
           {/* Heart between */}
-          <div className="text-xl sm:text-3xl animate-pulse text-[#ff69b4] select-none">
+          <div className="text-base sm:text-3xl animate-pulse text-[#ff69b4] select-none">
             💕
           </div>
 
@@ -147,9 +147,9 @@ const Couple: React.FC = () => {
           <div className="flex flex-col items-center">
             <button 
               type="button"
-              className={`cursor-pointer transition-all duration-150 outline-none p-2 border-4 rounded-2xl ${
+              className={`cursor-pointer transition-all duration-150 outline-none p-1 sm:p-2 border-2 sm:border-4 rounded-2xl ${
                 showStat2 
-                  ? 'border-[#ff69b4] bg-[#ff69b4]/10 scale-105 opacity-100 shadow-[3px_3px_0_#000000]' 
+                  ? 'border-[#ff69b4] bg-[#ff69b4]/10 scale-105 opacity-100 shadow-[2px_2px_0_#000000] sm:shadow-[3px_3px_0_#000000]' 
                   : 'border-transparent opacity-60 hover:opacity-95'
               }`}
               onClick={() => handleCharacterClick(1)}
@@ -158,30 +158,30 @@ const Couple: React.FC = () => {
               <img 
                 src={characters[1].sprite}
                 alt={characters[1].name}
-                className="w-20 h-20 sm:w-28 md:w-36 pixel-art"
+                className="w-14 h-14 sm:w-24 md:w-36 pixel-art"
               />
             </button>
-            <p className="font-['Press_Start_2P'] text-[9px] text-[#ffffff] mt-3.5 tracking-wider select-none font-bold">
+            <p className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] text-[#ffffff] mt-2 sm:mt-3.5 tracking-wider select-none font-bold">
               {characters[1].name}
             </p>
           </div>
         </div>
 
         {/* Central Stat Panel Slot */}
-        <div className="w-full max-w-[340px] sm:max-w-md min-h-[110px] my-3">
+        <div className="w-full max-w-[290px] sm:max-w-md min-h-[90px] sm:min-h-[110px] my-2 sm:my-3">
           {showStat1 ? (
             <StatPanel character={characters[0]} />
           ) : showStat2 ? (
             <StatPanel character={characters[1]} />
           ) : (
-            <div className="text-center font-['VT323'] text-sm sm:text-base text-[#a0a0b0]/65 border-4 border-dashed border-[#000000] bg-[#121224] rounded-xl px-4 py-5 flex items-center justify-center h-full tracking-wide font-bold">
+            <div className="text-center font-['VT323'] text-xs sm:text-base text-[#a0a0b0]/65 border-2 sm:border-4 border-dashed border-[#000000] bg-[#121224] rounded-xl px-3 py-3 sm:px-4 sm:py-5 flex items-center justify-center h-full tracking-wide font-bold">
               ✨ KETUK KARAKTER UNTUK MENYINGKAP STATUS RPG
             </div>
           )}
         </div>
 
         {/* Footer Area: Dialog Box + Navigation */}
-        <div className="w-full max-w-2xl flex flex-col items-center gap-4">
+        <div className="w-full max-w-2xl flex flex-col items-center gap-3 sm:gap-4">
           {/* Dialog Box */}
           <div onClick={handleNextDialog} className="w-full cursor-pointer select-none">
             <DialogBox
@@ -193,10 +193,10 @@ const Couple: React.FC = () => {
 
           {/* Navigation buttons */}
           <div className="flex gap-4">
-            <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px]">
+            <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px] min-h-[38px] px-3">
               KEMBALI
             </PixelButton>
-            <PixelButton onClick={() => navigate('/timeline')} variant="primary" size="sm" className="text-[9px]">
+            <PixelButton onClick={() => navigate('/timeline')} variant="primary" size="sm" className="text-[9px] min-h-[38px] px-3">
               MULAI
             </PixelButton>
           </div>

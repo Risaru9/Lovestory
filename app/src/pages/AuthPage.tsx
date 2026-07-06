@@ -81,23 +81,23 @@ const AuthPage: React.FC = () => {
 
       <div className="relative z-10 w-full max-w-sm">
         {/* Title */}
-        <div className="text-center mb-8 select-none">
+        <div className="text-center mb-6 sm:mb-8 select-none">
           <h1 className="font-['Press_Start_2P'] text-[#ffffff] text-base md:text-lg leading-loose drop-shadow-[2px_2px_0_#ff69b4] font-bold">
             💕 LOVE STORY
           </h1>
-          <p className="font-['VT323'] text-[#ffb300] text-xl mt-2 font-bold">
+          <p className="font-['VT323'] text-[#ffb300] text-xl mt-1 sm:mt-2 font-bold">
             {mode === 'login' ? 'Masuk ke Dunia Kita' : 'Buat Karakter Baru'}
           </p>
         </div>
 
         {/* Card */}
-        <div className="bg-[#121224] border-4 border-[#000000] rounded-2xl p-6 shadow-[4px_4px_0_#000000]">
+        <div className="bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000]">
           {/* Toggle buttons */}
-          <div className="flex rounded-lg overflow-hidden border-2 border-[#000000] mb-6 select-none">
+          <div className="flex rounded-lg overflow-hidden border-2 border-[#000000] mb-5 sm:mb-6 select-none">
             <button
               type="button"
               onClick={() => { setMode('login'); setError(null); setSuccess(null); }}
-              className={`flex-1 py-2 font-['Press_Start_2P'] text-[9px] transition-all duration-200 font-bold ${
+              className={`flex-1 py-2.5 font-['Press_Start_2P'] text-[9px] transition-all duration-200 font-bold min-h-[44px] ${
                 mode === 'login'
                   ? 'bg-[#ff69b4] text-[#000000]'
                   : 'bg-transparent text-[#ff69b4]/60 hover:text-[#ff69b4]'
@@ -108,7 +108,7 @@ const AuthPage: React.FC = () => {
             <button
               type="button"
               onClick={() => { setMode('register'); setError(null); setSuccess(null); }}
-              className={`flex-1 py-2 font-['Press_Start_2P'] text-[9px] transition-all duration-200 font-bold ${
+              className={`flex-1 py-2.5 font-['Press_Start_2P'] text-[9px] transition-all duration-200 font-bold min-h-[44px] ${
                 mode === 'register'
                   ? 'bg-[#ff69b4] text-[#000000]'
                   : 'bg-transparent text-[#ff69b4]/60 hover:text-[#ff69b4]'
@@ -129,7 +129,7 @@ const AuthPage: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Nama kamu..."
-                  className="w-full px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/30 transition-colors"
+                  className="w-full px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/30 transition-colors min-h-[44px]"
                 />
               </div>
             )}
@@ -144,7 +144,7 @@ const AuthPage: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@kamu.com"
                 required
-                className="w-full px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/30 transition-colors"
+                className="w-full px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/30 transition-colors min-h-[44px]"
               />
             </div>
 
@@ -158,7 +158,7 @@ const AuthPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['VT323'] text-lg focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/30 transition-colors"
+                className="w-full px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/30 transition-colors min-h-[44px]"
               />
               {mode === 'register' && (
                 <p className="font-['VT323'] text-[#a0a0b0] text-sm mt-1">Minimal 6 karakter</p>
@@ -180,7 +180,7 @@ const AuthPage: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 bg-[#ff69b4] hover:bg-[#ff69b4]/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-['Press_Start_2P'] text-[10px] text-[#000000] transition-all duration-200 shadow-[4px_4px_0_#000000] active:scale-95 border-2 border-[#000000] font-bold"
+              className="w-full py-3 bg-[#ff69b4] hover:bg-[#ff69b4]/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-['Press_Start_2P'] text-[10px] text-[#000000] transition-all duration-200 shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000] active:scale-95 border-2 border-[#000000] font-bold min-h-[44px]"
             >
               {isSubmitting
                 ? 'MEMPROSES...'

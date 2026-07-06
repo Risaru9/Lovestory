@@ -159,29 +159,29 @@ const ChapterDetail: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="text-center mb-8 select-none">
-          <h2 className="font-['Press_Start_2P'] text-lg md:text-2xl text-white mb-2 leading-relaxed drop-shadow-[2px_2px_0_#ff69b4] font-bold">
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
+        <div className="text-center mb-6 sm:mb-8 select-none">
+          <h2 className="font-['Press_Start_2P'] text-base sm:text-lg md:text-2xl text-white mb-2 leading-relaxed drop-shadow-[2px_2px_0_#ff69b4] font-bold">
             {chapter.title}
           </h2>
-          <p className="font-['VT323'] text-lg text-[#a0a0b0] font-semibold">
+          <p className="font-['VT323'] text-lg sm:text-xl text-[#a0a0b0] font-semibold">
             {chapter.date}
           </p>
         </div>
 
-        <div className="relative mb-8 group">
-          <div className="relative border-4 border-[#000000] overflow-hidden rounded-xl shadow-[4px_4px_0_#000000]">
+        <div className="relative mb-6 sm:mb-8 group">
+          <div className="relative border-2 sm:border-4 border-[#000000] overflow-hidden rounded-xl shadow-[3px_3px_0_#000000] sm:shadow-[4px_4px_0_#000000]">
             <img
               src={chapter.image}
               alt={chapter.title}
-              className="w-full h-72 md:h-[30rem] object-cover pixel-art transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-auto max-h-[300px] md:max-h-[30rem] md:h-[30rem] object-contain bg-[#121224] pixel-art transition-transform duration-500 group-hover:scale-105"
             />
 
-            <div className="absolute inset-x-0 bottom-0 bg-black/75 p-5">
-              <div className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#ffb300] mb-2 font-bold">
+            <div className="absolute inset-x-0 bottom-0 bg-black/75 p-4 sm:p-5">
+              <div className="font-['Press_Start_2P'] text-[9px] md:text-xs text-[#ffb300] mb-1.5 font-bold">
                 KISAH UTAMA
               </div>
-              <p className="font-['VT323'] text-lg md:text-xl text-white leading-snug font-semibold">
+              <p className="font-['VT323'] text-base sm:text-lg md:text-xl text-white leading-snug font-semibold">
                 {chapter.description || 'Satu lagi potongan kisah dari perjalanan kita.'}
               </p>
             </div>
@@ -190,9 +190,9 @@ const ChapterDetail: React.FC = () => {
           <button
             type="button"
             className={[
-              'absolute -top-4 -right-3 md:-right-4',
-              'bg-[#ffb300] border-4 border-[#000000]',
-              'p-3 rounded-full cursor-pointer transition-transform hover:scale-110 shadow-[2.5px_2.5px_0_#000000]',
+              'absolute -top-3 -right-2 sm:-top-4 sm:-right-4',
+              'bg-[#ffb300] border-2 sm:border-4 border-[#000000]',
+              'p-2 sm:p-3 rounded-full cursor-pointer transition-transform hover:scale-110 shadow-[2px_2px_0_#000000] sm:shadow-[2.5px_2.5px_0_#000000]',
               showAchievement ? 'animate-bounce' : '',
             ].join(' ')}
             onClick={() => setShowAchievement((prev) => !prev)}
@@ -200,7 +200,7 @@ const ChapterDetail: React.FC = () => {
             <img
               src="/images/sprites/star.png"
               alt="Achievement"
-              className="w-8 h-8 pixel-art"
+              className="w-6 h-6 sm:w-8 sm:h-8 pixel-art"
               onError={(e) => {
                 // Fallback if sprite not found
                 e.currentTarget.src = "/images/ui/star-icon.png";
@@ -210,14 +210,14 @@ const ChapterDetail: React.FC = () => {
         </div>
 
         {showAchievement && (
-          <div className="mb-6 p-4 bg-[#ffb300]/15 border-2 border-[#000000] rounded-xl shadow-[3px_3px_0_#000000]">
+          <div className="mb-6 p-3 sm:p-4 bg-[#ffb300]/15 border-2 border-[#000000] rounded-xl shadow-[3px_3px_0_#000000]">
             <div className="flex items-center gap-3">
-              <span className="text-2xl select-none">⭐</span>
+              <span className="text-xl sm:text-2xl select-none">⭐</span>
               <div>
-                <p className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#ffb300] mb-1 font-bold">
+                <p className="font-['Press_Start_2P'] text-[8px] sm:text-[10px] md:text-xs text-[#ffb300] mb-1 font-bold">
                   PENCAPAIAN KITA
                 </p>
-                <p className="font-['VT323'] text-white text-lg leading-snug font-semibold">
+                <p className="font-['VT323'] text-white text-base sm:text-lg leading-snug font-semibold">
                   {chapter.achievement}
                 </p>
               </div>
@@ -225,53 +225,53 @@ const ChapterDetail: React.FC = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6 mb-8">
-          <div className="bg-[#121224] border-4 border-[#000000] rounded-xl p-4 md:p-5 shadow-[4px_4px_0_#000000]">
-            <div className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#ff69b4] mb-4 font-bold">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <div className="bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl p-3 sm:p-5 shadow-[3px_3px_0_#000000] sm:shadow-[4px_4px_0_#000000]">
+            <div className="font-['Press_Start_2P'] text-[9px] md:text-xs text-[#ff69b4] mb-3.5 font-bold">
               STORY MODE
             </div>
             <DialogBox text={chapter.story} />
           </div>
 
-          <div className="bg-[#121224] border-4 border-[#000000] rounded-xl p-4 md:p-5 shadow-[4px_4px_0_#000000] text-white">
-            <div className="font-['Press_Start_2P'] text-[10px] md:text-xs text-[#00ffff] mb-4 font-bold">
+          <div className="bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl p-3 sm:p-5 shadow-[3px_3px_0_#000000] sm:shadow-[4px_4px_0_#000000] text-white">
+            <div className="font-['Press_Start_2P'] text-[9px] md:text-xs text-[#00ffff] mb-3.5 font-bold">
               CHAPTER INFO
             </div>
 
-            <div className="space-y-4">
-              <div className="rounded-lg bg-[#1a1a2e]/60 border border-[#000000]/30 p-3">
-                <div className="font-['Press_Start_2P'] text-[10px] text-[#a0a0b0]/60 mb-2 font-bold">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="rounded-lg bg-[#1a1a2e]/60 border border-[#000000]/30 p-2.5 sm:p-3">
+                <div className="font-['Press_Start_2P'] text-[9px] text-[#a0a0b0]/60 mb-1.5 font-bold">
                   STATUS
                 </div>
-                <p className="font-['VT323'] text-xl text-white font-semibold">
+                <p className="font-['VT323'] text-lg sm:text-xl text-white font-semibold">
                   Completed
                 </p>
               </div>
 
-              <div className="rounded-lg bg-[#1a1a2e]/60 border border-[#000000]/30 p-3">
-                <div className="font-['Press_Start_2P'] text-[10px] text-[#a0a0b0]/60 mb-2 font-bold">
+              <div className="rounded-lg bg-[#1a1a2e]/60 border border-[#000000]/30 p-2.5 sm:p-3">
+                <div className="font-['Press_Start_2P'] text-[9px] text-[#a0a0b0]/60 mb-1.5 font-bold">
                   DATE
                 </div>
-                <p className="font-['VT323'] text-xl text-white font-semibold">
+                <p className="font-['VT323'] text-lg sm:text-xl text-white font-semibold">
                   {chapter.date}
                 </p>
               </div>
 
-              <div className="rounded-lg bg-[#1a1a2e]/60 border border-[#000000]/30 p-3">
-                <div className="font-['Press_Start_2P'] text-[10px] text-[#a0a0b0]/60 mb-2 font-bold">
+              <div className="rounded-lg bg-[#1a1a2e]/60 border border-[#000000]/30 p-2.5 sm:p-3">
+                <div className="font-['Press_Start_2P'] text-[9px] text-[#a0a0b0]/60 mb-1.5 font-bold">
                   MOMENT
                 </div>
-                <p className="font-['VT323'] text-lg text-white/85 leading-snug font-semibold">
+                <p className="font-['VT323'] text-base sm:text-lg text-white/85 leading-snug font-semibold">
                   {chapter.description || 'Bagian penting dari perjalanan kita.'}
                 </p>
               </div>
 
               {nextChapter && (
-                <div className="rounded-lg bg-[#1a1a2e]/60 border border-[#000000]/30 p-3">
-                  <div className="font-['Press_Start_2P'] text-[10px] text-[#a0a0b0]/60 mb-2 font-bold">
+                <div className="rounded-lg bg-[#1a1a2e]/60 border border-[#000000]/30 p-2.5 sm:p-3">
+                  <div className="font-['Press_Start_2P'] text-[9px] text-[#a0a0b0]/60 mb-1.5 font-bold">
                     NEXT CHAPTER
                   </div>
-                  <p className="font-['VT323'] text-lg text-white leading-snug font-semibold">
+                  <p className="font-['VT323'] text-base sm:text-lg text-white leading-snug font-semibold">
                     {nextChapter.title}
                   </p>
                 </div>
@@ -281,9 +281,9 @@ const ChapterDetail: React.FC = () => {
         </div>
 
         {photos.length > 0 && (
-          <div className="mb-10">
+          <div className="mb-8 sm:mb-10">
             <div className="flex items-center justify-between gap-3 mb-4 select-none">
-              <h3 className="font-['Press_Start_2P'] text-xs md:text-sm text-white font-bold">
+              <h3 className="font-['Press_Start_2P'] text-[10px] md:text-sm text-white font-bold">
                 MEMORIES
               </h3>
               <span className="font-['VT323'] text-base text-[#a0a0b0]">
@@ -291,12 +291,12 @@ const ChapterDetail: React.FC = () => {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {photos.map((photo, index) => (
                 <button
                   key={photo.id}
                   type="button"
-                  className="group relative overflow-hidden rounded-xl border-4 border-[#000000] bg-[#121224] shadow-[4px_4px_0_#000000]"
+                  className="group relative overflow-hidden rounded-xl border-2 sm:border-4 border-[#000000] bg-[#121224] shadow-[3px_3px_0_#000000] sm:shadow-[4px_4px_0_#000000]"
                   onClick={() => setActivePhotoIndex(index)}
                 >
                   <img
@@ -307,8 +307,8 @@ const ChapterDetail: React.FC = () => {
 
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors duration-300" />
 
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-3">
-                    <p className="font-['VT323'] text-white text-base leading-snug text-left font-semibold">
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-2.5 sm:p-3">
+                    <p className="font-['VT323'] text-white text-sm sm:text-base leading-snug text-left font-semibold">
                       {photo.caption || 'Klik untuk melihat lebih besar'}
                     </p>
                   </div>
@@ -324,17 +324,19 @@ const ChapterDetail: React.FC = () => {
               onClick={() => navigate(`/chapter/${prevChapter.id}`)}
               variant="secondary"
               size="sm"
+              className="min-h-[38px] px-3 text-[9px]"
             >
               ← PREV
             </PixelButton>
           ) : (
-            <div className="w-24" />
+            <div className="w-20 sm:w-24" />
           )}
 
           <PixelButton
             onClick={() => navigate('/timeline')}
             variant="secondary"
             size="sm"
+            className="min-h-[38px] px-3 text-[9px]"
           >
             TIMELINE
           </PixelButton>
@@ -343,11 +345,12 @@ const ChapterDetail: React.FC = () => {
             <PixelButton
               onClick={() => navigate(`/chapter/${nextChapter.id}`)}
               size="sm"
+              className="min-h-[38px] px-3 text-[9px]"
             >
               NEXT →
             </PixelButton>
           ) : (
-            <div className="w-24" />
+            <div className="w-20 sm:w-24" />
           )}
         </div>
       </div>

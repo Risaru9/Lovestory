@@ -187,7 +187,7 @@ const TimeCapsulePage: React.FC = () => {
       {/* Reading Modal */}
       {readingCapsule && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="bg-[#121224] border-4 border-[#000000] shadow-[4px_4px_0_#000000] p-6 max-w-md w-full space-y-4">
+          <div className="bg-[#121224] border-4 border-[#000000] shadow-[4px_4px_0_#000000] p-6 max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar space-y-4">
             <div className="text-center">
               <span className="text-4xl select-none">{readingCapsule.emoji}</span>
               <h3 className="font-['Press_Start_2P'] text-[9px] text-[#ffb300] mt-3 font-bold">
@@ -295,122 +295,128 @@ const TimeCapsulePage: React.FC = () => {
             📦 KAPSUL TERSIMPAN
           </h2>
 
-          {capsules.length === 0 && (
+          {capsules.length === 0 ? (
             <div className="bg-[#121224] border-4 border-[#000000] p-8 shadow-[4px_4px_0_#000000] text-center">
               <span className="text-3xl select-none">📦</span>
               <p className="font-['VT323'] text-base text-[#a0a0b0] mt-3">
                 Belum ada kapsul waktu. Buat yang pertama!
               </p>
             </div>
-          )}
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {capsules.map(capsule => {
+                const unlocked = isUnlocked(capsule);
+                const countdown = getCountdown(capsule.unlockDate);
 
-          {capsules.map(capsule => {
-            const unlocked = isUnlocked(capsule);
-            const countdown = getCountdown(capsule.unlockDate);
+                return (
+                  <div
+                    key={capsule.id}
+                    className={`bg-[#121224] border-4 border-[#000000] shadow-[4px_4px_0_#000000] overflow-hidden flex flex-col justify-between ${
+                      unlocked && !capsule.opened ? 'border-[#ffb300]' : ''
+                    }`}
+                  >
+                    <div>
+                      {/* Ornate pixel top border */}
+                      <div className="h-2 w-full" style={{
+                        background: unlocked
+                          ? 'repeating-linear-gradient(90deg, #ffb300 0px, #ffb300 8px, #0c0a18 8px, #0c0a18 16px)'
+                          : 'repeating-linear-gradient(90deg, #ff69b4 0px, #ff69b4 8px, #0c0a18 8px, #0c0a18 16px)',
+                      }} />
 
-            return (
-              <div
-                key={capsule.id}
-                className={`bg-[#121224] border-4 border-[#000000] shadow-[4px_4px_0_#000000] overflow-hidden ${
-                  unlocked && !capsule.opened ? 'border-[#ffb300]' : ''
-                }`}
-              >
-                {/* Ornate pixel top border */}
-                <div className="h-2 w-full" style={{
-                  background: unlocked
-                    ? 'repeating-linear-gradient(90deg, #ffb300 0px, #ffb300 8px, #0c0a18 8px, #0c0a18 16px)'
-                    : 'repeating-linear-gradient(90deg, #ff69b4 0px, #ff69b4 8px, #0c0a18 8px, #0c0a18 16px)',
-                }} />
-
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="text-2xl select-none bg-[#1a1a2a] border-2 border-[#000000] w-12 h-12 flex items-center justify-center shrink-0">
-                        {capsule.emoji}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-lg select-none">
-                            {unlocked ? '🔓' : '🔒'}
-                          </span>
-                          <span className="font-['Press_Start_2P'] text-[7px] text-[#ff69b4] font-bold">
-                            {unlocked
-                              ? capsule.opened ? 'SUDAH DIBACA' : 'SIAP DIBUKA!'
-                              : 'TERKUNCI'
-                            }
-                          </span>
-                        </div>
-                        <p className="font-['VT323'] text-xs text-[#a0a0b0]">
-                          Dibuat: {new Date(capsule.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </p>
-                        <p className="font-['VT323'] text-xs text-[#a0a0b0]">
-                          Buka: {new Date(capsule.unlockDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Countdown or message */}
-                  {!unlocked && countdown && (
-                    <div className="mt-3 bg-[#1a1a2a] border-2 border-[#000000] p-3">
-                      <p className="font-['Press_Start_2P'] text-[7px] text-[#a0a0b0] mb-2 text-center select-none">
-                        COUNTDOWN
-                      </p>
-                      <div className="flex justify-center gap-3">
-                        {[
-                          { val: countdown.days, label: 'HARI' },
-                          { val: countdown.hours, label: 'JAM' },
-                          { val: countdown.minutes, label: 'MNT' },
-                          { val: countdown.seconds, label: 'DTK' },
-                        ].map(item => (
-                          <div key={item.label} className="text-center">
-                            <div className="font-['Press_Start_2P'] text-[12px] text-[#ffb300] bg-[#000000] border-2 border-[#000000] px-2 py-1 min-w-[36px]">
-                              {String(item.val).padStart(2, '0')}
+                      <div className="p-3 sm:p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className="text-xl sm:text-2xl select-none bg-[#1a1a2a] border-2 border-[#000000] w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shrink-0">
+                              {capsule.emoji}
                             </div>
-                            <div className="font-['Press_Start_2P'] text-[5px] text-[#a0a0b0] mt-1">
-                              {item.label}
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-base sm:text-lg select-none">
+                                  {unlocked ? '🔓' : '🔒'}
+                                </span>
+                                <span className="font-['Press_Start_2P'] text-[7px] text-[#ff69b4] font-bold">
+                                  {unlocked
+                                    ? capsule.opened ? 'SUDAH DIBACA' : 'SIAP DIBUKA!'
+                                    : 'TERKUNCI'
+                                  }
+                                </span>
+                              </div>
+                              <p className="font-['VT323'] text-xs text-[#a0a0b0]">
+                                Dibuat: {new Date(capsule.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              </p>
+                              <p className="font-['VT323'] text-xs text-[#a0a0b0]">
+                                Buka: {new Date(capsule.unlockDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              </p>
                             </div>
                           </div>
-                        ))}
+                        </div>
+
+                        {/* Countdown or message */}
+                        {!unlocked && countdown && (
+                          <div className="mt-3 bg-[#1a1a2a] border-2 border-[#000000] p-2">
+                            <p className="font-['Press_Start_2P'] text-[6px] sm:text-[7px] text-[#a0a0b0] mb-2 text-center select-none">
+                              COUNTDOWN
+                            </p>
+                            <div className="flex justify-center gap-1 sm:gap-2 flex-wrap">
+                              {[
+                                { val: countdown.days, label: 'HARI' },
+                                { val: countdown.hours, label: 'JAM' },
+                                { val: countdown.minutes, label: 'MNT' },
+                                { val: countdown.seconds, label: 'DTK' },
+                              ].map(item => (
+                                <div key={item.label} className="text-center">
+                                  <div className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] md:text-[10px] text-[#ffb300] bg-[#000000] border-2 border-[#000000] px-1 sm:px-2 py-0.5 sm:py-1 min-w-[28px] sm:min-w-[32px]">
+                                    {String(item.val).padStart(2, '0')}
+                                  </div>
+                                  <div className="font-['Press_Start_2P'] text-[4px] sm:text-[5px] text-[#a0a0b0] mt-1">
+                                    {item.label}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {unlocked && capsule.opened && (
+                          <div className="mt-3 bg-[#1a1a2a] border-2 border-[#000000] p-3 max-h-32 overflow-y-auto custom-scrollbar">
+                            <p className="font-['VT323'] text-base sm:text-lg text-[#ffffff] whitespace-pre-wrap">
+                              {capsule.message}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  )}
 
-                  {unlocked && capsule.opened && (
-                    <div className="mt-3 bg-[#1a1a2a] border-2 border-[#000000] p-3">
-                      <p className="font-['VT323'] text-lg text-[#ffffff] whitespace-pre-wrap">
-                        {capsule.message}
-                      </p>
+                    <div className="p-3 sm:p-4 pt-0">
+                      {/* Action buttons */}
+                      <div className="mt-3 flex gap-2">
+                        {unlocked && !capsule.opened && (
+                          <PixelButton onClick={() => handleOpen(capsule)} size="sm" className="text-[8px] flex-1">
+                            🔓 BUKA KAPSUL
+                          </PixelButton>
+                        )}
+                        {unlocked && capsule.opened && (
+                          <PixelButton onClick={() => setReadingCapsule(capsule)} variant="secondary" size="sm" className="text-[8px] flex-1">
+                            📖 BACA LAGI
+                          </PixelButton>
+                        )}
+                        <PixelButton onClick={() => handleDelete(capsule.id)} variant="secondary" size="sm" className="text-[8px]">
+                          🗑️
+                        </PixelButton>
+                      </div>
+
+                      {/* Ornate pixel bottom border */}
+                      <div className="h-2 w-full mt-3" style={{
+                        background: unlocked
+                          ? 'repeating-linear-gradient(90deg, #ffb300 0px, #ffb300 8px, #0c0a18 8px, #0c0a18 16px)'
+                          : 'repeating-linear-gradient(90deg, #ff69b4 0px, #ff69b4 8px, #0c0a18 8px, #0c0a18 16px)',
+                      }} />
                     </div>
-                  )}
-
-                  {/* Action buttons */}
-                  <div className="mt-3 flex gap-2">
-                    {unlocked && !capsule.opened && (
-                      <PixelButton onClick={() => handleOpen(capsule)} size="sm" className="text-[8px] flex-1">
-                        🔓 BUKA KAPSUL
-                      </PixelButton>
-                    )}
-                    {unlocked && capsule.opened && (
-                      <PixelButton onClick={() => setReadingCapsule(capsule)} variant="secondary" size="sm" className="text-[8px] flex-1">
-                        📖 BACA LAGI
-                      </PixelButton>
-                    )}
-                    <PixelButton onClick={() => handleDelete(capsule.id)} variant="secondary" size="sm" className="text-[8px]">
-                      🗑️
-                    </PixelButton>
                   </div>
-                </div>
-
-                {/* Ornate pixel bottom border */}
-                <div className="h-2 w-full" style={{
-                  background: unlocked
-                    ? 'repeating-linear-gradient(90deg, #ffb300 0px, #ffb300 8px, #0c0a18 8px, #0c0a18 16px)'
-                    : 'repeating-linear-gradient(90deg, #ff69b4 0px, #ff69b4 8px, #0c0a18 8px, #0c0a18 16px)',
-                }} />
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          )}
         </div>
 
       </div>

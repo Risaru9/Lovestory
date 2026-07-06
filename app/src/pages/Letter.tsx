@@ -179,10 +179,10 @@ const Letter: React.FC = () => {
         </div>
       </header>
 
-      <main className="relative z-10 flex-1 max-w-3xl w-full mx-auto px-4 py-6 overflow-y-auto">
+      <main className="relative z-10 flex-1 max-w-3xl w-full mx-auto px-2 py-4 sm:px-4 sm:py-6 overflow-y-auto">
         
         {/* Envelope Container */}
-        <section className="mb-6">
+        <section className="mb-6 flex justify-center">
           {!isEnvelopeOpened ? (
             /* Interactive Closed Envelope Badge */
             <div 
@@ -191,44 +191,44 @@ const Letter: React.FC = () => {
                 setVisibleChars(0);
                 setSkipTyping(false);
               }}
-              className="mx-auto max-w-sm cursor-pointer group bg-[#121224] border-4 border-[#000000] rounded-xl p-6 text-center shadow-[4px_4px_0_#000000] hover:-translate-y-0.5 transition-all duration-150 text-[#ffffff]"
+              className="w-full max-w-[90%] md:max-w-xl cursor-pointer group bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl p-4 sm:p-6 text-center shadow-[4px_4px_0_#000000] hover:-translate-y-0.5 transition-all duration-150 text-[#ffffff]"
             >
-              <div className="relative w-32 h-24 mx-auto mb-4 bg-[#0c0a18] border-4 border-[#000000] rounded flex items-center justify-center shadow-[2px_2px_0_#000000] overflow-hidden group-hover:scale-102 transition-transform duration-150">
+              <div className="relative w-28 h-20 sm:w-32 sm:h-24 mx-auto mb-4 bg-[#0c0a18] border-2 sm:border-4 border-[#000000] rounded flex items-center justify-center shadow-[2px_2px_0_#000000] overflow-hidden group-hover:scale-102 transition-transform duration-150">
                 <div className="absolute inset-x-0 top-0 h-1/2 bg-black/[0.2] border-b-2 border-[#000000]" style={{ clipPath: 'polygon(0 0, 50% 100%, 100% 0)' }} />
-                <Heart className="w-10 h-10 text-[#ff69b4] fill-current animate-pulse z-10" />
+                <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-[#ff69b4] fill-current animate-pulse z-10" />
               </div>
-              <h3 className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] mb-2 tracking-wide select-none font-bold">
+              <h3 className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] text-[#ff69b4] mb-2 tracking-wide select-none font-bold">
                 YOU HAVE A LETTER
               </h3>
-              <p className="font-['VT323'] text-lg text-[#a0a0b0] select-none">
+              <p className="font-['VT323'] text-base sm:text-lg text-[#a0a0b0] select-none">
                 Ketuk amplop untuk membuka surat cinta dari pasanganmu
               </p>
             </div>
           ) : (
             /* Opened Envelope & Parchment Paper */
-            <div className="relative rounded-xl border-4 border-[#000000] bg-[#121224] text-white shadow-[4px_4px_0_#000000] overflow-hidden transition-all duration-150">
+            <div className="w-full max-w-[90%] md:max-w-xl relative rounded-xl border-2 sm:border-4 border-[#000000] bg-[#121224] text-white shadow-[4px_4px_0_#000000] overflow-hidden transition-all duration-150">
               <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
               
-              <div className="absolute top-4 right-4 flex items-center gap-2 select-none">
+              <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex items-center gap-2 select-none z-20">
                 <button
                   type="button"
                   onClick={() => setIsEnvelopeOpened(false)}
-                  className="font-['Press_Start_2P'] text-[7px] text-[#a0a0b0]/60 hover:text-[#ff69b4] transition-colors"
+                  className="font-['Press_Start_2P'] text-[7px] sm:text-[8px] text-[#a0a0b0]/65 hover:text-[#ff69b4] transition-colors p-2 min-h-[36px] flex items-center justify-center"
                 >
                   [TUTUP SURAT]
                 </button>
               </div>
 
-              <div className="px-5 py-6 md:px-8 md:py-8">
-                <div className="text-center mb-5 select-none">
-                  <h3 className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] mb-2.5 font-bold">
+              <div className="px-4 py-6 sm:px-6 md:px-8 sm:py-8">
+                <div className="text-center mb-4 sm:mb-5 select-none">
+                  <h3 className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] text-[#ff69b4] mb-2.5 font-bold">
                     ✉️ SURAT UNTUKKU
                   </h3>
-                  <div className="w-24 h-0.5 bg-[#000000]/30 mx-auto rounded-full" />
+                  <div className="w-20 sm:w-24 h-0.5 bg-[#000000]/30 mx-auto rounded-full" />
                 </div>
 
-                <div className="rounded-xl border border-[#000000]/30 bg-[#0c0a18] px-4 py-5 md:px-6 md:py-6">
-                  <div className="font-['VT323'] text-lg md:text-xl leading-relaxed whitespace-pre-line text-white min-h-[220px] font-semibold">
+                <div className="rounded-xl border border-[#000000]/30 bg-[#0c0a18] px-3 py-4 sm:px-4 sm:py-5 md:px-6 md:py-6">
+                  <div className="font-['VT323'] text-base sm:text-lg md:text-xl leading-relaxed whitespace-pre-line text-white min-h-[160px] max-h-[300px] overflow-y-auto custom-scrollbar pr-1 font-semibold">
                     {displayedText}
                     {!isTypingFinished && (
                       <span className="inline-block ml-0.5 animate-caret text-[#ff69b4] font-bold">▌</span>
@@ -239,7 +239,7 @@ const Letter: React.FC = () => {
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3 select-none">
                   <div className="flex items-center gap-2 text-[#a0a0b0]">
                     <Heart className="w-3.5 h-3.5 text-[#ff69b4] fill-current animate-pulse" />
-                    <span className="font-['VT323'] text-base uppercase tracking-wider font-semibold">
+                    <span className="font-['VT323'] text-sm sm:text-base uppercase tracking-wider font-semibold">
                       {isTypingFinished ? 'Telah selesai dibaca' : 'Surat sedang dibaca'}
                     </span>
                   </div>
@@ -248,7 +248,7 @@ const Letter: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSkipTyping(true)}
-                      className="rounded-lg border-2 border-[#000000] bg-[#222230] px-3 py-1 font-['VT323'] text-base text-[#a0a0b0] hover:bg-[#ff69b4] hover:text-black transition-all duration-100 shadow-[2px_2px_0_#000000] font-bold"
+                      className="rounded-lg border-2 border-[#000000] bg-[#222230] px-3 py-1.5 font-['VT323'] text-sm sm:text-base text-[#a0a0b0] hover:bg-[#ff69b4] hover:text-black transition-all duration-100 shadow-[2px_2px_0_#000000] font-bold min-h-[38px] flex items-center"
                     >
                       Tampilkan Semua
                     </button>
@@ -260,17 +260,17 @@ const Letter: React.FC = () => {
         </section>
 
         {/* Reply Section */}
-        <section className="rounded-xl border-4 border-[#000000] bg-[#121224] p-5 shadow-[4px_4px_0_#000000] mb-6 text-white">
+        <section className="mx-auto w-full max-w-[90%] md:max-w-xl rounded-xl border-2 sm:border-4 border-[#000000] bg-[#121224] p-4 sm:p-5 shadow-[4px_4px_0_#000000] mb-6 text-white">
           <div className="flex items-center gap-3 mb-4 select-none">
             <div className="rounded-lg bg-[#0c0a18] p-2 border border-[#000000]/30 shrink-0">
               <PenSquare className="w-4 h-4 text-[#ff69b4]" />
             </div>
 
             <div>
-              <h3 className="font-['Press_Start_2P'] text-[9px] md:text-[10px] text-white tracking-wide font-bold">
+              <h3 className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] md:text-[10px] text-white tracking-wide font-bold">
                 SURAT CINTAKU UNTUKNYA
               </h3>
-              <p className="font-['VT323'] text-base text-[#a0a0b0]">
+              <p className="font-['VT323'] text-sm sm:text-base text-[#a0a0b0] mt-0.5">
                 Tuliskan isi hati terdalammu untuk pasanganmu
               </p>
             </div>
@@ -286,13 +286,13 @@ const Letter: React.FC = () => {
                 }}
                 variant="primary"
                 size="sm"
-                className="text-[9px] px-6 py-3"
+                className="text-[9px] px-6 py-3 min-h-[44px] w-full sm:w-auto"
               >
                 💌 {myLetter ? 'EDIT SURAT CINTAKU' : 'TULIS SURAT CINTA'}
               </PixelButton>
             </div>
           ) : (
-            <div className="rounded-xl border-2 border-[#000000] bg-[#0c0a18]/40 p-4">
+            <div className="rounded-xl border-2 border-[#000000] bg-[#0c0a18]/40 p-3 sm:p-4">
               {!isSubmitted ? (
                 <>
                   <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 select-none font-bold">
@@ -303,7 +303,7 @@ const Letter: React.FC = () => {
                     value={replyInput}
                     onChange={(e) => setReplyInput(e.target.value)}
                     placeholder="Sayangku... (Tulis surat cintamu di sini)"
-                    className="w-full h-44 rounded-xl border-2 border-[#000000] bg-[#1a1a2a] px-3.5 py-3.5 text-[#ffffff] font-['VT323'] text-lg resize-none focus:outline-none focus:border-[#ff69b4] leading-relaxed transition-colors placeholder-[#a0a0b0]/40"
+                    className="w-full h-44 rounded-xl border-2 border-[#000000] bg-[#1a1a2a] px-3 sm:px-3.5 py-3 sm:py-3.5 text-[#ffffff] font-['VT323'] text-base sm:text-lg resize-none focus:outline-none focus:border-[#ff69b4] leading-relaxed transition-colors placeholder-[#a0a0b0]/40 min-h-[140px]"
                   />
 
                   <div className="mt-2 flex items-center justify-between gap-4 font-['VT323'] text-sm text-[#a0a0b0] select-none font-semibold">
@@ -311,13 +311,13 @@ const Letter: React.FC = () => {
                     <p>{trimmedReply ? 'Siap dikirim' : 'Kotak surat kosong'}</p>
                   </div>
 
-                  <div className="flex justify-center gap-3 mt-4">
+                  <div className="flex flex-col sm:flex-row justify-center gap-3 mt-4">
                     <PixelButton
                       type="button"
                       onClick={handleCancelReply}
                       variant="secondary"
                       size="sm"
-                      className="text-[9px] flex-1 max-w-[120px]"
+                      className="text-[9px] w-full sm:w-auto sm:flex-1 min-h-[44px]"
                     >
                       BATAL
                     </PixelButton>
@@ -328,7 +328,7 @@ const Letter: React.FC = () => {
                       disabled={!trimmedReply}
                       variant="primary"
                       size="sm"
-                      className="text-[9px] flex-1 max-w-[120px]"
+                      className="text-[9px] w-full sm:w-auto sm:flex-1 min-h-[44px]"
                     >
                       KIRIM 💕
                     </PixelButton>
@@ -337,10 +337,10 @@ const Letter: React.FC = () => {
               ) : (
                 <div className="text-center py-3 animate-soft-pop select-none">
                   <CheckCircle2 className="w-8 h-8 text-[#ff69b4] mx-auto mb-2" />
-                  <p className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] font-bold">
+                  <p className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] text-[#ff69b4] font-bold">
                     SURAT BERHASIL DIKIRIM!
                   </p>
-                  <p className="font-['VT323'] text-lg text-[#a0a0b0] mt-1 font-semibold">
+                  <p className="font-['VT323'] text-base sm:text-lg text-[#a0a0b0] mt-1 font-semibold">
                     Surat cintamu telah disegel dan siap dibaca oleh pasanganmu 💕
                   </p>
                 </div>
@@ -351,13 +351,13 @@ const Letter: React.FC = () => {
 
         {/* My Letter Draft */}
         {myLetter && !showReplyForm && (
-          <section className="rounded-xl border-4 border-[#000000] bg-[#121224] p-5 shadow-[4px_4px_0_#000000] text-white">
-            <div className="flex items-start justify-between gap-4 mb-3 select-none">
+          <section className="mx-auto w-full max-w-[90%] md:max-w-xl rounded-xl border-2 sm:border-4 border-[#000000] bg-[#121224] p-4 sm:p-5 shadow-[4px_4px_0_#000000] text-white">
+            <div className="flex items-start justify-between gap-4 mb-3 select-none flex-wrap">
               <div>
-                <h3 className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-wide font-bold">
+                <h3 className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] text-[#ff69b4] tracking-wide font-bold">
                   SURAT YANG KU-KIRIM
                 </h3>
-                <p className="font-['VT323'] text-sm text-[#a0a0b0]">
+                <p className="font-['VT323'] text-sm text-[#a0a0b0] mt-1">
                   Draft surat cinta aktif yang bisa dibaca pasanganmu
                 </p>
               </div>
@@ -365,14 +365,14 @@ const Letter: React.FC = () => {
               <button
                 type="button"
                 onClick={handleEditReply}
-                className="rounded-lg border-2 border-[#000000] bg-black/40 px-3 py-1 font-['Press_Start_2P'] text-[8px] text-white hover:bg-[#ff69b4] hover:text-black transition-colors shadow-[2px_2px_0_#000000] font-bold"
+                className="rounded-lg border-2 border-[#000000] bg-black/40 px-3 py-1 font-['Press_Start_2P'] text-[8px] text-white hover:bg-[#ff69b4] hover:text-black transition-colors shadow-[2px_2px_0_#000000] font-bold min-h-[38px] flex items-center justify-center"
               >
                 EDIT
               </button>
             </div>
 
-            <div className="rounded-lg border border-[#000000]/30 bg-[#0c0a18] px-4 py-4">
-              <p className="font-['VT323'] text-lg text-[#a0a0b0] whitespace-pre-line leading-relaxed font-semibold">
+            <div className="rounded-lg border border-[#000000]/30 bg-[#0c0a18] px-4 py-4 max-h-[220px] overflow-y-auto custom-scrollbar">
+              <p className="font-['VT323'] text-base sm:text-lg text-[#a0a0b0] whitespace-pre-line leading-relaxed font-semibold">
                 {myLetter}
               </p>
             </div>

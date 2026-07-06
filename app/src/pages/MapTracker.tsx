@@ -765,9 +765,9 @@ const MapTracker: React.FC = () => {
       </header>
 
       {/* Map & Sidebar Wrapper */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative min-h-0">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative min-h-0">
         {/* Map Container */}
-        <div className="w-full flex-1 lg:h-full relative z-10">
+        <div className="w-full h-[40vh] md:h-[60vh] relative z-10">
           <div ref={mapContainerCallbackRef} className="w-full h-full" />
 
           {permissionStatus !== 'granted' && (
@@ -921,25 +921,25 @@ const MapTracker: React.FC = () => {
         </div>
 
         {/* Sidebar / Bottom Sheet */}
-        <div className={`w-full bg-[#0a0d1f]/95 backdrop-blur-sm border-t border-white/[0.07] lg:border-t-0 lg:border-l lg:border-white/[0.07] z-20 flex flex-col transition-all duration-300 ease-in-out ${
+        <div className={`w-full bg-[#0a0d1f]/95 backdrop-blur-sm border-t border-white/[0.07] md:border-t-0 md:border-l md:border-white/[0.07] z-20 flex flex-col transition-all duration-300 ease-in-out ${
           isSidebarOpen
-            ? 'h-[55vh] lg:h-full lg:w-96'
-            : 'h-12 lg:h-full lg:w-11 overflow-hidden'
+            ? 'h-[55vh] md:h-full md:w-96'
+            : 'h-12 md:h-full md:w-11 overflow-hidden'
         }`}>
           {/* Toggle Header (acting as bottom drawer handle) */}
           <div
             onClick={() => {
-              if (window.innerWidth < 1024) {
+              if (window.innerWidth < 768) {
                 setIsSidebarOpen(!isSidebarOpen);
                 setTimeout(() => { map?.invalidateSize(); }, 320);
               }
             }}
-            className={`flex items-center flex-shrink-0 border-b border-white/[0.06] px-4 py-2.5 cursor-pointer lg:cursor-default select-none bg-black/10 ${
+            className={`flex items-center flex-shrink-0 border-b border-white/[0.06] px-4 py-2.5 cursor-pointer md:cursor-default select-none bg-black/10 ${
               isSidebarOpen ? 'justify-between' : 'justify-center'
             }`}
           >
             {/* Drawer handle pill for mobile view */}
-            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 bg-white/20 rounded-full lg:hidden" />
+            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 bg-white/20 rounded-full md:hidden" />
 
             {isSidebarOpen && (
               <span className="text-[10px] font-medium text-white/40 tracking-widest uppercase">Panel Kontrol</span>
@@ -957,11 +957,11 @@ const MapTracker: React.FC = () => {
               title={isSidebarOpen ? 'Sembunyikan Panel' : 'Tampilkan Panel'}
             >
               {/* Mobile Up/Down Chevrons */}
-              <span className="lg:hidden">
+              <span className="md:hidden">
                 {isSidebarOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
               </span>
               {/* Desktop Left/Right Chevrons */}
-              <span className="hidden lg:inline">
+              <span className="hidden md:inline">
                 {isSidebarOpen ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
               </span>
             </button>

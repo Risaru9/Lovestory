@@ -308,12 +308,12 @@ const Home: React.FC = () => {
       <div className="relative z-10 flex h-full flex-col items-center justify-between px-4 py-6 md:py-8">
         
         {/* Top bar: Title & Music Control */}
-        <div className="w-full flex flex-col items-center gap-3">
+        <div className="w-full flex flex-col items-center gap-2 sm:gap-3">
           <div className="text-center">
-            <p className="mb-1.5 font-['VT323'] text-base md:text-lg text-[#a0a0b0] tracking-widest uppercase font-bold">
+            <p className="mb-1 font-['VT323'] text-sm sm:text-base md:text-lg text-[#a0a0b0] tracking-widest uppercase font-bold">
               Press Start to Continue Our Journey
             </p>
-            <h1 className="font-['Press_Start_2P'] text-xl sm:text-2xl md:text-3xl leading-none text-[#ffffff] drop-shadow-[2.5px_2.5px_0_#ff69b4] tracking-wider font-bold">
+            <h1 className="font-['Press_Start_2P'] text-lg sm:text-xl md:text-3xl leading-none text-[#ffffff] drop-shadow-[2px_2px_0_#ff69b4] md:drop-shadow-[2.5px_2.5px_0_#ff69b4] tracking-wider font-bold">
               OUR LOVE STORY
             </h1>
           </div>
@@ -321,7 +321,7 @@ const Home: React.FC = () => {
           <button
             type="button"
             onClick={handleToggleMusic}
-            className="inline-flex items-center gap-2 rounded-full border-4 border-[#000000] bg-[#121224] px-3.5 py-1.5 text-[#ffffff] transition hover:bg-[#ff69b4] hover:text-black active:scale-95 text-xs shadow-[4px_4px_0_#000000] font-bold"
+            className="inline-flex items-center gap-2 rounded-full border-2 sm:border-4 border-[#000000] bg-[#121224] px-3 py-1 sm:px-3.5 sm:py-1.5 text-[#ffffff] transition hover:bg-[#ff69b4] hover:text-black active:scale-95 text-xs shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000] font-bold"
             aria-label={musicEnabled ? 'Turn music off' : 'Turn music on'}
           >
             {musicEnabled ? (
@@ -329,15 +329,15 @@ const Home: React.FC = () => {
             ) : (
               <VolumeX className="h-3.5 w-3.5 text-[#a0a0b0]/40" />
             )}
-            <span className="font-['VT323'] text-base tracking-wide">
+            <span className="font-['VT323'] text-sm sm:text-base tracking-wide">
               {musicEnabled ? 'BGM ON' : 'BGM OFF'}
             </span>
           </button>
         </div>
 
         {/* Center: Main Menu Retro Console Board */}
-        <div className="w-full max-w-[340px] sm:max-w-[360px] bg-[#121224] border-4 border-[#000000] rounded-xl p-4 shadow-[6px_6px_0_#000000] relative">
-          <div className="mb-3.5 flex items-center justify-between border-b-2 border-[#000000] pb-2 select-none">
+        <div className="w-full max-w-[310px] sm:max-w-[360px] bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl p-3 sm:p-4 shadow-[4px_4px_0_#000000] sm:shadow-[6px_6px_0_#000000] relative">
+          <div className="mb-2.5 sm:mb-3.5 flex items-center justify-between border-b-2 border-[#000000] pb-2 select-none">
             <span className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-widest font-bold">
               MAIN MENU
             </span>
@@ -346,7 +346,7 @@ const Home: React.FC = () => {
             </span>
           </div>
 
-          <div className="space-y-1.5 max-h-[35vh] sm:max-h-[45vh] overflow-y-auto pr-0.5 custom-scrollbar">
+          <div className="space-y-1.5 max-h-[45vh] sm:max-h-[55vh] overflow-y-auto pr-0.5 custom-scrollbar">
             {menuItems.map((item, index) => {
               const isSelected = selectedIndex === index;
               const isEnabled = item.enabled !== false;
@@ -360,7 +360,7 @@ const Home: React.FC = () => {
                   onClick={(event) => handleMenuClick(item, event)}
                   disabled={!isEnabled}
                   className={[
-                    'w-full px-3.5 py-2.5 text-left transition-all duration-100 flex items-center gap-3 font-["Press_Start_2P"] text-[9px] border-4 rounded-xl font-bold',
+                    'w-full px-2.5 py-2 sm:px-3.5 sm:py-2.5 text-left transition-all duration-100 flex items-center gap-3 font-["Press_Start_2P"] text-[8px] sm:text-[9px] border-2 sm:border-4 rounded-xl font-bold min-h-[38px] sm:min-h-[44px]',
                     isEnabled
                       ? isSelected
                         ? 'border-[#000000] bg-[#ff69b4] text-[#000000] shadow-[2px_2px_0_#000000] translate-x-0.5 translate-y-0.5'
@@ -369,7 +369,7 @@ const Home: React.FC = () => {
                   ].join(' ')}
                   aria-label={item.label}
                 >
-                  <span className="w-5 text-center text-xs shrink-0">{item.icon}</span>
+                  <span className="w-4 sm:w-5 text-center text-xs shrink-0">{item.icon}</span>
 
                   <span>
                     {item.label}
@@ -391,48 +391,67 @@ const Home: React.FC = () => {
         </div>
 
         {/* Bottom bar: Instruction & Walking Character Sprites */}
-        <div className="w-full flex flex-col items-center gap-3">
+        <div className="w-full flex flex-col items-center gap-2 sm:gap-3">
           <div className="text-center">
-            <p className="font-['VT323'] text-sm md:text-base text-[#a0a0b0]/70 tracking-wider font-bold">
+            <p className="font-['VT323'] text-xs sm:text-sm md:text-base text-[#a0a0b0]/70 tracking-wider font-bold">
               Use ↑ ↓ key to navigate · ENTER to select
             </p>
           </div>
 
           {/* Mobile Character Deck (Side-by-side sprites below console card) */}
-          <div className="flex gap-8 items-center justify-center lg:hidden pointer-events-none">
+          <div className="flex gap-4 sm:gap-8 items-center justify-center xl:hidden pointer-events-none">
             <img
               src="/images/sprites/char-boy.png"
               alt="Character boy"
-              className="h-16 w-16 pixel-art animate-character-left"
+              className="h-12 w-12 sm:h-16 sm:w-16 pixel-art animate-character-left"
             />
-            <span className="text-sm animate-pulse">💕</span>
+            <span className="text-xs sm:text-sm animate-pulse">💕</span>
             <img
               src="/images/sprites/char-girl.png"
               alt="Character girl"
-              className="h-16 w-16 pixel-art animate-character-right"
+              className="h-12 w-12 sm:h-16 sm:w-16 pixel-art animate-character-right"
             />
           </div>
         </div>
 
         {/* Desktop Corner Sprites */}
-        <div className="pointer-events-none absolute bottom-5 left-8 hidden lg:block">
+        <div className="pointer-events-none absolute bottom-5 left-8 hidden xl:block">
           <img
             src="/images/sprites/char-boy.png"
             alt="Character boy"
-            className="h-32 w-32 pixel-art animate-character-left"
+            className="h-24 w-24 xl:h-32 xl:w-32 pixel-art animate-character-left"
           />
         </div>
 
-        <div className="pointer-events-none absolute bottom-5 right-8 hidden lg:block">
+        <div className="pointer-events-none absolute bottom-5 right-8 hidden xl:block">
           <img
             src="/images/sprites/char-girl.png"
             alt="Character girl"
-            className="h-32 w-32 pixel-art animate-character-right"
+            className="h-24 w-24 xl:h-32 xl:w-32 pixel-art animate-character-right"
           />
         </div>
       </div>
 
       <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #121224;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #ff69b4;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #ff8da1;
+        }
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #ff69b4 #121224;
+        }
+
         @keyframes float-up-heart {
           0% {
             transform: translateY(0) scale(1);

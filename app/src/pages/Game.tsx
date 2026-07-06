@@ -167,17 +167,21 @@ const Game: React.FC<GameProps> = ({ initialMode }) => {
   const currentHighScore = getHighScore(currentMode);
   const isNewRecord = gameStats.score > currentHighScore && gameStats.score > 0;
 
-  // Keyboard controls
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && gameStatus === 'playing') {
-        togglePause();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gameStatus, togglePause]);
+  // Virtual D-pad movement handlers
+  const handleLeftStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
+  };
+  const handleLeftEnd = () => {
+    window.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowLeft' }));
+  };
+  const handleRightStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+  };
+  const handleRightEnd = () => {
+    window.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight' }));
+  };
 
   return (
     <div className="min-h-screen bg-[#1A1A2E] flex flex-col font-sans select-none overflow-hidden">
@@ -244,28 +248,68 @@ const Game: React.FC<GameProps> = ({ initialMode }) => {
         )}
 
         {gameStatus === 'playing' && (
-          <>
-            <GameHUD
-              score={state.score}
-              lives={state.lives}
-              timeLeft={state.timeLeft}
-              level={state.level}
-              combo={state.combo}
-              mode={currentMode}
-              activeEffects={state.activeEffects}
-            />
-            <GameCanvas
-              hearts={state.hearts}
-              particles={state.particles}
-              floatingTexts={state.floatingTexts}
-              playerX={state.playerX}
-              screenShake={state.screenShake}
-              screenFlip={state.screenFlip}
-              hasShield={state.activeEffects.some(e => e.id === 'shield')}
-              isPaused={state.isPaused}
-              onPlayerMove={setPlayerX}
-            />
-          </>
+          <div className="flex flex-col items-center justify-center h-full w-full p-2 sm:p-4 bg-[#0c0a18]/45">
+            {/* Game Screen Wrapper (HUD + Canvas) */}
+            <div className="w-full max-w-md aspect-square bg-[#0c0a18]/90 relative overflow-hidden border-4 border-black shadow-[4px_4px_0_#000000] rounded-xl flex flex-col">
+              <GameHUD
+                score={state.score}
+                lives={state.lives}
+                timeLeft={state.timeLeft}
+                level={state.level}
+                combo={state.combo}
+                mode={currentMode}
+                activeEffects={state.activeEffects}
+              />
+              <div className="flex-1 relative overflow-hidden">
+                <GameCanvas
+                  hearts={state.hearts}
+                  particles={state.particles}
+                  floatingTexts={state.floatingTexts}
+                  playerX={state.playerX}
+                  screenShake={state.screenShake}
+                  screenFlip={state.screenFlip}
+                  hasShield={state.activeEffects.some(e => e.id === 'shield')}
+                  isPaused={state.isPaused}
+                  onPlayerMove={setPlayerX}
+                />
+              </div>
+            </div>
+
+            {/* D-Pad Buttons */}
+            <div className="mt-4 flex justify-between items-center w-full max-w-md px-6 select-none touch-none">
+              <button
+                onTouchStart={handleLeftStart}
+                onTouchEnd={handleLeftEnd}
+                onTouchCancel={handleLeftEnd}
+                onMouseDown={handleLeftStart}
+                onMouseUp={handleLeftEnd}
+                onMouseLeave={handleLeftEnd}
+                className="w-16 h-16 min-h-[44px] min-w-[44px] flex items-center justify-center bg-[#FF69B4] border-4 border-black text-white font-['Press_Start_2P'] text-xl rounded-xl active:translate-y-1 active:border-b-2 shadow-[4px_4px_0_#000000] select-none touch-none"
+                style={{ touchAction: 'none' }}
+                aria-label="Move Left"
+              >
+                ◀
+              </button>
+              
+              <div className="font-['VT323'] text-sm text-[#FF69B4]/80 text-center animate-pulse">
+                TOUCH TO MOVE
+              </div>
+
+              <button
+                onTouchStart={handleRightStart}
+                onTouchEnd={handleRightEnd}
+                onTouchCancel={handleRightEnd}
+                onMouseDown={handleRightStart}
+                onMouseUp={handleRightEnd}
+                onMouseLeave={handleRightEnd}
+                className="w-16 h-16 min-h-[44px] min-w-[44px] flex items-center justify-center bg-[#FF69B4] border-4 border-black text-white font-['Press_Start_2P'] text-xl rounded-xl active:translate-y-1 active:border-b-2 shadow-[4px_4px_0_#000000] select-none touch-none"
+                style={{ touchAction: 'none' }}
+                aria-label="Move Right"
+              >
+                ▶
+              </button>
+            </div>
+          </div>
         )}
 
         {gameStatus === 'gameover' && (

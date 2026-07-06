@@ -134,7 +134,7 @@ const DreamVault: React.FC = () => {
   return (
     <div className="h-[100dvh] max-h-[100dvh] bg-[#0c0a18] relative flex flex-col overflow-hidden text-[#ffffff]">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b-4 border-[#000000] bg-[#121224] px-4 py-3 w-full shrink-0">
+      <header className="sticky top-0 z-40 border-b-2 sm:border-b-4 border-[#000000] bg-[#121224] px-4 py-3 w-full shrink-0">
         <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
           <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px] shrink-0">
             ← MENU
@@ -154,7 +154,7 @@ const DreamVault: React.FC = () => {
       <div className="flex-1 w-full max-w-4xl mx-auto px-4 py-5 overflow-y-auto z-10 space-y-5">
 
         {/* Stats Bar */}
-        <div className="bg-[#121224] border-4 border-[#000000] shadow-[4px_4px_0_#000000] p-3 flex justify-between items-center">
+        <div className="bg-[#121224] border-2 sm:border-4 border-[#000000] shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000] p-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="text-lg">📌</span>
             <span className="font-['Press_Start_2P'] text-[8px] text-[#a0a0b0]">
@@ -171,7 +171,7 @@ const DreamVault: React.FC = () => {
 
         {/* Add Dream Form */}
         {showForm && (
-          <div className="bg-[#121224] border-4 border-[#000000] shadow-[4px_4px_0_#000000] p-4 space-y-3">
+          <div className="bg-[#121224] border-2 sm:border-4 border-[#000000] shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000] p-4 space-y-3">
             <h2 className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] mb-2">IMPIAN BARU</h2>
 
             <div>
@@ -182,7 +182,7 @@ const DreamVault: React.FC = () => {
                 onChange={e => setTitle(e.target.value)}
                 placeholder="Mimpimu apa?"
                 maxLength={60}
-                className="w-full bg-[#1a1a2a] border-4 border-[#000000] text-[#ffffff] font-['VT323'] text-lg px-3 py-2 outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/40"
+                className="w-full bg-[#1a1a2a] border-2 sm:border-4 border-[#000000] text-[#ffffff] font-['VT323'] text-lg px-3 py-1.5 sm:py-2 outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/40"
               />
             </div>
 
@@ -194,7 +194,7 @@ const DreamVault: React.FC = () => {
                 placeholder="Ceritakan lebih detail..."
                 maxLength={200}
                 rows={3}
-                className="w-full bg-[#1a1a2a] border-4 border-[#000000] text-[#ffffff] font-['VT323'] text-lg px-3 py-2 outline-none focus:border-[#ff69b4] resize-none placeholder:text-[#a0a0b0]/40"
+                className="w-full bg-[#1a1a2a] border-2 sm:border-4 border-[#000000] text-[#ffffff] font-['VT323'] text-lg px-3 py-1.5 sm:py-2 outline-none focus:border-[#ff69b4] resize-none placeholder:text-[#a0a0b0]/40"
               />
             </div>
 
@@ -203,7 +203,7 @@ const DreamVault: React.FC = () => {
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value)}
-                className="w-full bg-[#1a1a2a] border-4 border-[#000000] text-[#ffffff] font-['VT323'] text-lg px-3 py-2 outline-none focus:border-[#ff69b4]"
+                className="w-full bg-[#1a1a2a] border-2 sm:border-4 border-[#000000] text-[#ffffff] font-['VT323'] text-lg px-3 py-1.5 sm:py-2 outline-none focus:border-[#ff69b4]"
               >
                 {CATEGORIES.map(cat => (
                   <option key={cat.value} value={cat.value}>{cat.label}</option>
@@ -224,7 +224,7 @@ const DreamVault: React.FC = () => {
 
         {/* Dream Cards Grid */}
         {dreams.length === 0 ? (
-          <div className="bg-[#121224] border-4 border-[#000000] shadow-[4px_4px_0_#000000] p-8 text-center">
+          <div className="bg-[#121224] border-2 sm:border-4 border-[#000000] shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000] p-8 text-center">
             <div className="text-4xl mb-3">🌙</div>
             <p className="font-['Press_Start_2P'] text-[9px] text-[#a0a0b0] mb-2">BELUM ADA IMPIAN</p>
             <p className="font-['VT323'] text-base text-[#a0a0b0]">
@@ -232,22 +232,27 @@ const DreamVault: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-3">
             {dreams.map(dream => {
               const config = STATUS_CONFIG[dream.status];
               const isTercapai = dream.status === 'tercapai';
               return (
                 <div
                   key={dream.id}
-                  className="relative border-4 shadow-[4px_4px_0_#000000] p-4 transition-all duration-200"
+                  className="relative border-2 sm:border-4 shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000] p-4 pt-5 transition-all duration-200"
                   style={{
                     backgroundColor: config.color,
                     borderColor: config.borderColor,
                   }}
                 >
+                  {/* Pin emoji at top center to look like a pinned sticky note */}
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-sm select-none z-10 filter drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
+                    📌
+                  </div>
+
                   {/* Sparkle for Tercapai */}
                   {isTercapai && (
-                    <div className="absolute -top-2 -right-2 text-lg animate-pulse">✨</div>
+                    <div className="absolute top-1 right-1 text-xs animate-pulse">✨</div>
                   )}
 
                   {/* Category & Status */}
@@ -256,7 +261,7 @@ const DreamVault: React.FC = () => {
                     <button
                       onClick={() => handleToggleStatus(dream.id)}
                       className={[
-                        'font-[\'Press_Start_2P\'] text-[7px] px-2 py-1 border-2 border-[#000000] transition-colors',
+                        'font-[\'Press_Start_2P\'] text-[6px] px-2 py-1 border border-black hover:border-2 transition-all',
                         dream.status === 'impian' ? 'bg-[#0c0a18] text-[#a0a0b0] hover:bg-[#ff69b4] hover:text-[#000000]' : '',
                         dream.status === 'dalam_proses' ? 'bg-[#ff69b4] text-[#000000] hover:bg-[#ffb300]' : '',
                         dream.status === 'tercapai' ? 'bg-[#ffb300] text-[#000000] hover:bg-[#0c0a18] hover:text-[#a0a0b0]' : '',
@@ -268,7 +273,7 @@ const DreamVault: React.FC = () => {
 
                   {/* Title */}
                   <h3 className={[
-                    "font-['Press_Start_2P'] text-[8px] leading-relaxed mb-2",
+                    "font-['Press_Start_2P'] text-[8px] leading-relaxed mb-2 break-words",
                     isTercapai ? 'text-[#ffb300]' : 'text-[#ffffff]',
                   ].join(' ')}>
                     {dream.title}
@@ -276,13 +281,13 @@ const DreamVault: React.FC = () => {
 
                   {/* Description */}
                   {dream.description && (
-                    <p className="font-['VT323'] text-sm text-[#a0a0b0] mb-3 leading-tight">
+                    <p className="font-['VT323'] text-sm text-[#a0a0b0] mb-3 leading-tight break-words">
                       {dream.description}
                     </p>
                   )}
 
                   {/* Footer */}
-                  <div className="flex justify-between items-center pt-2 border-t-2 border-[#000000]/30">
+                  <div className="flex justify-between items-center pt-2 border-t border-[#000000]/30">
                     <span className="font-['VT323'] text-xs text-[#a0a0b0]/60">
                       {new Date(dream.createdAt).toLocaleDateString('id-ID')}
                     </span>
@@ -300,7 +305,7 @@ const DreamVault: React.FC = () => {
         )}
 
         {/* XP Info */}
-        <div className="bg-[#1a1a2a] border-4 border-[#000000] p-3 text-center">
+        <div className="bg-[#1a1a2a] border-2 sm:border-4 border-[#000000] p-3 text-center">
           <p className="font-['VT323'] text-sm text-[#a0a0b0]">
             Tambah impian: +10 Intimacy XP · Tercapai: +20 Trust XP
           </p>

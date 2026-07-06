@@ -273,29 +273,29 @@ const Timeline: React.FC = () => {
               </div>
 
               {/* Status bar */}
-              <div className="grid grid-cols-3 gap-2.5 mb-8">
-                <div className="rounded-xl border-4 border-[#000000] bg-[#121224] p-3 text-center shadow-[2px_2px_0_#000000] select-none text-[#ffffff]">
-                  <div className="font-['Press_Start_2P'] text-[7px] text-[#a0a0b0]/40 font-bold">KISAH KITA</div>
-                  <div className="mt-1.5 font-['VT323'] text-2xl text-[#ff69b4] leading-none font-bold">{chaptersList.length} Bab</div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 mb-6 sm:mb-8">
+                <div className="rounded-xl border-2 sm:border-4 border-[#000000] bg-[#121224] p-2.5 sm:p-3 text-center shadow-[2px_2px_0_#000000] select-none text-[#ffffff]">
+                  <div className="font-['Press_Start_2P'] text-[6px] sm:text-[7px] text-[#a0a0b0]/40 font-bold">KISAH KITA</div>
+                  <div className="mt-1 font-['VT323'] text-xl sm:text-2xl text-[#ff69b4] leading-none font-bold">{chaptersList.length} Bab</div>
                 </div>
-                <div className="rounded-xl border-4 border-[#000000] bg-[#121224] p-3 text-center shadow-[2px_2px_0_#000000] min-w-0 select-none text-[#ffffff]">
-                  <div className="font-['Press_Start_2P'] text-[7px] text-[#a0a0b0]/40 font-bold">KERAJAAN AKTIF</div>
-                  <div className="mt-1.5 font-['VT323'] text-xs text-[#2196f3] leading-none truncate uppercase tracking-wider font-bold">
+                <div className="rounded-xl border-2 sm:border-4 border-[#000000] bg-[#121224] p-2.5 sm:p-3 text-center shadow-[2px_2px_0_#000000] min-w-0 select-none text-[#ffffff]">
+                  <div className="font-['Press_Start_2P'] text-[6px] sm:text-[7px] text-[#a0a0b0]/40 font-bold">KERAJAAN AKTIF</div>
+                  <div className="mt-1 font-['VT323'] text-sm sm:text-base text-[#2196f3] leading-none truncate uppercase tracking-wider font-bold">
                     {currentActiveChapter ? currentActiveChapter.title : 'Petualangan'}
                   </div>
                 </div>
-                <div className="rounded-xl border-4 border-[#000000] bg-[#121224] p-3 text-center shadow-[2px_2px_0_#000000] select-none text-[#ffffff]">
-                  <div className="font-['Press_Start_2P'] text-[7px] text-[#a0a0b0]/40 font-bold">ACHIEVEMENTS</div>
-                  <div className="mt-1.5 font-['VT323'] text-2xl text-[#ffb300] leading-none font-bold">{chaptersList.length}</div>
+                <div className="rounded-xl border-2 sm:border-4 border-[#000000] bg-[#121224] p-2.5 sm:p-3 text-center shadow-[2px_2px_0_#000000] select-none text-[#ffffff]">
+                  <div className="font-['Press_Start_2P'] text-[6px] sm:text-[7px] text-[#a0a0b0]/40 font-bold">ACHIEVEMENTS</div>
+                  <div className="mt-1 font-['VT323'] text-xl sm:text-2xl text-[#ffb300] leading-none font-bold">{chaptersList.length}</div>
                 </div>
               </div>
 
               {chaptersList.length === 0 ? (
-                <div className="text-center py-20 bg-[#121224] border-4 border-[#000000] rounded-xl p-6 shadow-[4px_4px_0_#000000]">
-                  <p className="font-['Press_Start_2P'] text-[9px] text-[#a0a0b0]/35 mb-3 font-bold">
+                <div className="text-center py-16 sm:py-20 bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl p-5 sm:p-6 shadow-[3px_3px_0_#000000] sm:shadow-[4px_4px_0_#000000]">
+                  <p className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] text-[#a0a0b0]/35 mb-3 font-bold">
                     MAP MASIH KOSONG...
                   </p>
-                  <p className="font-['VT323'] text-base text-[#a0a0b0] mb-6 font-semibold">
+                  <p className="font-['VT323'] text-sm sm:text-base text-[#a0a0b0] mb-4 sm:mb-6 font-semibold">
                     Kalian belum menulis kisah perjalanan cinta kalian.<br />
                     Klik tombol di atas untuk memulai petualangan pertama!
                   </p>
@@ -303,27 +303,27 @@ const Timeline: React.FC = () => {
               ) : (
                 <>
                   {/* Timeline bar */}
-                  <div className="absolute md:left-1/2 left-8 top-[10%] bottom-[12%] w-[6px] bg-[#000000]/30 rounded-full -translate-x-1/2 z-0" />
+                  <div className="absolute sm:left-1/2 left-6 top-[10%] bottom-[12%] w-[6px] bg-[#000000]/30 rounded-full -translate-x-1/2 z-0" />
                   <div
-                    className="absolute md:left-1/2 left-8 top-[10%] w-[6px] bg-[#ffb300] border-2 border-[#000000] rounded-full -translate-x-1/2 transition-all duration-300 z-0"
+                    className="absolute sm:left-1/2 left-6 top-[10%] w-[6px] bg-[#ffb300] border-2 border-[#000000] rounded-full -translate-x-1/2 transition-all duration-300 z-0"
                     style={{ height: progressHeight, maxHeight: '78%' }}
                   />
 
                   {/* Character sprite */}
                   <div
-                    className="absolute md:left-1/2 left-8 -translate-x-1/2 z-20 transition-all duration-300 select-none"
+                    className="absolute sm:left-1/2 left-6 -translate-x-1/2 z-20 transition-all duration-300 select-none"
                     style={{ top: `${characterY}%` }}
                   >
                     <div className="relative">
                       <img
                         src="/images/sprites/char-boy.png"
                         alt="Player"
-                        className="relative w-12 h-12 md:w-14 md:h-14 pixel-art animate-float"
+                        className="relative w-10 h-10 sm:w-14 sm:h-14 pixel-art animate-float"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-12 relative z-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 sm:gap-y-12 pl-12 sm:pl-0 relative z-10">
                     {chaptersList.map((chapter, index) => {
                       const isReached = index <= activeChapterIndex;
                       const isEven = index % 2 === 0;
@@ -331,82 +331,75 @@ const Timeline: React.FC = () => {
                       return (
                         <div
                           key={chapter.id}
-                          className={`flex items-center gap-4 md:gap-8 flex-row-reverse md:flex-row ${
-                            isEven ? '' : 'md:flex-row-reverse'
-                          }`}
+                          className="relative flex flex-col justify-center min-h-[140px]"
                         >
-                          <div className={`flex-1 ${isEven ? 'md:text-right' : 'md:text-left'} text-left`}>
-                            <div
-                              className={[
-                                'inline-block w-full max-w-[280px] md:max-w-sm rounded-xl px-4 py-4 cursor-pointer transition-all duration-150 bg-[#121224] border-4 border-[#000000] hover:border-[#ff69b4] shadow-[4px_4px_0_#000000] relative overflow-hidden text-white',
-                                isReached ? 'border-[#ff69b4]' : '',
-                              ].join(' ')}
-                              onClick={(event) => handleChapterClick(chapter, event)}
-                            >
-                              <div
-                                className={`flex items-center gap-2 mb-2 ${isEven ? 'md:justify-end' : 'md:justify-start'} justify-start select-none`}
-                              >
-                                <span className="font-['Press_Start_2P'] text-[7px] text-[#ff69b4] tracking-wider font-bold">
-                                  MONTH {chapter.month}
+                          <div
+                            className={[
+                              'w-full rounded-xl px-3 py-3 sm:px-4 sm:py-4 cursor-pointer transition-all duration-150 bg-[#121224] border-2 sm:border-4 border-[#000000] hover:border-[#ff69b4] shadow-[3px_3px_0_#000000] sm:shadow-[4px_4px_0_#000000] relative overflow-hidden text-white',
+                              isReached ? 'border-[#ff69b4]' : '',
+                            ].join(' ')}
+                            onClick={(event) => handleChapterClick(chapter, event)}
+                          >
+                            <div className="flex items-center gap-2 mb-1.5 select-none">
+                              <span className="font-['Press_Start_2P'] text-[7px] text-[#ff69b4] tracking-wider font-bold">
+                                MONTH {chapter.month}
+                              </span>
+                              {isReached && (
+                                <span className="font-['Press_Start_2P'] text-[6px] text-[#2196f3] tracking-wider uppercase border border-[#2196f3] px-1 rounded-sm font-bold">
+                                  aktif
                                 </span>
-                                {isReached && (
-                                  <span className="font-['Press_Start_2P'] text-[6px] text-[#2196f3] tracking-wider uppercase border border-[#2196f3] px-1 rounded-sm font-bold">
-                                    aktif
-                                  </span>
-                                )}
-                              </div>
-
-                              <h3 className="font-['Press_Start_2P'] text-[9px] text-white leading-normal mb-1.5 tracking-wide uppercase font-bold">
-                                {chapter.title}
-                              </h3>
-
-                              <div className="font-['VT323'] text-sm text-[#a0a0b0] tracking-wider font-semibold">
-                                {chapter.date}
-                              </div>
-
-                              {chapter.description && (
-                                <p className="font-['VT323'] text-base text-[#a0a0b0] mt-2 leading-relaxed">
-                                  {chapter.description}
-                                </p>
                               )}
+                            </div>
 
-                              <div className={`mt-3 flex ${isEven ? 'md:justify-end' : 'md:justify-start'} justify-start select-none`}>
-                                <div className="inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5 bg-[#4caf50]/10 border border-[#4caf50]/30">
-                                  <span className="text-[#4caf50] text-xs font-bold">✓</span>
-                                  <span className="font-['VT323'] text-xs text-[#4caf50] uppercase tracking-wider font-bold">
-                                    Completed
-                                  </span>
-                                </div>
+                            <h3 className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] text-white leading-normal mb-1 tracking-wide uppercase font-bold">
+                              {chapter.title}
+                            </h3>
+
+                            <div className="font-['VT323'] text-xs sm:text-sm text-[#a0a0b0] tracking-wider font-semibold">
+                              {chapter.date}
+                            </div>
+
+                            {chapter.description && (
+                              <p className="font-['VT323'] text-sm sm:text-base text-[#a0a0b0] mt-1.5 leading-relaxed line-clamp-2">
+                                {chapter.description}
+                              </p>
+                            )}
+
+                            <div className="mt-2.5 flex select-none">
+                              <div className="inline-flex items-center gap-1 rounded-lg px-1.5 py-0.5 bg-[#4caf50]/10 border border-[#4caf50]/30">
+                                <span className="text-[#4caf50] text-[10px] font-bold">✓</span>
+                                <span className="font-['VT323'] text-[10px] sm:text-xs text-[#4caf50] uppercase tracking-wider font-bold">
+                                  Completed
+                                </span>
                               </div>
                             </div>
                           </div>
 
-                          {/* Center Node Star */}
-                          <div className="w-16 md:w-28 flex justify-center items-center shrink-0 select-none">
-                            <div
-                              className={[
-                                'relative w-10 h-10 rounded-full flex items-center justify-center border-2 z-10 transition-all duration-150 shrink-0 cursor-pointer',
-                                isReached
-                                  ? 'bg-[#ffb300] border-2 border-[#000000] text-black shadow-[2px_2px_0_#000000] font-bold'
-                                  : 'bg-[#222230] border-2 border-[#000000] text-[#a0a0b0]/30 hover:text-white',
-                              ].join(' ')}
-                              onClick={(event) => handleChapterClick(chapter, event)}
-                            >
-                              <span className="text-sm font-bold">★</span>
-                            </div>
+                          {/* Node Star */}
+                          <div
+                            className={[
+                              'absolute top-1/2 -translate-y-1/2 z-10 transition-all duration-150 shrink-0 cursor-pointer',
+                              'w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2 border-black',
+                              '-left-10 sm:left-auto sm:right-auto',
+                              isEven ? 'sm:-right-[44px]' : 'sm:-left-[44px]',
+                              isReached
+                                ? 'bg-[#ffb300] text-black shadow-[1.5px_1.5px_0_#000000] sm:shadow-[2px_2px_0_#000000] font-bold'
+                                : 'bg-[#222230] text-[#a0a0b0]/30 hover:text-white',
+                            ].join(' ')}
+                            onClick={(event) => handleChapterClick(chapter, event)}
+                          >
+                            <span className="text-xs sm:text-sm font-bold">★</span>
                           </div>
-
-                          <div className="hidden md:block flex-1" />
                         </div>
                       );
                     })}
                   </div>
 
-                  <div className="text-center mt-16 select-none z-10 relative">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[#ffb300] border-2 border-[#000000] rounded-full shadow-[3px_3px_0_#000000] animate-pulse">
-                      <span className="text-2xl">🏆</span>
+                  <div className="text-center mt-12 sm:mt-16 select-none z-10 relative">
+                    <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-[#ffb300] border-2 border-[#000000] rounded-full shadow-[2px_2px_0_#000000] sm:shadow-[3px_3px_0_#000000] animate-pulse">
+                      <span className="text-xl sm:text-2xl">🏆</span>
                     </div>
-                    <p className="font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mt-4 tracking-widest font-bold">
+                    <p className="font-['Press_Start_2P'] text-[7px] sm:text-[8px] text-[#ff69b4] mt-4 tracking-widest font-bold">
                       KISAH KITA BERLANJUT...
                     </p>
                   </div>
@@ -430,10 +423,10 @@ const Timeline: React.FC = () => {
 
       {/* Modal Tambah Kisah Baru */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#121224] border-4 border-[#000000] rounded-xl w-full max-w-md p-5 shadow-[6px_6px_0_#000000] max-h-[85vh] overflow-y-auto text-[#ffffff]">
-            <div className="flex justify-between items-center border-b-2 border-[#000000] pb-3 mb-4 select-none">
-              <h3 className="font-['Press_Start_2P'] text-[#ff69b4] text-[9px] tracking-wide uppercase font-bold">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl w-full max-w-md p-4 sm:p-5 shadow-[4px_4px_0_#000000] sm:shadow-[6px_6px_0_#000000] max-h-[90vh] overflow-y-auto custom-scrollbar text-[#ffffff]">
+            <div className="flex justify-between items-center border-b-2 border-[#000000] pb-2 sm:pb-3 mb-3 sm:mb-4 select-none">
+              <h3 className="font-['Press_Start_2P'] text-[#ff69b4] text-[8px] sm:text-[9px] tracking-wide uppercase font-bold">
                 ⚔️ ADD NEW ADVENTURE
               </h3>
               <button
@@ -443,15 +436,15 @@ const Timeline: React.FC = () => {
                   setImagePreview(null);
                   setImageFile(null);
                 }}
-                className="font-['Press_Start_2P'] text-[#a0a0b0]/45 text-[9px] hover:text-[#ff69b4]"
+                className="font-['Press_Start_2P'] text-[#a0a0b0]/45 text-[8px] sm:text-[9px] hover:text-[#ff69b4]"
               >
                 [CLOSE]
               </button>
             </div>
 
-            <form onSubmit={handleAddChapterSubmit} className="space-y-4">
+            <form onSubmit={handleAddChapterSubmit} className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 tracking-wide font-bold">
+                <label className="block font-['Press_Start_2P'] text-[7px] sm:text-[8px] text-[#ff69b4] mb-1.5 sm:mb-2 tracking-wide font-bold">
                   JUDUL PETUALANGAN
                 </label>
                 <input
@@ -460,13 +453,13 @@ const Timeline: React.FC = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Kencan Pertama, Berjalan di Taman, dll..."
-                  className="w-full px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
+                  className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base sm:text-lg focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 tracking-wide font-bold">
+                  <label className="block font-['Press_Start_2P'] text-[7px] sm:text-[8px] text-[#ff69b4] mb-1.5 sm:mb-2 tracking-wide font-bold">
                     TANGGAL
                   </label>
                   <input
@@ -475,12 +468,12 @@ const Timeline: React.FC = () => {
                     value={dateStr}
                     onChange={(e) => setDateStr(e.target.value)}
                     placeholder="Juni 2024"
-                    className="w-full px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
+                    className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base sm:text-lg focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 tracking-wide font-bold">
+                  <label className="block font-['Press_Start_2P'] text-[7px] sm:text-[8px] text-[#ff69b4] mb-1.5 sm:mb-2 tracking-wide font-bold">
                     ACHIEVEMENT
                   </label>
                   <input
@@ -488,13 +481,13 @@ const Timeline: React.FC = () => {
                     value={achievement}
                     onChange={(e) => setAchievement(e.target.value)}
                     placeholder="First Date Unlocked!"
-                    className="w-full px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
+                    className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base sm:text-lg focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 tracking-wide font-bold">
+                <label className="block font-['Press_Start_2P'] text-[7px] sm:text-[8px] text-[#ff69b4] mb-1.5 sm:mb-2 tracking-wide font-bold">
                   DESKRIPSI SINGKAT
                 </label>
                 <input
@@ -503,12 +496,12 @@ const Timeline: React.FC = () => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Hari di mana kita pertama kali bertemu..."
-                  className="w-full px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
+                  className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base sm:text-lg focus:outline-none focus:border-[#ff69b4] transition-colors placeholder-[#a0a0b0]/40"
                 />
               </div>
 
               <div>
-                <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 tracking-wide font-bold">
+                <label className="block font-['Press_Start_2P'] text-[7px] sm:text-[8px] text-[#ff69b4] mb-1.5 sm:mb-2 tracking-wide font-bold">
                   CERITA DETAIL
                 </label>
                 <textarea
@@ -517,17 +510,17 @@ const Timeline: React.FC = () => {
                   value={story}
                   onChange={(e) => setStory(e.target.value)}
                   placeholder="Ceritakan momen indah ini secara lengkap..."
-                  className="w-full px-3.5 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] resize-none transition-colors placeholder-[#a0a0b0]/40"
+                  className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-xl text-[#ffffff] font-['VT323'] text-base sm:text-lg focus:outline-none focus:border-[#ff69b4] resize-none transition-colors placeholder-[#a0a0b0]/40"
                 />
               </div>
 
               <div>
-                <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 tracking-wide font-bold">
+                <label className="block font-['Press_Start_2P'] text-[7px] sm:text-[8px] text-[#ff69b4] mb-1.5 sm:mb-2 tracking-wide font-bold">
                   FOTO MEMORI (OPSIONAL)
                 </label>
-                <div className="flex flex-col items-center justify-center border-2 border-dashed border-[#000000] rounded-xl p-4 bg-[#1a1a2a] hover:border-[#ff69b4] transition-colors relative min-h-[100px]">
+                <div className="flex flex-col items-center justify-center border-2 border-dashed border-[#000000] rounded-xl p-3 sm:p-4 bg-[#1a1a2a] hover:border-[#ff69b4] transition-colors relative min-h-[90px]">
                   {imagePreview ? (
-                    <div className="relative w-full h-32">
+                    <div className="relative w-full h-28 sm:h-32">
                       <img
                         src={imagePreview}
                         alt="Preview"
@@ -546,8 +539,8 @@ const Timeline: React.FC = () => {
                     </div>
                   ) : (
                     <>
-                      <span className="text-2xl mb-1 select-none">📸</span>
-                      <span className="font-['VT323'] text-sm text-[#a0a0b0]/40 mb-1 select-none">Klik untuk upload foto highlight</span>
+                      <span className="text-xl sm:text-2xl mb-1 select-none">📸</span>
+                      <span className="font-['VT323'] text-xs sm:text-sm text-[#a0a0b0]/40 mb-1 select-none">Klik untuk upload foto highlight</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -560,7 +553,7 @@ const Timeline: React.FC = () => {
               </div>
 
               {error && (
-                <div className="bg-red-950/20 border border-red-500/20 rounded-xl px-3 py-2">
+                <div className="bg-red-950/20 border border-red-500/20 rounded-xl px-3 py-1.5">
                   <p className="font-['VT323'] text-red-400 text-sm font-bold">⚠ {error}</p>
                 </div>
               )}
@@ -570,7 +563,7 @@ const Timeline: React.FC = () => {
                 disabled={isSubmitting}
                 variant="primary"
                 size="sm"
-                className="w-full text-[9px] py-3.5 mt-2"
+                className="w-full text-[9px] py-3 sm:py-3.5 mt-1 sm:mt-2 min-h-[44px]"
               >
                 {isSubmitting ? 'MENYIMPAN KISAH...' : '▶ TAMBAH PETUALANGAN'}
               </PixelButton>
