@@ -767,7 +767,7 @@ const MapTracker: React.FC = () => {
       {/* Map & Sidebar Wrapper */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative min-h-0">
         {/* Map Container */}
-        <div className="w-full h-[40vh] md:h-[60vh] relative z-10">
+        <div className="flex-grow flex-1 w-full h-full relative z-10">
           <div ref={mapContainerCallbackRef} className="w-full h-full" />
 
           {permissionStatus !== 'granted' && (
