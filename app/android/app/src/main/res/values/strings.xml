@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Love Story</string>
+    <string name="title_activity_main">Love Story</string>
+    <string name="package_name">com.lovestory.app</string>
+    <string name="custom_url_scheme">com.lovestory.app</string>
+</resources>

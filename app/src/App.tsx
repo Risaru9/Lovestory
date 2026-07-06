@@ -3,9 +3,10 @@ import { Scanlines } from '@/components/custom/Scanlines';
 import { useKonamiCode } from '@/hooks/useKonamiCode';
 import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { Capacitor } from '@capacitor/core';
 
 // Pages
-import LoadingScreen from '@/pages/LoadingScreen';
+import LandingPage from '@/pages/LoadingScreen'; // LoadingScreen is now LandingPage
 import Home from '@/pages/Home';
 import Couple from '@/pages/Couple';
 import Timeline from '@/pages/Timeline';
@@ -26,6 +27,8 @@ import QuizQuest from '@/pages/QuizQuest';
 import DoodleCanvas from '@/pages/DoodleCanvas';
 import FortuneWheel from '@/pages/FortuneWheel';
 import DreamVault from '@/pages/DreamVault';
+import ProfilePage from '@/pages/Profile';
+import MobileOnly from '@/pages/MobileOnly';
 
 // ============================================================
 // Protected Route: Hanya bisa diakses setelah login & connected
@@ -53,12 +56,44 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 // ============================================================
+// Profile Protected Route: Hanya butuh login (pairing bisa diatur di profile)
+// ============================================================
+const ProfileProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0d0d1a] flex items-center justify-center">
+        <p className="font-['Press_Start_2P'] text-[#FF69B4] text-xs animate-pulse">
+          LOADING...
+        </p>
+      </div>
+    );
+  }
+
+  if (!user) return <Navigate to="/auth" replace />;
+  return <>{children}</>;
+};
+
+// ============================================================
+// Mobile or Feature Wrapper: Batasi fitur game/chat ke native mobile app saja
+// ============================================================
+const MobileOrFeature: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Jika berjalan sebagai aplikasi native Android/iOS (Capacitor), buka fitur.
+  // Jika dibuka lewat browser web biasa, arahkan ke halaman MobileOnly notice.
+  if (Capacitor.isNativePlatform()) {
+    return <>{children}</>;
+  }
+  return <MobileOnly />;
+};
+
+// ============================================================
 // AUTH ROUTE: Hanya bisa diakses saat belum login
 // ============================================================
 const AuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
   if (isLoading) return null;
-  if (user) return <Navigate to="/home" replace />;
+  if (user) return <Navigate to="/profile" replace />;
   return <>{children}</>;
 };
 
@@ -69,7 +104,7 @@ const ConnectRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const { user, isLoading, isConnected } = useAuth();
   if (isLoading) return null;
   if (!user) return <Navigate to="/auth" replace />;
-  if (isConnected) return <Navigate to="/home" replace />;
+  if (isConnected) return <Navigate to="/profile" replace />;
   return <>{children}</>;
 };
 
@@ -113,29 +148,35 @@ function AppContent() {
 
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<LoadingScreen />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
         <Route path="/connect" element={<ConnectRoute><CoupleConnect /></ConnectRoute>} />
+        
+        {/* Profile Protected Route (Hanya butuh login) */}
+        <Route path="/profile" element={<ProfileProtectedRoute><ProfilePage /></ProfileProtectedRoute>} />
 
-        {/* Protected Routes (Harus login + connected) */}
-        <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-        <Route path="/couple" element={<ProtectedRoute><Couple /></ProtectedRoute>} />
-        <Route path="/timeline" element={<ProtectedRoute><Timeline /></ProtectedRoute>} />
-        <Route path="/chapter/:id" element={<ProtectedRoute><ChapterDetail /></ProtectedRoute>} />
-        <Route path="/gallery" element={<ProtectedRoute><Gallery /></ProtectedRoute>} />
-        <Route path="/music" element={<ProtectedRoute><Music /></ProtectedRoute>} />
-        <Route path="/game" element={<ProtectedRoute><Game /></ProtectedRoute>} />
-        <Route path="/letter" element={<ProtectedRoute><Letter /></ProtectedRoute>} />
-        <Route path="/dateplanner" element={<ProtectedRoute><DatePlanner /></ProtectedRoute>} />
-        <Route path="/map" element={<ProtectedRoute><MapTracker /></ProtectedRoute>} />
-        <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
-        <Route path="/checkin" element={<ProtectedRoute><CheckIn /></ProtectedRoute>} />
-        <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-        <Route path="/timecapsule" element={<ProtectedRoute><TimeCapsule /></ProtectedRoute>} />
-        <Route path="/quizquest" element={<ProtectedRoute><QuizQuest /></ProtectedRoute>} />
-        <Route path="/doodle" element={<ProtectedRoute><DoodleCanvas /></ProtectedRoute>} />
-        <Route path="/fortunewheel" element={<ProtectedRoute><FortuneWheel /></ProtectedRoute>} />
-        <Route path="/dreamvault" element={<ProtectedRoute><DreamVault /></ProtectedRoute>} />
+        {/* Protected Gameplay Routes (Dibatasi di Web, Aktif di Native Mobile App) */}
+        <Route path="/home" element={<ProtectedRoute><MobileOrFeature><Home /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/couple" element={<ProtectedRoute><MobileOrFeature><Couple /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/timeline" element={<ProtectedRoute><MobileOrFeature><Timeline /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/chapter/:id" element={<ProtectedRoute><MobileOrFeature><ChapterDetail /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/gallery" element={<ProtectedRoute><MobileOrFeature><Gallery /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/music" element={<ProtectedRoute><MobileOrFeature><Music /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/game" element={<ProtectedRoute><MobileOrFeature><Game /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/letter" element={<ProtectedRoute><MobileOrFeature><Letter /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/dateplanner" element={<ProtectedRoute><MobileOrFeature><DatePlanner /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/map" element={<ProtectedRoute><MobileOrFeature><MapTracker /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/achievements" element={<ProtectedRoute><MobileOrFeature><Achievements /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/checkin" element={<ProtectedRoute><MobileOrFeature><CheckIn /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/chat" element={<ProtectedRoute><MobileOrFeature><Chat /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/timecapsule" element={<ProtectedRoute><MobileOrFeature><TimeCapsule /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/quizquest" element={<ProtectedRoute><MobileOrFeature><QuizQuest /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/doodle" element={<ProtectedRoute><MobileOrFeature><DoodleCanvas /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/fortunewheel" element={<ProtectedRoute><MobileOrFeature><FortuneWheel /></MobileOrFeature></ProtectedRoute>} />
+        <Route path="/dreamvault" element={<ProtectedRoute><MobileOrFeature><DreamVault /></MobileOrFeature></ProtectedRoute>} />
+
+        {/* Catch-all fallback redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );

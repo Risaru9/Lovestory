@@ -18,3 +18,7 @@ dist-ssr/
 !.vscode/extensions.json
 .idea
 .DS_Store
+public/download/
+android/local.properties
+jdk-21/
+**/local.properties

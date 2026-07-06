@@ -1,0 +1,6 @@
+# local sandboxed JDK
+jdk-21/
+app/public/download/
+app/android/local.properties
+app/package-lock.json
+**/local.properties
