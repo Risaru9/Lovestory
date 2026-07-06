@@ -9,23 +9,8 @@ const LandingPage: React.FC = () => {
   const { user } = useAuth();
 
   const handleDownload = () => {
-    let basePath = window.location.pathname;
-    const routes = ['/profile', '/home', '/auth', '/connect', '/timeline', '/timeline/'];
-    routes.forEach(r => {
-      if (basePath.endsWith(r)) {
-        basePath = basePath.slice(0, -r.length);
-      }
-    });
-    if (!basePath.endsWith('/')) {
-      basePath += '/';
-    }
-    const url = `${window.location.origin}${basePath}download/lovestory.bin`;
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'lovestory.apk';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Direct download from GitHub Releases - works on all hosting platforms
+    window.location.href = 'https://github.com/Risaru9/Lovestory/releases/download/v1.0.0-debug/LoveStory.apk';
   };
 
   const handleGoToApp = () => {
