@@ -228,7 +228,7 @@ const CheckIn: React.FC = () => {
 
     for (let i = 0; i < firstDayIndex; i++) {
       cells.push(
-        <div key={`empty-${i}`} className="bg-[#121224]/30 border border-black/20 min-h-[85px] rounded-lg" />
+        <div key={`empty-${i}`} className="bg-[#121224]/30 border border-black/10 h-14 sm:h-18 md:h-22 rounded-lg" />
       );
     }
 
@@ -239,60 +239,43 @@ const CheckIn: React.FC = () => {
 
       const myMoodObj = MOOD_OPTIONS.find(m => m.id === myLog?.mood);
       const partnerMoodObj = MOOD_OPTIONS.find(m => m.id === partnerLog?.mood);
+      const hasMood = !!myLog || !!partnerLog;
 
       cells.push(
         <button
           key={`day-${day}`}
           onClick={() => handleDateClick(day)}
-          className={`relative flex flex-col justify-between p-2 min-h-[85px] border-4 rounded-xl transition-all cursor-pointer text-left ${
+          className={`relative flex flex-col justify-between p-1 h-14 sm:h-18 md:h-22 border-2 sm:border-4 rounded-xl transition-all cursor-pointer text-left ${
             isToday
               ? 'border-[#ff69b4] bg-[#1a1a35]'
               : 'border-[#000000] bg-[#121224] hover:bg-[#1c1c38]'
-          } shadow-[2px_2px_0_#000000] hover:translate-y-[-2px]`}
+          } shadow-[2px_2px_0_#000000] hover:translate-y-[-1px]`}
         >
-          <span className={`font-['Press_Start_2P'] text-[8px] md:text-[9px] ${isToday ? 'text-[#ff69b4] font-bold' : 'text-[#a0a0b0]'}`}>
+          <span className={`font-['Press_Start_2P'] text-[7px] sm:text-[9px] ${isToday ? 'text-[#ff69b4] font-bold' : 'text-[#a0a0b0]'}`}>
             {day}
           </span>
 
-          {/* Co-op Mood Slots */}
-          <div className="flex justify-around items-center w-full flex-grow mt-1 select-none gap-1">
-            
-            {/* Left Slot: Mine */}
-            <div className="flex flex-col items-center justify-center flex-1 min-w-0">
-              {myLog && myMoodObj ? (
-                <span className="text-xl md:text-2xl animate-pulse" title="Mood Saya">
+          {hasMood && (
+            <div className="flex justify-center items-center gap-0.5 sm:gap-1.5 w-full flex-grow select-none mt-0.5 md:mt-1 pb-1 md:pb-2">
+              {myLog && myMoodObj && (
+                <span className="text-sm sm:text-lg md:text-2xl animate-pulse" title="Mood Saya">
                   {myMoodObj.emoji}
                 </span>
-              ) : (
-                <div className="w-6 h-6 border-2 border-dashed border-[#a0a0b0]/40 rounded flex items-center justify-center text-[#a0a0b0]/40 text-[9px] font-['Press_Start_2P']">
-                  +
-                </div>
               )}
-              <span className="text-[6px] font-['Press_Start_2P'] text-[#a0a0b0]/60 mt-0.5 truncate leading-none">
-                SAYA
-              </span>
-            </div>
-
-            {/* Middle Divider */}
-            <div className="w-[1px] h-6 bg-black/30 shrink-0" />
-
-            {/* Right Slot: Partner */}
-            <div className="flex flex-col items-center justify-center flex-1 min-w-0">
-              {partnerLog && partnerMoodObj ? (
-                <span className="text-xl md:text-2xl animate-pulse" title="Mood Pasangan">
+              {partnerLog && partnerMoodObj && (
+                <span className="text-sm sm:text-lg md:text-2xl animate-pulse" title="Mood Pasangan">
                   {partnerMoodObj.emoji}
                 </span>
-              ) : (
-                <div className="w-6 h-6 border-2 border-dashed border-[#a0a0b0]/20 rounded flex items-center justify-center text-[#a0a0b0]/30 text-[9px] font-['Press_Start_2P']">
-                  ?
-                </div>
               )}
-              <span className="text-[6px] font-['Press_Start_2P'] text-[#a0a0b0]/60 mt-0.5 truncate leading-none">
-                DIA
-              </span>
             </div>
+          )}
 
-          </div>
+          {hasMood && (
+            <div className="absolute bottom-1 left-1 right-1 flex gap-0.5 justify-center">
+              {myLog && <div className="h-0.5 sm:h-1 w-1.5 sm:w-3 bg-[#00bcd4] rounded-full" title="Saya" />}
+              {partnerLog && <div className="h-0.5 sm:h-1 w-1.5 sm:w-3 bg-[#ff69b4] rounded-full" title="Pasangan" />}
+            </div>
+          )}
         </button>
       );
     }
@@ -360,7 +343,7 @@ const CheckIn: React.FC = () => {
         {/* RPG Panel */}
         <div className="space-y-4 shrink-0">
           {rpgStats && (
-            <div className="bg-[#121224] border-4 border-[#000000] p-3 shadow-[4px_4px_0_#000000] rounded-xl flex items-center justify-between gap-4">
+            <div className="bg-[#121224] border-4 border-[#000000] p-3 shadow-[4px_4px_0_#000000] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3 shrink-0 select-none">
                 <span className="text-2xl">👑</span>
                 <div>
@@ -372,7 +355,7 @@ const CheckIn: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex-1 max-w-xs flex flex-col gap-1">
+              <div className="flex-grow sm:flex-1 max-w-full sm:max-w-xs flex flex-col gap-1">
                 <div className="flex justify-between text-[8px] font-['Press_Start_2P'] text-[#ffffff]">
                   <span>LVL {rpgStats.level}</span>
                   <span className="text-[#ffb300]">{rpgStats.xp}/100 XP</span>
@@ -385,10 +368,10 @@ const CheckIn: React.FC = () => {
           )}
 
           {/* Month Selector Panel */}
-          <div className="bg-[#121224] border-4 border-[#000000] p-3 rounded-xl shadow-[4px_4px_0_#000000] flex items-center justify-center gap-3">
+          <div className="bg-[#121224] border-4 border-[#000000] p-2.5 sm:p-3 rounded-xl shadow-[4px_4px_0_#000000] flex items-center justify-center gap-3 select-none">
             <button
               onClick={handlePrevMonth}
-              className="px-2.5 py-1.5 bg-[#1a1a2a] border-2 border-[#000000] text-[#ff69b4] hover:bg-[#ff69b4] hover:text-[#000000] active:translate-y-0.5 rounded font-['Press_Start_2P'] text-[10px] cursor-pointer"
+              className="px-2 py-1 bg-[#1a1a2a] border-2 border-[#000000] text-[#ff69b4] hover:bg-[#ff69b4] hover:text-[#000000] active:translate-y-0.5 rounded font-['Press_Start_2P'] text-[9px] cursor-pointer shrink-0"
             >
               ◀
             </button>
@@ -397,7 +380,7 @@ const CheckIn: React.FC = () => {
             </h2>
             <button
               onClick={handleNextMonth}
-              className="px-2.5 py-1.5 bg-[#1a1a2a] border-2 border-[#000000] text-[#ff69b4] hover:bg-[#ff69b4] hover:text-[#000000] active:translate-y-0.5 rounded font-['Press_Start_2P'] text-[10px] cursor-pointer"
+              className="px-2 py-1 bg-[#1a1a2a] border-2 border-[#000000] text-[#ff69b4] hover:bg-[#ff69b4] hover:text-[#000000] active:translate-y-0.5 rounded font-['Press_Start_2P'] text-[9px] cursor-pointer shrink-0"
             >
               ▶
             </button>
@@ -405,12 +388,12 @@ const CheckIn: React.FC = () => {
         </div>
 
         {/* Calendar Grid */}
-        <div className="flex-1 min-h-[380px] bg-[#121224] border-4 border-[#000000] p-3 rounded-xl shadow-[4px_4px_0_#000000] flex flex-col justify-between overflow-hidden">
-          <div className="grid grid-cols-7 gap-1 border-b-2 border-[#000000]/30 pb-2 mb-2 select-none">
+        <div className="flex-1 bg-[#121224] border-4 border-[#000000] p-2.5 sm:p-3 rounded-xl shadow-[4px_4px_0_#000000] flex flex-col justify-between overflow-hidden">
+          <div className="grid grid-cols-7 gap-1 border-b-2 border-[#000000]/30 pb-1.5 mb-1.5 select-none">
             {DAY_NAMES.map((name, idx) => (
               <div
                 key={name}
-                className={`text-center font-['Press_Start_2P'] text-[7px] md:text-[8px] font-bold ${
+                className={`text-center font-['Press_Start_2P'] text-[6px] sm:text-[8px] font-bold ${
                   idx === 0 ? 'text-[#f44336]' : idx === 6 ? 'text-[#2196f3]' : 'text-[#a0a0b0]'
                 }`}
               >
@@ -419,7 +402,7 @@ const CheckIn: React.FC = () => {
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1.5 flex-1 overflow-y-auto pr-0.5 custom-scrollbar">
+          <div className="grid grid-cols-7 gap-1 flex-1 overflow-y-auto pr-0.5 custom-scrollbar">
             {renderCells()}
           </div>
         </div>
@@ -428,8 +411,8 @@ const CheckIn: React.FC = () => {
 
       {/* Unified Co-op Dialogue Box Modal */}
       {isModalOpen && selectedDateStr && (
-        <div className="fixed inset-0 z-50 bg-[#000000]/80 flex items-center justify-center p-4">
-          <div className="bg-[#121224] border-4 border-[#000000] rounded-xl p-5 w-full max-w-2xl shadow-[6px_6px_0_#000000] relative animate-fade-in text-[#ffffff]">
+        <div className="fixed inset-0 z-50 bg-[#000000]/80 flex items-center justify-center p-4 select-none">
+          <div className="bg-[#121224] border-4 border-[#000000] rounded-xl p-4 md:p-5 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[6px_6px_0_#000000] relative animate-fade-in text-[#ffffff] custom-scrollbar">
             
             <div className="flex justify-between items-center border-b-2 border-[#000000] pb-2 mb-4 select-none">
               <span className="font-['Press_Start_2P'] text-[8px] md:text-[9px] text-[#ff69b4] font-bold tracking-wider">
