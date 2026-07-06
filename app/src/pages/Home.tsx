@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Volume2, VolumeX } from 'lucide-react';
 
@@ -13,6 +13,14 @@ interface MenuItem {
   path: string;
   icon: string;
   enabled?: boolean;
+}
+
+interface Category {
+  id: 'journey' | 'connection' | 'playroom' | 'vault';
+  label: string;
+  icon: string;
+  description: string;
+  color: string;
 }
 
 interface PlaylistItem {
@@ -60,40 +68,53 @@ const getInitialTrackIndex = () => {
   return parsed;
 };
 
+const CATEGORIES: Category[] = [
+  { id: 'journey', label: 'JOURNEY', icon: '📖', description: 'Petualangan & Lini Masa Kenangan Kita', color: '#ff69b4' },
+  { id: 'connection', label: 'CONNECTION', icon: '💬', description: 'Obrolan Real-Time & Mood Pasangan', color: '#00bcd4' },
+  { id: 'playroom', label: 'PLAYROOM', icon: '🎮', description: 'Aktivitas Seru, Doodle & Game Arcade', color: '#4caf50' },
+  { id: 'vault', label: 'VAULT', icon: '🔒', description: 'Peti Impian & Kenangan Kapsul Waktu', color: '#ffb300' }
+];
+
+const SUB_MENU_ITEMS: Record<'journey' | 'connection' | 'playroom' | 'vault', MenuItem[]> = {
+  journey: [
+    { label: 'NEW GAME', path: '/couple', icon: '✨', enabled: true },
+    { label: 'CONTINUE', path: '/timeline', icon: '▶', enabled: true },
+    { label: 'GALLERY', path: '/gallery', icon: '📷', enabled: true },
+    { label: 'DATE PLANNER', path: '/dateplanner', icon: '📅', enabled: true }
+  ],
+  connection: [
+    { label: 'DAILY CHECK-IN', path: '/checkin', icon: '😊', enabled: true },
+    { label: 'COUPLE CHAT', path: '/chat', icon: '💬', enabled: true },
+    { label: 'LOCATION TRACKER', path: '/map', icon: '📍', enabled: true },
+    { label: 'LETTER', path: '/letter', icon: '💌', enabled: true }
+  ],
+  playroom: [
+    { label: 'QUIZ QUEST', path: '/quizquest', icon: '❓', enabled: true },
+    { label: 'DOODLE CANVAS', path: '/doodle', icon: '🎨', enabled: true },
+    { label: 'FORTUNE WHEEL', path: '/fortunewheel', icon: '🎡', enabled: true },
+    { label: 'MINI GAME', path: '/game', icon: '🎮', enabled: true }
+  ],
+  vault: [
+    { label: 'TIME CAPSULE', path: '/timecapsule', icon: '🔒', enabled: true },
+    { label: 'DREAM VAULT', path: '/dreamvault', icon: '💭', enabled: true },
+    { label: 'ACHIEVEMENTS', path: '/achievements', icon: '⭐', enabled: true },
+    { label: 'MUSIC', path: '/music', icon: '🎵', enabled: true }
+  ]
+};
+
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const autoplayAttemptedRef = useRef(false);
 
   const [hearts, setHearts] = useState<HeartParticle[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(1);
+  const [activeCategory, setActiveCategory] = useState<'journey' | 'connection' | 'playroom' | 'vault' | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [musicEnabled, setMusicEnabled] = useState<boolean>(getInitialMusicEnabled);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(getInitialTrackIndex);
 
   const currentTrack = HOME_PLAYLIST[currentTrackIndex];
-
-  const menuItems: MenuItem[] = useMemo(
-    () => [
-      { label: 'NEW GAME', path: '/couple', icon: '✨', enabled: true },
-      { label: 'CONTINUE', path: '/timeline', icon: '▶', enabled: true },
-      { label: 'DAILY CHECK-IN', path: '/checkin', icon: '😊', enabled: true },
-      { label: 'COUPLE CHAT', path: '/chat', icon: '💬', enabled: true },
-      { label: 'TIME CAPSULE', path: '/timecapsule', icon: '🔒', enabled: true },
-      { label: 'QUIZ QUEST', path: '/quizquest', icon: '❓', enabled: true },
-      { label: 'DOODLE CANVAS', path: '/doodle', icon: '🎨', enabled: true },
-      { label: 'FORTUNE WHEEL', path: '/fortunewheel', icon: '🎡', enabled: true },
-      { label: 'DREAM VAULT', path: '/dreamvault', icon: '💭', enabled: true },
-      { label: 'GALLERY', path: '/gallery', icon: '📷', enabled: true },
-      { label: 'ACHIEVEMENTS', path: '/achievements', icon: '⭐', enabled: true },
-      { label: 'MUSIC', path: '/music', icon: '🎵', enabled: true },
-      { label: 'MINI GAME', path: '/game', icon: '🎮', enabled: true },
-      { label: 'LETTER', path: '/letter', icon: '💌', enabled: true },
-      { label: 'DATE PLANNER', path: '/dateplanner', icon: '📅', enabled: true },
-      { label: 'LOCATION TRACKER', path: '/map', icon: '📍', enabled: true },
-    ],
-    []
-  );
 
   const spawnHeart = useCallback((x: number, y: number) => {
     const newHeart: HeartParticle = {
@@ -142,7 +163,7 @@ const Home: React.FC = () => {
     setMusicEnabled(true);
   }, [musicEnabled, pauseAudio]);
 
-  const handleMenuHover = (
+  const handleCategoryHover = (
     event: React.MouseEvent<HTMLButtonElement>,
     index: number
   ) => {
@@ -152,8 +173,33 @@ const Home: React.FC = () => {
     spawnHeart(rect.left - 8, rect.top + rect.height / 2);
   };
 
-  const handleMenuClick = (
+  const handleCategoryClick = (
+    catId: 'journey' | 'connection' | 'playroom' | 'vault',
+    _index: number,
+    event?: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    setActiveCategory(catId);
+    setSelectedIndex(1); // 0 is KEMBALI
+
+    if (event) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      spawnHeart(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    }
+  };
+
+  const handleSubMenuHover = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    index: number
+  ) => {
+    setSelectedIndex(index);
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    spawnHeart(rect.left - 8, rect.top + rect.height / 2);
+  };
+
+  const handleSubMenuClick = (
     item: MenuItem,
+    _index: number,
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
     if (!item.enabled) return;
@@ -164,6 +210,18 @@ const Home: React.FC = () => {
     window.setTimeout(() => {
       navigate(item.path);
     }, 100);
+  };
+
+  const handleGoBack = (event?: React.MouseEvent<HTMLButtonElement>) => {
+    const prevId = activeCategory;
+    setActiveCategory(null);
+    const catIndex = CATEGORIES.findIndex(c => c.id === prevId);
+    setSelectedIndex(catIndex >= 0 ? catIndex : 0);
+
+    if (event) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      spawnHeart(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    }
   };
 
   useEffect(() => {
@@ -242,25 +300,62 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        setSelectedIndex((prev) => (prev + 1) % menuItems.length);
-      } else if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        setSelectedIndex((prev) => (prev - 1 + menuItems.length) % menuItems.length);
-      } else if (event.key === 'Enter') {
-        event.preventDefault();
-
-        const selectedItem = menuItems[selectedIndex];
-        if (selectedItem?.enabled) {
-          navigate(selectedItem.path);
+      if (activeCategory === null) {
+        if (event.key === 'ArrowUp') {
+          event.preventDefault();
+          setSelectedIndex((prev) => (prev >= 2 ? prev - 2 : prev + 2));
+        } else if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          setSelectedIndex((prev) => (prev < 2 ? prev + 2 : prev - 2));
+        } else if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          setSelectedIndex((prev) => (prev % 2 === 1 ? prev - 1 : prev + 1));
+        } else if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          setSelectedIndex((prev) => (prev % 2 === 0 ? prev + 1 : prev - 1));
+        } else if (event.key === 'Enter') {
+          event.preventDefault();
+          const targetCat = CATEGORIES[selectedIndex];
+          if (targetCat) {
+            setActiveCategory(targetCat.id);
+            setSelectedIndex(1);
+          }
+        }
+      } else {
+        const totalItems = 5;
+        if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          setSelectedIndex((prev) => (prev + 1) % totalItems);
+        } else if (event.key === 'ArrowUp') {
+          event.preventDefault();
+          setSelectedIndex((prev) => (prev - 1 + totalItems) % totalItems);
+        } else if (event.key === 'Enter') {
+          event.preventDefault();
+          if (selectedIndex === 0) {
+            const prevId = activeCategory;
+            setActiveCategory(null);
+            const catIndex = CATEGORIES.findIndex(c => c.id === prevId);
+            setSelectedIndex(catIndex >= 0 ? catIndex : 0);
+          } else {
+            const items = SUB_MENU_ITEMS[activeCategory];
+            const selectedItem = items[selectedIndex - 1];
+            if (selectedItem && selectedItem.enabled !== false) {
+              navigate(selectedItem.path);
+            }
+          }
+        } else if (event.key === 'Escape') {
+          event.preventDefault();
+          const prevId = activeCategory;
+          setActiveCategory(null);
+          const catIndex = CATEGORIES.findIndex(c => c.id === prevId);
+          setSelectedIndex(catIndex >= 0 ? catIndex : 0);
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [menuItems, navigate, selectedIndex]);
+  }, [activeCategory, selectedIndex, navigate]);
 
   useEffect(() => {
     const previousBodyOverflow = document.body.style.overflow;
@@ -338,55 +433,113 @@ const Home: React.FC = () => {
         {/* Center: Main Menu Retro Console Board */}
         <div className="w-full max-w-[310px] sm:max-w-[360px] bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl p-3 sm:p-4 shadow-[4px_4px_0_#000000] sm:shadow-[6px_6px_0_#000000] relative">
           <div className="mb-2.5 sm:mb-3.5 flex items-center justify-between border-b-2 border-[#000000] pb-2 select-none">
-            <span className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-widest font-bold">
-              MAIN MENU
+            <span className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-widest font-bold uppercase">
+              {activeCategory === null ? 'MAIN MENU' : activeCategory}
             </span>
             <span className="font-['VT323'] text-base text-[#a0a0b0]/65 font-bold">
-              {selectedIndex + 1} / {menuItems.length}
+              {activeCategory === null 
+                ? `${selectedIndex + 1} / 4` 
+                : `${selectedIndex} / 4`}
             </span>
           </div>
 
-          <div className="space-y-1.5 max-h-[45vh] sm:max-h-[55vh] overflow-y-auto pr-0.5 custom-scrollbar">
-            {menuItems.map((item, index) => {
-              const isSelected = selectedIndex === index;
-              const isEnabled = item.enabled !== false;
-
-              return (
+          <div className="space-y-1.5">
+            {activeCategory === null ? (
+              /* 2x2 Grid Categories */
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                {CATEGORIES.map((cat, index) => {
+                  const isSelected = selectedIndex === index;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onMouseEnter={(e) => handleCategoryHover(e, index)}
+                      onFocus={() => setSelectedIndex(index)}
+                      onClick={(e) => handleCategoryClick(cat.id, index, e)}
+                      className={[
+                        'flex flex-col items-center justify-center p-3 rounded-xl border-2 sm:border-4 transition-all duration-100 cursor-pointer min-h-[90px] sm:min-h-[100px] font-bold',
+                        isSelected
+                          ? 'border-black bg-[#ff69b4] text-[#000000] shadow-[2px_2px_0_#000000] translate-x-0.5 translate-y-0.5'
+                          : 'border-transparent bg-[#222230] text-[#a0a0b0] hover:bg-[#2a2a3e] hover:text-[#ffffff]'
+                      ].join(' ')}
+                      aria-label={cat.label}
+                    >
+                      <span className="text-xl sm:text-2xl mb-1.5 shrink-0 select-none">{cat.icon}</span>
+                      <span className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] tracking-wider leading-none">
+                        {cat.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              /* Sub-menu items */
+              <div className="space-y-1.5">
+                {/* Back button (Index 0) */}
                 <button
-                  key={item.label}
                   type="button"
-                  onMouseEnter={(event) => handleMenuHover(event, index)}
-                  onFocus={() => setSelectedIndex(index)}
-                  onClick={(event) => handleMenuClick(item, event)}
-                  disabled={!isEnabled}
+                  onMouseEnter={(e) => handleSubMenuHover(e, 0)}
+                  onFocus={() => setSelectedIndex(0)}
+                  onClick={() => handleGoBack()}
                   className={[
-                    'w-full px-2.5 py-2 sm:px-3.5 sm:py-2.5 text-left transition-all duration-100 flex items-center gap-3 font-["Press_Start_2P"] text-[8px] sm:text-[9px] border-2 sm:border-4 rounded-xl font-bold min-h-[38px] sm:min-h-[44px]',
-                    isEnabled
-                      ? isSelected
-                        ? 'border-[#000000] bg-[#ff69b4] text-[#000000] shadow-[2px_2px_0_#000000] translate-x-0.5 translate-y-0.5'
-                        : 'border-transparent bg-[#222230] text-[#a0a0b0] hover:bg-[#2a2a3e] hover:text-[#ffffff]'
-                      : 'cursor-not-allowed border-transparent bg-black/[0.15] text-[#a0a0b0]/30',
+                    'w-full px-2.5 py-2 sm:px-3.5 sm:py-2.5 text-left transition-all duration-100 flex items-center gap-3 font-["Press_Start_2P"] text-[8px] sm:text-[9px] border-2 sm:border-4 rounded-xl font-bold min-h-[38px] sm:min-h-[44px] cursor-pointer',
+                    selectedIndex === 0
+                      ? 'border-black bg-[#a0a0b0] text-[#000000] shadow-[2px_2px_0_#000000]'
+                      : 'border-transparent bg-[#222230] text-[#a0a0b0] hover:bg-[#2a2a3e] hover:text-[#ffffff]'
                   ].join(' ')}
-                  aria-label={item.label}
+                  aria-label="Kembali"
                 >
-                  <span className="w-4 sm:w-5 text-center text-xs shrink-0">{item.icon}</span>
-
-                  <span>
-                    {item.label}
-                  </span>
-
-                  {isSelected && isEnabled && (
-                    <span className="ml-auto text-[#000000]">◀</span>
-                  )}
-
-                  {!isEnabled && (
-                    <span className="ml-auto font-['VT323'] text-xs text-[#a0a0b0]/40 font-bold">
-                      Soon
-                    </span>
-                  )}
+                  <span className="w-4 sm:w-5 text-center text-xs shrink-0 select-none">◀</span>
+                  <span>KEMBALI</span>
                 </button>
-              );
-            })}
+
+                <div className="border-t border-white/5 my-1.5" />
+
+                {/* Specific features (Index 1 to 4) */}
+                {SUB_MENU_ITEMS[activeCategory].map((item, index) => {
+                  const idxInMenu = index + 1;
+                  const isSelected = selectedIndex === idxInMenu;
+                  const isEnabled = item.enabled !== false;
+
+                  return (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onMouseEnter={(e) => handleSubMenuHover(e, idxInMenu)}
+                      onFocus={() => setSelectedIndex(idxInMenu)}
+                      onClick={(e) => handleSubMenuClick(item, idxInMenu, e)}
+                      disabled={!isEnabled}
+                      className={[
+                        'w-full px-2.5 py-2 sm:px-3.5 sm:py-2.5 text-left transition-all duration-100 flex items-center gap-3 font-["Press_Start_2P"] text-[8px] sm:text-[9px] border-2 sm:border-4 rounded-xl font-bold min-h-[38px] sm:min-h-[44px] cursor-pointer',
+                        isEnabled
+                          ? isSelected
+                            ? 'border-black bg-[#ff69b4] text-[#000000] shadow-[2px_2px_0_#000000] translate-x-0.5 translate-y-0.5'
+                            : 'border-transparent bg-[#222230] text-[#a0a0b0] hover:bg-[#2a2a3e] hover:text-[#ffffff]'
+                          : 'cursor-not-allowed border-transparent bg-black/[0.15] text-[#a0a0b0]/30',
+                      ].join(' ')}
+                      aria-label={item.label}
+                    >
+                      <span className="w-4 sm:w-5 text-center text-xs shrink-0 select-none">{item.icon}</span>
+                      <span>{item.label}</span>
+                      {isSelected && isEnabled && (
+                        <span className="ml-auto text-black font-bold select-none">◀</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* RPG Help / Description Box */}
+          <div className="mt-3.5 border-t-2 border-black/35 pt-2 select-none min-h-[38px] flex items-center justify-center">
+            <p className="font-['VT323'] text-sm sm:text-base text-[#a0a0b0] text-center tracking-wider leading-tight">
+              {activeCategory === null
+                ? CATEGORIES[selectedIndex]?.description
+                : selectedIndex === 0
+                  ? 'Kembali ke menu kategori utama'
+                  : `Buka fitur ${SUB_MENU_ITEMS[activeCategory][selectedIndex - 1]?.label}`}
+            </p>
           </div>
         </div>
 
