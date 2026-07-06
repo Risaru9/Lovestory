@@ -281,6 +281,44 @@ const Home: React.FC = () => {
     return () => window.removeEventListener('keydown', kd);
   }, [activeCategory, selectedIndex, navigate]);
 
+  // ── Strict window/body level scroll block ──────────────────────────────────
+  useEffect(() => {
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    const prevBodyOverscroll = document.body.style.overscrollBehavior;
+    const prevHtmlOverscroll = document.documentElement.style.overscrollBehavior;
+    const prevPosition = document.body.style.position;
+
+    // Completely lock viewport scrolling and overscroll bouncing at document level
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overscrollBehavior = 'none';
+    document.documentElement.style.overscrollBehavior = 'none';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+
+    // Touch event blocker for background swipe gestures
+    const preventScroll = (e: TouchEvent) => {
+      // Allow touch events but prevent defaults that trigger browser viewport panning/scrolling
+      const target = e.target as HTMLElement;
+      if (!target.closest('.custom-scrollbar')) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
+      document.body.style.overscrollBehavior = prevBodyOverscroll;
+      document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
+      document.body.style.position = prevPosition;
+      window.removeEventListener('touchmove', preventScroll);
+    };
+  }, []);
+
   // ── Entrance animation on mount ───────────────────────────────────────────
   useEffect(() => {
     const t = setTimeout(() => {
@@ -364,12 +402,18 @@ const Home: React.FC = () => {
   // ═══════════════════════════════════════════════════════════════════════════
   return (
     <div
-      className="relative h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-[#1e1c2e]"
-      style={{ backgroundImage: 'url(/images/backgrounds/home-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+      className="relative h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-[#1e1c2e] select-none fixed inset-0"
+      style={{
+        backgroundImage: 'url(/images/backgrounds/home-bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        touchAction: 'none', // Prevents touch-based scroll shifts
+        overscrollBehavior: 'none' // Prevents elastic bounce scrolling
+      }}
     >
       <audio ref={audioRef} preload="auto" />
 
-      {/* Very soft translucent overlay (no dark/black shadow screen overlay) */}
+      {/* Very soft translucent overlay */}
       <div className="absolute inset-0 bg-[#ffe4e1]/10 backdrop-blur-[0.2px] pointer-events-none" />
 
       {/* Floating hearts */}
@@ -461,41 +505,41 @@ const Home: React.FC = () => {
       </div>
 
       {/* ── MAIN CONTENT LAYER ───────────────────────────────────────────────── */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-between px-4 py-5 md:py-7">
+      <div className="relative z-10 flex h-full flex-col items-center justify-between px-4 py-3 xs:py-4 sm:py-6 md:py-8">
 
         {/* ── TOP BAR ─────────────────────────────────────────────────────── */}
-        <div className="w-full flex flex-col items-center gap-2">
-          <p className="font-['VT323'] text-sm sm:text-base text-white tracking-widest uppercase font-bold select-none drop-shadow-[1px_1px_2px_#000]">
+        <div className="w-full flex flex-col items-center gap-1.5 xs:gap-2">
+          <p className="font-['VT323'] text-xs xs:text-sm sm:text-base text-white tracking-widest uppercase font-bold select-none drop-shadow-[1px_1px_2px_#000]">
             Press Start to Continue Our Journey
           </p>
-          <h1 className="font-['Press_Start_2P'] text-xl sm:text-2xl md:text-3xl leading-none text-white drop-shadow-[3px_3px_0_#ff69b4] tracking-wider font-bold select-none">
+          <h1 className="font-['Press_Start_2P'] text-base xs:text-lg sm:text-2xl md:text-3xl leading-none text-white drop-shadow-[3px_3px_0_#ff69b4] tracking-wider font-bold select-none">
             OUR LOVE STORY
           </h1>
           <button
             type="button"
             onClick={handleToggleMusic}
-            className="inline-flex items-center gap-2 rounded-full border-2 sm:border-4 border-black bg-[#121224] px-3 py-1 sm:px-3.5 sm:py-1.5 text-white transition hover:bg-[#ff69b4] hover:text-black active:scale-95 text-xs shadow-[2px_2px_0_#000] sm:shadow-[4px_4px_0_#000] font-bold"
+            className="inline-flex items-center gap-2 rounded-full border-2 sm:border-4 border-black bg-[#121224] px-3 py-0.5 xs:py-1 sm:px-3.5 sm:py-1.5 text-white transition hover:bg-[#ff69b4] hover:text-black active:scale-95 text-[10px] sm:text-xs shadow-[2px_2px_0_#000] sm:shadow-[4px_4px_0_#000] font-bold"
             aria-label={musicEnabled ? 'Turn music off' : 'Turn music on'}
           >
-            {musicEnabled ? <Volume2 className="h-3.5 w-3.5 text-[#ff69b4]" /> : <VolumeX className="h-3.5 w-3.5 text-[#a0a0b0]/40" />}
-            <span className="font-['VT323'] text-sm sm:text-base tracking-wide">{musicEnabled ? 'BGM ON' : 'BGM OFF'}</span>
+            {musicEnabled ? <Volume2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#ff69b4]" /> : <VolumeX className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#a0a0b0]/40" />}
+            <span className="font-['VT323'] text-xs sm:text-base tracking-wide">{musicEnabled ? 'BGM ON' : 'BGM OFF'}</span>
           </button>
         </div>
 
         {/* ── CENTER CONSOLE ───────────────────────────────────────────────── */}
-        <div className="w-full max-w-[310px] sm:max-w-[360px] bg-[#121224]/90 border-2 sm:border-4 border-black rounded-xl p-3 sm:p-4 shadow-[4px_4px_0_#000] sm:shadow-[6px_6px_0_#000] relative">
-          <div className="mb-2.5 sm:mb-3.5 flex items-center justify-between border-b-2 border-black pb-2 select-none">
-            <span className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] tracking-widest font-bold uppercase">
+        <div className="w-full max-w-[290px] xs:max-w-[320px] sm:max-w-[360px] bg-[#121224]/90 border-2 sm:border-4 border-black rounded-xl p-2.5 xs:p-3 sm:p-4 shadow-[3px_3px_0_#000] sm:shadow-[6px_6px_0_#000] relative">
+          <div className="mb-2 sm:mb-3.5 flex items-center justify-between border-b-2 border-black pb-1.5 xs:pb-2 select-none">
+            <span className="font-['Press_Start_2P'] text-[8px] xs:text-[9px] text-[#ff69b4] tracking-widest font-bold uppercase">
               {activeCategory === null ? 'MAIN MENU' : activeCategory}
             </span>
-            <span className="font-['VT323'] text-base text-[#a0a0b0]/65 font-bold">
+            <span className="font-['VT323'] text-sm xs:text-base text-[#a0a0b0]/65 font-bold">
               {activeCategory === null ? `${selectedIndex + 1} / 4` : `${selectedIndex} / 4`}
             </span>
           </div>
 
           <div className="space-y-1.5">
             {activeCategory === null ? (
-              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 {CATEGORIES.map((cat, index) => {
                   const isSel = selectedIndex === index;
                   return (
@@ -506,15 +550,15 @@ const Home: React.FC = () => {
                       onFocus={() => setSelectedIndex(index)}
                       onClick={e => handleCategoryClick(cat.id, index, e)}
                       className={[
-                        'flex flex-col items-center justify-center p-3 rounded-xl border-2 sm:border-4 transition-all duration-100 cursor-pointer min-h-[90px] sm:min-h-[100px] font-bold',
+                        'flex flex-col items-center justify-center p-2 rounded-xl border-2 sm:border-4 transition-all duration-100 cursor-pointer min-h-[75px] xs:min-h-[85px] sm:min-h-[100px] font-bold',
                         isSel
                           ? 'border-black bg-[#ff69b4] text-black shadow-[2px_2px_0_#000] translate-x-0.5 translate-y-0.5'
                           : 'border-transparent bg-[#222230] text-[#a0a0b0] hover:bg-[#2a2a3e] hover:text-white',
                       ].join(' ')}
                       aria-label={cat.label}
                     >
-                      <span className="text-xl sm:text-2xl mb-1.5 shrink-0 select-none">{cat.icon}</span>
-                      <span className="font-['Press_Start_2P'] text-[8px] sm:text-[9px] tracking-wider leading-none">{cat.label}</span>
+                      <span className="text-lg xs:text-xl sm:text-2xl mb-1 xs:mb-1.5 shrink-0 select-none">{cat.icon}</span>
+                      <span className="font-['Press_Start_2P'] text-[7px] xs:text-[8px] sm:text-[9px] tracking-wider leading-none">{cat.label}</span>
                     </button>
                   );
                 })}
@@ -527,17 +571,17 @@ const Home: React.FC = () => {
                   onFocus={() => setSelectedIndex(0)}
                   onClick={() => handleGoBack()}
                   className={[
-                    'w-full px-2.5 py-2 sm:px-3.5 sm:py-2.5 text-left transition-all duration-100 flex items-center gap-3 font-["Press_Start_2P"] text-[8px] sm:text-[9px] border-2 sm:border-4 rounded-xl font-bold min-h-[38px] sm:min-h-[44px] cursor-pointer',
+                    'w-full px-2 py-1.5 xs:px-3 xs:py-2 text-left transition-all duration-100 flex items-center gap-2 xs:gap-3 font-["Press_Start_2P"] text-[7px] xs:text-[8px] sm:text-[9px] border-2 sm:border-4 rounded-xl font-bold min-h-[32px] xs:min-h-[38px] sm:min-h-[44px] cursor-pointer',
                     selectedIndex === 0
                       ? 'border-black bg-[#a0a0b0] text-black shadow-[2px_2px_0_#000]'
                       : 'border-transparent bg-[#222230] text-[#a0a0b0] hover:bg-[#2a2a3e] hover:text-white',
                   ].join(' ')}
                   aria-label="Kembali"
                 >
-                  <span className="w-4 sm:w-5 text-center text-xs shrink-0 select-none">◀</span>
+                  <span className="w-3 xs:w-4 text-center text-[10px] shrink-0 select-none">◀</span>
                   <span>KEMBALI</span>
                 </button>
-                <div className="border-t border-white/5 my-1.5" />
+                <div className="border-t border-white/5 my-1" />
                 {SUB_MENU_ITEMS[activeCategory].map((item, index) => {
                   const idx = index + 1;
                   const isSel = selectedIndex === idx;
@@ -551,7 +595,7 @@ const Home: React.FC = () => {
                       onClick={e => handleSubMenuClick(item, idx, e)}
                       disabled={!isEn}
                       className={[
-                        'w-full px-2.5 py-2 sm:px-3.5 sm:py-2.5 text-left transition-all duration-100 flex items-center gap-3 font-["Press_Start_2P"] text-[8px] sm:text-[9px] border-2 sm:border-4 rounded-xl font-bold min-h-[38px] sm:min-h-[44px] cursor-pointer',
+                        'w-full px-2 py-1.5 xs:px-3 xs:py-2 text-left transition-all duration-100 flex items-center gap-2 xs:gap-3 font-["Press_Start_2P"] text-[7px] xs:text-[8px] sm:text-[9px] border-2 sm:border-4 rounded-xl font-bold min-h-[32px] xs:min-h-[38px] sm:min-h-[44px] cursor-pointer',
                         isEn
                           ? isSel
                             ? 'border-black bg-[#ff69b4] text-black shadow-[2px_2px_0_#000] translate-x-0.5 translate-y-0.5'
@@ -560,7 +604,7 @@ const Home: React.FC = () => {
                       ].join(' ')}
                       aria-label={item.label}
                     >
-                      <span className="w-4 sm:w-5 text-center text-xs shrink-0 select-none">{item.icon}</span>
+                      <span className="w-3 xs:w-4 text-center text-[10px] shrink-0 select-none">{item.icon}</span>
                       <span>{item.label}</span>
                       {isSel && isEn && <span className="ml-auto text-black font-bold select-none">◀</span>}
                     </button>
@@ -571,8 +615,8 @@ const Home: React.FC = () => {
           </div>
 
           {/* Description bar */}
-          <div className="mt-3.5 border-t-2 border-black/35 pt-2 select-none min-h-[38px] flex items-center justify-center">
-            <p className="font-['VT323'] text-sm sm:text-base text-[#a0a0b0] text-center tracking-wider leading-tight">
+          <div className="mt-2.5 border-t-2 border-black/35 pt-1.5 select-none min-h-[32px] xs:min-h-[38px] flex items-center justify-center">
+            <p className="font-['VT323'] text-xs xs:text-sm sm:text-base text-[#a0a0b0] text-center tracking-wider leading-tight">
               {activeCategory === null
                 ? CATEGORIES[selectedIndex]?.description
                 : selectedIndex === 0
@@ -583,36 +627,36 @@ const Home: React.FC = () => {
         </div>
 
         {/* ── BOTTOM BAR ──────────────────────────────────────────────────── */}
-        <div className="w-full flex flex-col items-center gap-1.5">
-          <p className="font-['VT323'] text-xs sm:text-sm text-white/80 tracking-wider font-bold select-none drop-shadow-[1px_1px_2px_#000]">
+        <div className="w-full flex flex-col items-center gap-1">
+          <p className="font-['VT323'] text-[10px] xs:text-xs text-white/80 tracking-wider font-bold select-none drop-shadow-[1px_1px_2px_#000]">
             Use ↑ ↓ key to navigate · ENTER to select
           </p>
 
           {/* Mobile: Large animated characters */}
-          <div className="flex items-end justify-center gap-2 sm:gap-6 xl:hidden pointer-events-auto">
+          <div className="flex items-end justify-center gap-1 sm:gap-6 xl:hidden pointer-events-auto">
 
             {/* Boy */}
             <div
               className={`relative flex flex-col items-center transition-all duration-700 ${boyState.entered ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
               onClick={(e) => { e.stopPropagation(); triggerReact('boy', 'click'); }}
             >
-              <div className={`mb-1 transition-all duration-200 ${boyShowBubble ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
-                <div className="bg-[#121224] border border-white/20 rounded-lg p-1">
-                  <img src={getExpr('boy', BOY_REACT_EXPR[boyState.react])} alt="" className="h-7 w-7 object-contain pixel-art" />
+              <div className={`mb-0.5 transition-all duration-200 ${boyShowBubble ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
+                <div className="bg-[#121224] border border-white/20 rounded-lg p-0.5">
+                  <img src={getExpr('boy', BOY_REACT_EXPR[boyState.react])} alt="" className="h-6 w-6 object-contain pixel-art" />
                 </div>
               </div>
               <img
                 src={boySrc}
                 alt="Boy"
                 className="object-contain pixel-art cursor-pointer"
-                style={{ width: '76px', height: '76px', imageRendering: 'pixelated' }}
+                style={{ width: '64px', height: '64px', imageRendering: 'pixelated' }}
               />
-              <PixelShadow className="w-10" />
+              <PixelShadow className="w-8" />
             </div>
 
             {/* Center heart node */}
-            <div className="mb-4 flex flex-col items-center gap-1">
-              <span className={`text-lg select-none ${isIdle ? 'animate-bounce' : 'animate-pulse'}`}>💕</span>
+            <div className="mb-2 flex flex-col items-center gap-0.5">
+              <span className={`text-base select-none ${isIdle ? 'animate-bounce' : 'animate-pulse'}`}>💕</span>
               {isIdle && (
                 <span className="font-['Press_Start_2P'] text-[5px] text-[#ff69b4] animate-pulse select-none whitespace-nowrap">
                   ★ DANCE ★
@@ -625,18 +669,18 @@ const Home: React.FC = () => {
               className={`relative flex flex-col items-center transition-all duration-700 delay-100 ${girlState.entered ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
               onClick={(e) => { e.stopPropagation(); triggerReact('girl', 'click'); }}
             >
-              <div className={`mb-1 transition-all duration-200 ${girlShowBubble ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
-                <div className="bg-[#121224] border border-white/20 rounded-lg p-1">
-                  <img src={getExpr('girl', GIRL_REACT_EXPR[girlState.react])} alt="" className="h-7 w-7 object-contain pixel-art" />
+              <div className={`mb-0.5 transition-all duration-200 ${girlShowBubble ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
+                <div className="bg-[#121224] border border-white/20 rounded-lg p-0.5">
+                  <img src={getExpr('girl', GIRL_REACT_EXPR[girlState.react])} alt="" className="h-6 w-6 object-contain pixel-art" />
                 </div>
               </div>
               <img
                 src={girlSrc}
                 alt="Girl"
                 className="object-contain pixel-art cursor-pointer"
-                style={{ width: '76px', height: '76px', imageRendering: 'pixelated', transform: 'scaleX(-1)' }}
+                style={{ width: '64px', height: '64px', imageRendering: 'pixelated', transform: 'scaleX(-1)' }}
               />
-              <PixelShadow className="w-10" />
+              <PixelShadow className="w-8" />
             </div>
           </div>
         </div>
