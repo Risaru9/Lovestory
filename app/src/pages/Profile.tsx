@@ -134,9 +134,20 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleDownload = () => {
+    let basePath = window.location.pathname;
+    const routes = ['/profile', '/home', '/auth', '/connect', '/timeline', '/timeline/'];
+    routes.forEach(r => {
+      if (basePath.endsWith(r)) {
+        basePath = basePath.slice(0, -r.length);
+      }
+    });
+    if (!basePath.endsWith('/')) {
+      basePath += '/';
+    }
+    const url = `${window.location.origin}${basePath}download/lovestory.bin`;
     const link = document.createElement('a');
-    link.href = '/download/lovestory.zip';
-    link.download = 'lovestory.zip';
+    link.href = url;
+    link.download = 'lovestory.apk';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -326,10 +337,10 @@ const ProfilePage: React.FC = () => {
               </span>
             </div>
             <p className="font-['VT323'] text-sm text-[#a0a0b0] leading-relaxed">
-              Unduh file ZIP berisi installer Android sekarang. Ekstrak file ZIP untuk mendapatkan file APK, lalu pasang di HP Anda!
+              Mainkan LoveStory secara normal, halus, dan responsif langsung di smartphone Anda sekarang!
             </p>
             <PixelButton onClick={handleDownload} className="w-full text-[10px] py-3.5 flex items-center justify-center gap-2">
-              <Download className="h-4 w-4" /> UNDUH APLIKASI (ZIP)
+              <Download className="h-4 w-4" /> UNDUH APLIKASI (APK)
             </PixelButton>
           </div>
 
