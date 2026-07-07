@@ -7,18 +7,13 @@ const MobileOnly: React.FC = () => {
   const navigate = useNavigate();
 
   const handleDownload = () => {
-    const url = 'https://github.com/Risaru9/Lovestory/releases/download/v1.0.0-debug/LoveStory.apk';
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    
-    if (isAndroid) {
-      const intentUrl = `intent://${url.replace('https://', '')}#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end;`;
-      window.location.href = intentUrl;
-      setTimeout(() => {
-        window.location.href = url;
-      }, 1500);
-    } else {
-      window.location.href = url;
-    }
+    const url = '/LoveStory.apk';
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'LoveStory.apk';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   return (

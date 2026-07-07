@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { PixelButton } from '@/components/custom/PixelButton';
 import { supabase } from '@/lib/supabaseClient';
-import { LogOut, ArrowLeft, Download, ShieldCheck, UserCheck, RefreshCw, AlertTriangle } from 'lucide-react';
+import { LogOut, ArrowLeft, Download, ShieldCheck, UserCheck, RefreshCw } from 'lucide-react';
 
 const playSFX = (freq = 440, type: OscillatorType = 'square', duration = 0.1) => {
   try {
@@ -25,7 +25,6 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, profile, partner, coupleInfo, isConnected, signOut, generateCoupleCode, connectWithCode, refreshCouple } = useAuth();
 
-  const [showInAppWarning, setShowInAppWarning] = useState(false);
   const [newName, setNewName] = useState(profile?.name || '');
   const [partnerCode, setPartnerCode] = useState('');
   const [myCode, setMyCode] = useState<string | null>(null);
@@ -134,68 +133,19 @@ const ProfilePage: React.FC = () => {
     navigate('/');
   };
 
-  const triggerDownload = () => {
-    const url = 'https://github.com/Risaru9/Lovestory/releases/download/v1.0.0-debug/LoveStory.apk';
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    
-    if (isAndroid) {
-      const intentUrl = `intent://${url.replace('https://', '')}#Intent;scheme=https;package=com.android.chrome;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end;`;
-      window.location.href = intentUrl;
-      setTimeout(() => {
-        window.location.href = url;
-      }, 1500);
-    } else {
-      window.location.href = url;
-    }
-    setShowInAppWarning(false);
-  };
-
   const handleDownload = () => {
-    const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
-    const isInAppBrowser = /Instagram|FBAN|FBAV|Line|Snapchat|TikTok|WhatsApp|Viber|MiuiBrowser/i.test(ua);
-    
-    if (isInAppBrowser) {
-      setShowInAppWarning(true);
-    } else {
-      triggerDownload();
-    }
+    const url = '/LoveStory.apk';
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'LoveStory.apk';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   return (
     <div className="min-h-screen bg-[#0c0a18] text-white flex flex-col justify-between relative overflow-hidden select-none">
       
-      {showInAppWarning && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121224] border-4 border-[#ffb300] rounded-xl p-6 max-w-sm w-full shadow-[5px_5px_0_#ffb300] space-y-4">
-            <div className="flex items-center gap-3 text-[#ffb300]">
-              <AlertTriangle className="h-8 w-8 animate-pulse" />
-              <h3 className="font-['Press_Start_2P'] text-[9px] leading-relaxed">PERINGATAN BROWSER</h3>
-            </div>
-            <p className="font-['VT323'] text-lg text-white leading-tight">
-              Anda sepertinya membuka link ini dari dalam aplikasi (Instagram/TikTok/WA).
-            </p>
-            <div className="bg-red-500/10 border-2 border-red-500/50 p-3 rounded text-red-200">
-              <p className="font-['VT323'] text-base leading-snug">
-                Browser internal sering membuat <strong className="text-red-400">Download APK stuck di 100%</strong> dan gagal diinstal.
-              </p>
-            </div>
-            <div className="bg-[#00bcd4]/10 border-2 border-[#00bcd4]/50 p-3 rounded">
-              <p className="font-['VT323'] text-base text-[#00bcd4] leading-snug">
-                <strong>SOLUSI:</strong> Tekan ikon <strong>3-titik di pojok kanan atas layar</strong> (⋮), lalu pilih <strong className="text-white bg-[#00bcd4]/30 px-1">Buka di Chrome</strong> atau <strong className="text-white bg-[#00bcd4]/30 px-1">Open in Browser</strong>.
-              </p>
-            </div>
-            <div className="pt-2 flex flex-col gap-3">
-              <PixelButton onClick={() => setShowInAppWarning(false)} className="w-full text-[10px]">
-                TUTUP
-              </PixelButton>
-              <button onClick={triggerDownload} className="font-['VT323'] text-sm text-[#ff69b4] hover:underline cursor-pointer text-center">
-                Tetap coba download di sini
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Scanline pattern overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
         style={{ backgroundImage: 'repeating-linear-gradient(0deg, #000 0px, #000 1px, transparent 1px, transparent 4px)' }}
