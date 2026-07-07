@@ -13,6 +13,9 @@ import {
   getLocationLogs,
 } from '@/lib/db';
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
+import { Geolocation } from '@capacitor/geolocation';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
 
 interface LocationLog {
   id: number;
@@ -95,55 +98,83 @@ const MapTracker: React.FC = () => {
   // LOCATION PERMISSIONS MANAGEMENT
   // =========================================================================
   const checkLocationPermission = async () => {
-    if (!('permissions' in navigator)) {
-      setPermissionStatus('prompt');
-      return;
-    }
-
     try {
-      const result = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
-      setPermissionStatus(result.state as any);
-
-      result.onchange = () => {
+      if (Capacitor.isNativePlatform()) {
+        const status = await Geolocation.checkPermissions();
+        if (status.location === 'granted') {
+          setPermissionStatus('granted');
+        } else if (status.location === 'denied') {
+          setPermissionStatus('denied');
+        } else {
+          setPermissionStatus('prompt');
+        }
+      } else {
+        if (!('permissions' in navigator)) {
+          setPermissionStatus('prompt');
+          return;
+        }
+        const result = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
         setPermissionStatus(result.state as any);
-      };
+        result.onchange = () => {
+          setPermissionStatus(result.state as any);
+        };
+      }
     } catch (err) {
       console.error('Error querying permission status:', err);
       setPermissionStatus('prompt');
     }
   };
 
-  const requestLocationPermission = () => {
-    if (!('geolocation' in navigator)) {
-      showToast('Geolocation tidak didukung oleh browser Anda.', '⚠');
-      return;
-    }
-
+  const requestLocationPermission = async () => {
     showToast('Meminta izin akses lokasi...', '🛰');
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setMyCoords({ latitude, longitude });
-        updateLocation(latitude, longitude);
-        setPermissionStatus('granted');
-        showToast('Izin lokasi disetujui!', '💖');
-      },
-      (err) => {
-        console.error('Error requesting location:', err);
-        if (err.code === err.PERMISSION_DENIED) {
-          setPermissionStatus('denied');
-          showToast('Izin lokasi ditolak! Buka setelan browser untuk mengaktifkan.', '⚠');
+    try {
+      if (Capacitor.isNativePlatform()) {
+        // Request notifications permission too for Smart Travel Notifications
+        await LocalNotifications.requestPermissions();
+        
+        const status = await Geolocation.requestPermissions({ permissions: ['location', 'coarseLocation'] });
+        if (status.location === 'granted') {
+          setPermissionStatus('granted');
+          showToast('Izin lokasi disetujui!', '💖');
+          // Force immediate position fetch
+          const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+          const { latitude, longitude } = pos.coords;
+          setMyCoords({ latitude, longitude });
+          updateLocation(latitude, longitude);
         } else {
-          showToast('Gagal memuat GPS. Pastikan GPS aktif!', '⚠');
+          setPermissionStatus('denied');
+          showToast('Izin lokasi ditolak! Buka setelan aplikasi untuk mengaktifkan.', '⚠');
         }
-      },
-      {
-        enableHighAccuracy: false,
-        maximumAge: 10000,
-        timeout: 15000,
+      } else {
+        if (!('geolocation' in navigator)) {
+          showToast('Geolocation tidak didukung oleh browser Anda.', '⚠');
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setMyCoords({ latitude, longitude });
+            updateLocation(latitude, longitude);
+            setPermissionStatus('granted');
+            showToast('Izin lokasi disetujui!', '💖');
+          },
+          (err) => {
+            console.error('Error requesting location:', err);
+            if (err.code === err.PERMISSION_DENIED) {
+              setPermissionStatus('denied');
+              showToast('Izin lokasi ditolak! Buka setelan browser untuk mengaktifkan.', '⚠');
+            } else {
+              showToast('Gagal memuat GPS. Pastikan GPS aktif!', '⚠');
+            }
+          },
+          { enableHighAccuracy: false, maximumAge: 10000, timeout: 15000 }
+        );
       }
-    );
+    } catch (err) {
+      console.error('Error in requestLocationPermission:', err);
+      showToast('Terjadi kesalahan saat meminta izin.', '⚠');
+    }
   };
 
   // =========================================================================
@@ -234,15 +265,36 @@ const MapTracker: React.FC = () => {
         },
         async (payload: any) => {
           const updatedUser = payload.new;
-          // Check if this updated profile belongs to partner
           const partnerLoc = await getPartnerLocation();
           const myUser = await supabase?.auth.getUser();
+          
           if (partnerLoc && updatedUser.id !== myUser?.data?.user?.id) {
             console.log('[Realtime GPS] Partner coordinate updated!');
-            setPartnerCoords({
-              latitude: partnerLoc.latitude,
-              longitude: partnerLoc.longitude,
-              name: partnerLoc.name,
+            
+            // --- SMART TRAVEL NOTIFICATION LOGIC ---
+            // If we have previous partner coordinates, check if they moved significantly
+            setPartnerCoords((prevCoords) => {
+              if (prevCoords && Capacitor.isNativePlatform()) {
+                const movedDistance = calcDistanceM(prevCoords.latitude, prevCoords.longitude, partnerLoc.latitude, partnerLoc.longitude);
+                if (movedDistance > 50) { // If moved more than 50 meters
+                  LocalNotifications.schedule({
+                    notifications: [
+                      {
+                        title: 'Pergerakan Pasangan Terdeteksi 🚗',
+                        body: `Pasangan Anda sedang dalam perjalanan atau baru saja berpindah lokasi.`,
+                        id: new Date().getTime(),
+                        schedule: { at: new Date(Date.now() + 1000) },
+                        smallIcon: 'ic_launcher'
+                      }
+                    ]
+                  });
+                }
+              }
+              return {
+                latitude: partnerLoc.latitude,
+                longitude: partnerLoc.longitude,
+                name: partnerLoc.name,
+              };
             });
           }
         }
@@ -271,7 +323,23 @@ const MapTracker: React.FC = () => {
           if (newLog.profile_id !== myId) {
             const eventName = newLog.event_type === 'arrived' ? 'tiba di' : 'pergi dari';
             const emoji = newLog.event_type === 'arrived' ? '📍💖' : '🚶‍♂️✨';
+            const title = newLog.event_type === 'arrived' ? 'Tiba di Tujuan 🏠' : 'Meninggalkan Lokasi 🚶‍♂️';
+            
             showToast(`Pasanganmu ${eventName} ${newLog.geofence_name}!`, emoji);
+            
+            if (Capacitor.isNativePlatform()) {
+              LocalNotifications.schedule({
+                notifications: [
+                  {
+                    title,
+                    body: `Pasangan Anda baru saja ${eventName} ${newLog.geofence_name}.`,
+                    id: new Date().getTime() + 1,
+                    schedule: { at: new Date(Date.now() + 1000) },
+                    smallIcon: 'ic_launcher'
+                  }
+                ]
+              });
+            }
           }
         }
       )
@@ -353,32 +421,58 @@ const MapTracker: React.FC = () => {
   useEffect(() => {
     if (!map || permissionStatus !== 'granted') return;
 
-    if (!('geolocation' in navigator)) {
-      showToast('Geolocation tidak didukung oleh browser Anda.', '⚠');
-      return;
-    }
+    let watchId: string | number;
 
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setMyCoords({ latitude, longitude });
-
-        // Update to DB
-        updateLocation(latitude, longitude);
-      },
-      (err) => {
-        console.error('Error watch position:', err);
-        showToast('Gagal memuat GPS. Pastikan izin lokasi aktif!', '⚠');
-      },
-      {
-        enableHighAccuracy: false,
-        maximumAge: 10000,
-        timeout: 15000,
+    const startWatching = async () => {
+      try {
+        if (Capacitor.isNativePlatform()) {
+          watchId = await Geolocation.watchPosition(
+            { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+            (position, err) => {
+              if (err) {
+                console.error('Error watch position (native):', err);
+                return;
+              }
+              if (position) {
+                const { latitude, longitude } = position.coords;
+                setMyCoords({ latitude, longitude });
+                updateLocation(latitude, longitude);
+              }
+            }
+          );
+        } else {
+          if (!('geolocation' in navigator)) {
+            showToast('Geolocation tidak didukung oleh browser Anda.', '⚠');
+            return;
+          }
+          watchId = navigator.geolocation.watchPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+              setMyCoords({ latitude, longitude });
+              updateLocation(latitude, longitude);
+            },
+            (err) => {
+              console.error('Error watch position (web):', err);
+              showToast('Gagal memuat GPS. Pastikan izin lokasi aktif!', '⚠');
+            },
+            { enableHighAccuracy: false, maximumAge: 10000, timeout: 15000 }
+          );
+        }
+      } catch (err) {
+        console.error('Failed to start watching location:', err);
       }
-    );
+    };
+
+    startWatching();
 
     return () => {
-      navigator.geolocation.clearWatch(watchId);
+      if (watchId !== undefined) {
+        if (Capacitor.isNativePlatform()) {
+          Geolocation.clearWatch({ id: watchId as string });
+        } else {
+          navigator.geolocation.clearWatch(watchId as number);
+        }
+      }
     };
   }, [map, permissionStatus]);
 
