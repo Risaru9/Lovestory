@@ -3,10 +3,32 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { PixelButton } from '@/components/custom/PixelButton';
 import { Download, User, BookOpen, Star, HelpCircle } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  React.useEffect(() => {
+    // Jika dibuka di Native App, skip halaman download dan langsung ke auth/profile
+    if (Capacitor.isNativePlatform() && !isLoading) {
+      if (user) {
+        navigate('/profile', { replace: true });
+      } else {
+        navigate('/auth', { replace: true });
+      }
+    }
+  }, [user, isLoading, navigate]);
+
+  if (Capacitor.isNativePlatform()) {
+    return (
+      <div className="min-h-screen bg-[#0c0a18] flex items-center justify-center">
+        <p className="font-['Press_Start_2P'] text-[#FF69B4] text-xs animate-pulse">
+          MEMUAT APLIKASI...
+        </p>
+      </div>
+    );
+  }
 
   const handleDownload = () => {
     // Direct download from GitHub Releases - works on all hosting platforms
