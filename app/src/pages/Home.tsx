@@ -1,69 +1,23 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Volume2, VolumeX, User } from 'lucide-react';
+import { Volume2, VolumeX, User, ArrowLeft, ArrowRight } from 'lucide-react';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-interface HeartParticle { id: string; x: number; y: number; }
-interface MenuItem { label: string; path: string; icon: string; enabled?: boolean; }
-interface Category {
-  id: 'journey' | 'connection' | 'playroom' | 'vault';
-  label: string; icon: string; description: string; color: string;
-}
-interface PlaylistItem { title: string; src: string; }
-
-// Character actions and reaction states
-type CharAction = 'walk' | 'dance';
-type CharReact  = 'idle' | 'hover' | 'click';
-
-interface CharState {
-  action:  CharAction;
-  frame:   number;
-  react:   CharReact;
-  entered: boolean; // entrance animation status
-}
-
-// ─── Animation Constants ──────────────────────────────────────────────────────
-const WALK_FRAMES   = 8;
-const DANCE_FRAMES  = 12;
-const WALK_MS       = 120;   // Snappier walking
-const DANCE_MS      = 90;    // Faster dance frame swapping
-const IDLE_DELAY_MS = 7000;  // 7s idle → dance loop
-
-// ─── Asset Helpers ────────────────────────────────────────────────────────────
-const getWalkFrame = (role: 'boy' | 'girl', action: CharAction, frame: number) => {
+// ─── Character Asset Helpers ─────────────────────────────────────────────────
+const WALK_FRAMES = 8;
+const WALK_MS = 120;
+const getWalkFrame = (role: 'boy' | 'girl', frame: number) => {
   const p = String(frame).padStart(2, '0');
-  return `/images/asset_baru_karakter/${role}/${action}/${action}_${p}.png`;
-};
-const getExpr = (role: 'boy' | 'girl', name: string) =>
-  `/images/asset_baru_karakter/${role}/expressions/${name}.png`;
-
-// Reaction expressions per character state
-const BOY_REACT_EXPR: Record<CharReact, string> = {
-  idle:  'smile',
-  hover: 'happy',
-  click: 'laugh',
-};
-const GIRL_REACT_EXPR: Record<CharReact, string> = {
-  idle:  'shy',
-  hover: 'smile',
-  click: 'laugh',
+  return `/images/asset_baru_karakter/${role}/walk/walk_${p}.png`;
 };
 
-// ─── Static Data ──────────────────────────────────────────────────────────────
+// ─── Music Constants ────────────────────────────────────────────────────────
 const STORAGE_KEYS = { musicEnabled: 'home-music-enabled', trackIndex: 'home-track-index' };
-const HOME_PLAYLIST: PlaylistItem[] = [
+const HOME_PLAYLIST = [
   { title: 'Pixel', src: '/audio/home/Pixelated_Reverie.mp3' },
   { title: 'Pixel', src: '/audio/home/Midnight_Frost.mp3' },
   { title: 'Pixel', src: '/audio/home/Pixelated_Petal_Promenade.mp3' },
-  { title: 'Rainy', src: '/audio/home/Rainy_Day_Vinyl_Dreams.mp3' },
-  { title: 'Rainy', src: '/audio/home/Golden_Hour_Drift.mp3' },
 ];
 const BGM_VOLUME = 1;
-
-const createId = () => {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-};
 
 const getInitialMusic = () => {
   if (typeof window === 'undefined') return true;
@@ -71,111 +25,34 @@ const getInitialMusic = () => {
   return s === null ? true : s === 'true';
 };
 
-const getInitialTrack = () => {
-  if (typeof window === 'undefined') return 0;
-  const s = window.localStorage.getItem(STORAGE_KEYS.trackIndex);
-  const n = Number(s);
-  return Number.isInteger(n) && n >= 0 && n < HOME_PLAYLIST.length ? n : 0;
-};
-
-const CATEGORIES: Category[] = [
-  { id: 'journey',    label: 'JOURNEY',    icon: '📖', description: 'Petualangan & Lini Masa Kenangan Kita', color: '#ff69b4' },
-  { id: 'connection', label: 'CONNECTION', icon: '💬', description: 'Obrolan Real-Time & Mood Pasangan',     color: '#00bcd4' },
-  { id: 'playroom',   label: 'PLAYROOM',   icon: '🎮', description: 'Aktivitas Seru, Doodle & Game Arcade', color: '#4caf50' },
-  { id: 'vault',      label: 'VAULT',      icon: '🔒', description: 'Peti Impian & Kenangan Kapsul Waktu',  color: '#ffb300' },
+// ─── World Data ─────────────────────────────────────────────────────────────
+const HOTSPOTS = [
+  { id: 'garden', name: 'Love Garden', icon: '🌷', xPos: 12, route: '/dateplanner' },
+  { id: 'journey', name: 'Tree of Journey', icon: '📖', xPos: 35, route: '/timeline' },
+  { id: 'playroom', name: 'Arcade Playroom', icon: '🕹️', xPos: 65, route: '/game' },
+  { id: 'checkin', name: 'Klinik Check-Up', icon: '🏥', xPos: 78, route: '/checkin' },
+  { id: 'vault', name: 'Secret Vault', icon: '🔐', xPos: 92, route: '/dreamvault' },
 ];
 
-const SUB_MENU_ITEMS: Record<'journey'|'connection'|'playroom'|'vault', MenuItem[]> = {
-  journey:    [
-    { label: 'NEW GAME',     path: '/couple',      icon: '✨', enabled: true },
-    { label: 'CONTINUE',     path: '/timeline',    icon: '▶',  enabled: true },
-    { label: 'GALLERY',      path: '/gallery',     icon: '📷', enabled: true },
-    { label: 'DATE PLANNER', path: '/dateplanner', icon: '📅', enabled: true },
-  ],
-  connection: [
-    { label: 'DAILY CHECK-IN',   path: '/checkin', icon: '🗒', enabled: true },
-    { label: 'COUPLE CHAT',      path: '/chat',    icon: '💬', enabled: true },
-    { label: 'LOCATION TRACKER', path: '/map',     icon: '📍', enabled: true },
-    { label: 'LETTER',           path: '/letter',  icon: '💌', enabled: true },
-  ],
-  playroom:   [
-    { label: 'QUIZ QUEST',    path: '/quizquest',    icon: '❓', enabled: true },
-    { label: 'DOODLE CANVAS', path: '/doodle',       icon: '🎨', enabled: true },
-    { label: 'FORTUNE WHEEL', path: '/fortunewheel', icon: '🎡', enabled: true },
-    { label: 'MINI GAME',     path: '/game',         icon: '🎮', enabled: true },
-  ],
-  vault:      [
-    { label: 'TIME CAPSULE', path: '/timecapsule',  icon: '🔒', enabled: true },
-    { label: 'DREAM VAULT',  path: '/dreamvault',   icon: '💭', enabled: true },
-    { label: 'ACHIEVEMENTS', path: '/achievements', icon: '⭐', enabled: true },
-    { label: 'MUSIC',        path: '/music',        icon: '🎵', enabled: true },
-  ],
-};
+export default function Home() {
+  const navigate = useNavigate();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-const PixelShadow: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div
-    className={`absolute bottom-0 left-1/2 -translate-x-1/2 ${className}`}
-    style={{
-      width: '60%', height: '8px',
-      background: 'radial-gradient(ellipse at center, rgba(255,105,180,0.3) 0%, transparent 70%)',
-      filter: 'blur(3px)',
-    }}
-  />
-);
+  // States
+  const [musicEnabled, setMusicEnabled] = useState<boolean>(getInitialMusic);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(50); // 0 to 100%
+  const [isMoving, setIsMoving] = useState<'left' | 'right' | null>(null);
+  const [frame, setFrame] = useState(1);
+  const [activeHotspot, setActiveHotspot] = useState<typeof HOTSPOTS[0] | null>(null);
+  const [direction, setDirection] = useState<'left' | 'right'>('right');
 
-// ═══════════════════════════════════════════════════════════════════════════════
-const Home: React.FC = () => {
-  const navigate             = useNavigate();
-  const audioRef             = useRef<HTMLAudioElement | null>(null);
-  const autoplayAttempted    = useRef(false);
-  const idleTimerRef         = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const reactTimerRef        = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const frameIntervalRef     = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Animation Frame Loop
+  const requestRef = useRef<number>(0);
+  const lastTimeRef = useRef<number>(0);
+  const walkTimerRef = useRef<number>(0);
 
-  const [hearts,            setHearts]            = useState<HeartParticle[]>([]);
-  const [activeCategory,    setActiveCategory]    = useState<'journey'|'connection'|'playroom'|'vault'|null>(null);
-  const [selectedIndex,     setSelectedIndex]     = useState(0);
-  const [musicEnabled,      setMusicEnabled]      = useState<boolean>(getInitialMusic);
-  const [isPlaying,         setIsPlaying]         = useState(false);
-  const [currentTrackIndex] = useState<number>(getInitialTrack);
-
-  const [isIdle, setIsIdle] = useState(false);
-
-  const [boyState,  setBoyState]  = useState<CharState>({ action: 'walk', frame: 1, react: 'idle', entered: false });
-  const [girlState, setGirlState] = useState<CharState>({ action: 'walk', frame: 1, react: 'idle', entered: false });
-
-  const [boyHovered,  setBoyHovered]  = useState(false);
-  const [girlHovered, setGirlHovered] = useState(false);
-
-  const currentTrack = HOME_PLAYLIST[currentTrackIndex];
-
-  // ── Preload walk, dance, and expression assets for mobile instant caching ────
-  useEffect(() => {
-    const roles: ('boy' | 'girl')[] = ['boy', 'girl'];
-    const actions: CharAction[] = ['walk', 'dance'];
-    roles.forEach(role => {
-      actions.forEach(action => {
-        const maxFrames = action === 'dance' ? DANCE_FRAMES : WALK_FRAMES;
-        for (let i = 1; i <= maxFrames; i++) {
-          const img = new Image();
-          img.src = getWalkFrame(role, action, i);
-        }
-      });
-      ['smile', 'happy', 'laugh', 'shy'].forEach(expr => {
-        const img = new Image();
-        img.src = getExpr(role, expr);
-      });
-    });
-  }, []);
-
-  // ── Heart particles ───────────────────────────────────────────────────────
-  const spawnHeart = useCallback((x: number, y: number) => {
-    const id = createId();
-    setHearts(p => [...p, { id, x, y }]);
-    window.setTimeout(() => setHearts(p => p.filter(h => h.id !== id)), 1300);
-  }, []);
-
-  // ── Audio ─────────────────────────────────────────────────────────────────
+  // ─── Audio Logic ────────────────────────────────────────────────────────
   const playAudio = useCallback(async () => {
     const a = audioRef.current; if (!a) return false;
     a.loop = true;
@@ -184,539 +61,246 @@ const Home: React.FC = () => {
     try { await a.play(); setIsPlaying(true); return true; }
     catch { setIsPlaying(false); return false; }
   }, [musicEnabled]);
-  const handleToggleMusic = useCallback(() => {
-    setMusicEnabled((enabled) => !enabled);
-  }, []);
 
-  // ── Nav handlers ──────────────────────────────────────────────────────────
-  const handleCategoryHover = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {
-    setSelectedIndex(index);
-    const r = e.currentTarget.getBoundingClientRect();
-    spawnHeart(r.left - 8, r.top + r.height / 2);
-  };
-  const handleCategoryClick = (
-    catId: 'journey'|'connection'|'playroom'|'vault',
-    _i: number,
-    e?: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    setActiveCategory(catId); setSelectedIndex(1);
-    if (e) { const r = e.currentTarget.getBoundingClientRect(); spawnHeart(r.left + r.width/2, r.top + r.height/2); }
-  };
-  const handleSubMenuHover = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {
-    setSelectedIndex(index);
-    const r = e.currentTarget.getBoundingClientRect();
-    spawnHeart(r.left - 8, r.top + r.height / 2);
-  };
-  const handleSubMenuClick = (item: MenuItem, _i: number, e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!item.enabled) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    spawnHeart(r.left + r.width/2, r.top + r.height/2);
-    window.setTimeout(() => navigate(item.path), 100);
-  };
-  const handleGoBack = (e?: React.MouseEvent<HTMLButtonElement>) => {
-    const prevId = activeCategory;
-    setActiveCategory(null);
-    const ci = CATEGORIES.findIndex(c => c.id === prevId);
-    setSelectedIndex(ci >= 0 ? ci : 0);
-    if (e) { const r = e.currentTarget.getBoundingClientRect(); spawnHeart(r.left + r.width/2, r.top + r.height/2); }
-  };
-
-  // ── Persist settings ──────────────────────────────────────────────────────
-  useEffect(() => { window.localStorage.setItem(STORAGE_KEYS.musicEnabled, String(musicEnabled)); }, [musicEnabled]);
-  useEffect(() => { window.localStorage.setItem(STORAGE_KEYS.trackIndex, String(currentTrackIndex)); }, [currentTrackIndex]);
-
-  // ── Audio events ──────────────────────────────────────────────────────────
   useEffect(() => {
-    const a = audioRef.current; if (!a) return;
-    a.loop = true;
-    a.volume = musicEnabled ? BGM_VOLUME : 0;
-    a.muted = !musicEnabled;
-    const onPlay  = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    a.addEventListener('play', onPlay); a.addEventListener('pause', onPause);
-    return () => { a.removeEventListener('play', onPlay); a.removeEventListener('pause', onPause); };
-  }, [musicEnabled]);
-  useEffect(() => {
-    const a = audioRef.current; if (!a) return;
-    if (!a.src.endsWith(currentTrack.src)) {
-      a.src = currentTrack.src;
-      a.load();
-    }
-    void playAudio();
-  }, [currentTrack.src, playAudio]);
-  useEffect(() => {
-    if (autoplayAttempted.current) return;
-    autoplayAttempted.current = true;
-    void playAudio();
-  }, [playAudio]);
-  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEYS.musicEnabled, String(musicEnabled));
     const a = audioRef.current; if (!a) return;
     a.muted = !musicEnabled;
     a.volume = musicEnabled ? BGM_VOLUME : 0;
-    if (!isPlaying) void playAudio();
+    if (musicEnabled && !isPlaying) void playAudio();
   }, [musicEnabled, isPlaying, playAudio]);
-  useEffect(() => {
-    if (isPlaying) return;
-    const fn = async () => { await playAudio(); window.removeEventListener('pointerdown', fn); window.removeEventListener('keydown', fn); };
-    window.addEventListener('pointerdown', fn); window.addEventListener('keydown', fn);
-    return () => { window.removeEventListener('pointerdown', fn); window.removeEventListener('keydown', fn); };
-  }, [isPlaying, playAudio]);
 
-  // ── Keyboard navigation ───────────────────────────────────────────────────
   useEffect(() => {
-    const kd = (e: KeyboardEvent) => {
-      if (activeCategory === null) {
-        if (e.key === 'ArrowUp')    { e.preventDefault(); setSelectedIndex(p => p >= 2 ? p-2 : p+2); }
-        else if (e.key === 'ArrowDown')  { e.preventDefault(); setSelectedIndex(p => p < 2 ? p+2 : p-2); }
-        else if (e.key === 'ArrowLeft')  { e.preventDefault(); setSelectedIndex(p => p%2===1 ? p-1 : p+1); }
-        else if (e.key === 'ArrowRight') { e.preventDefault(); setSelectedIndex(p => p%2===0 ? p+1 : p-1); }
-        else if (e.key === 'Enter') { e.preventDefault(); const c = CATEGORIES[selectedIndex]; if (c) { setActiveCategory(c.id); setSelectedIndex(1); } }
-      } else {
-        const tot = 5;
-        if (e.key === 'ArrowDown') { e.preventDefault(); setSelectedIndex(p => (p+1)%tot); }
-        else if (e.key === 'ArrowUp') { e.preventDefault(); setSelectedIndex(p => (p-1+tot)%tot); }
-        else if (e.key === 'Enter') {
-          e.preventDefault();
-          if (selectedIndex === 0) { const prev = activeCategory; setActiveCategory(null); const ci = CATEGORIES.findIndex(c => c.id === prev); setSelectedIndex(ci >= 0 ? ci : 0); }
-          else { const it = SUB_MENU_ITEMS[activeCategory][selectedIndex-1]; if (it?.enabled !== false) navigate(it.path); }
-        } else if (e.key === 'Escape') {
-          e.preventDefault();
-          const prev = activeCategory; setActiveCategory(null);
-          const ci = CATEGORIES.findIndex(c => c.id === prev); setSelectedIndex(ci >= 0 ? ci : 0);
+    const a = audioRef.current; if (!a) return;
+    a.src = HOME_PLAYLIST[0].src;
+    a.load();
+    const handleInteraction = () => { playAudio(); };
+    window.addEventListener('click', handleInteraction, { once: true });
+    window.addEventListener('touchstart', handleInteraction, { once: true });
+    return () => {
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+    };
+  }, [playAudio]);
+
+  // ─── Movement Logic ──────────────────────────────────────────────────────
+  const animate = useCallback((time: number) => {
+    if (lastTimeRef.current !== undefined) {
+      const deltaTime = time - lastTimeRef.current;
+      
+      // Update walk frame if moving
+      if (isMoving) {
+        walkTimerRef.current += deltaTime;
+        if (walkTimerRef.current > WALK_MS) {
+          setFrame(prev => (prev >= WALK_FRAMES ? 1 : prev + 1));
+          walkTimerRef.current = 0;
         }
-      }
-    };
-    window.addEventListener('keydown', kd);
-    return () => window.removeEventListener('keydown', kd);
-  }, [activeCategory, selectedIndex, navigate]);
 
-  // ── Strict window/body level scroll block ──────────────────────────────────
-  useEffect(() => {
-    const prevBody = document.body.style.overflow;
-    const prevHtml = document.documentElement.style.overflow;
-    const prevBodyOverscroll = document.body.style.overscrollBehavior;
-    const prevHtmlOverscroll = document.documentElement.style.overscrollBehavior;
-    const prevPosition = document.body.style.position;
-
-    // Completely lock viewport scrolling and overscroll bouncing at document level
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overscrollBehavior = 'none';
-    document.documentElement.style.overscrollBehavior = 'none';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    document.body.style.height = '100%';
-
-    // Touch event blocker for background swipe gestures
-    const preventScroll = (e: TouchEvent) => {
-      // Allow touch events but prevent defaults that trigger browser viewport panning/scrolling
-      const target = e.target as HTMLElement;
-      if (!target.closest('.custom-scrollbar')) {
-        e.preventDefault();
-      }
-    };
-
-    window.addEventListener('touchmove', preventScroll, { passive: false });
-
-    return () => {
-      document.body.style.overflow = prevBody;
-      document.documentElement.style.overflow = prevHtml;
-      document.body.style.overscrollBehavior = prevBodyOverscroll;
-      document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
-      document.body.style.position = prevPosition;
-      window.removeEventListener('touchmove', preventScroll);
-    };
-  }, []);
-
-  // ── Entrance animation on mount ───────────────────────────────────────────
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setBoyState(p  => ({ ...p,  entered: true }));
-      setGirlState(p => ({ ...p, entered: true }));
-    }, 100);
-    return () => clearTimeout(t);
-  }, []);
-
-  // ── Frame animation loop — adaptive interval per action ───────────────────
-  useEffect(() => {
-    const tick = () => {
-      setBoyState(prev => {
-        const maxF = prev.action === 'dance' ? DANCE_FRAMES : WALK_FRAMES;
-        return { ...prev, frame: prev.frame >= maxF ? 1 : prev.frame + 1 };
-      });
-      setGirlState(prev => {
-        const maxF = prev.action === 'dance' ? DANCE_FRAMES : WALK_FRAMES;
-        return { ...prev, frame: prev.frame >= maxF ? 1 : prev.frame + 1 };
-      });
-    };
-    const ms = isIdle ? DANCE_MS : WALK_MS;
-    if (frameIntervalRef.current) clearInterval(frameIntervalRef.current);
-    frameIntervalRef.current = setInterval(tick, ms);
-    return () => { if (frameIntervalRef.current) clearInterval(frameIntervalRef.current); };
-  }, [isIdle]);
-
-  // ── Idle detection + dance easter egg ────────────────────────────────────
-  useEffect(() => {
-    const goIdle = () => {
-      setIsIdle(true);
-      setBoyState(p  => ({ ...p,  action: 'dance', frame: 1, react: 'idle' }));
-      setGirlState(p => ({ ...p, action: 'dance', frame: 1, react: 'idle' }));
-    };
-    const reset = () => {
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-      setIsIdle(false);
-      setBoyState(p  => p.action === 'dance' ? { ...p,  action: 'walk', frame: 1 } : p);
-      setGirlState(p => p.action === 'dance' ? { ...p, action: 'walk', frame: 1 } : p);
-      idleTimerRef.current = setTimeout(goIdle, IDLE_DELAY_MS);
-    };
-    idleTimerRef.current = setTimeout(goIdle, IDLE_DELAY_MS);
-    window.addEventListener('mousemove', reset);
-    window.addEventListener('keydown',   reset);
-    window.addEventListener('click',     reset);
-    window.addEventListener('touchstart', reset, { passive: true });
-    return () => {
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-      window.removeEventListener('mousemove', reset);
-      window.removeEventListener('keydown',   reset);
-      window.removeEventListener('click',     reset);
-      window.removeEventListener('touchstart', reset);
-    };
-  }, []);
-
-  // ── Character reaction triggers ───────────────────────────────────────────
-  const triggerReact = useCallback((who: 'boy' | 'girl', react: CharReact) => {
-    if (react === 'click') {
-      const cx = who === 'boy' ? window.innerWidth * 0.15 : window.innerWidth * 0.85;
-      for (let i = 0; i < 3; i++) {
-        setTimeout(() => spawnHeart(cx + (Math.random()-0.5)*40, window.innerHeight * 0.75), i * 120);
+        // Update progress (speed: 15% per second)
+        setProgress(prev => {
+          let newProgress = prev;
+          if (isMoving === 'left') newProgress = Math.max(0, prev - (15 * deltaTime) / 1000);
+          if (isMoving === 'right') newProgress = Math.min(100, prev + (15 * deltaTime) / 1000);
+          return newProgress;
+        });
       }
     }
-    if (who === 'boy')  setBoyState(p  => ({ ...p,  react }));
-    else                setGirlState(p => ({ ...p, react }));
+    lastTimeRef.current = time;
+    requestRef.current = requestAnimationFrame(animate);
+  }, [isMoving]);
 
-    if (reactTimerRef.current) clearTimeout(reactTimerRef.current);
-    reactTimerRef.current = setTimeout(() => {
-      if (who === 'boy')  setBoyState(p  => ({ ...p,  react: 'idle' }));
-      else                setGirlState(p => ({ ...p, react: 'idle' }));
-    }, 2000);
-  }, [spawnHeart]);
+  useEffect(() => {
+    requestRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    };
+  }, [animate]);
 
-  // ── Derive current sprite src ─────────────────────────────────────────────
-  const boySrc  = getWalkFrame('boy',  boyState.action,  boyState.frame);
-  const girlSrc = getWalkFrame('girl', girlState.action, girlState.frame);
+  // Handle key presses for keyboard movement
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') { setIsMoving('left'); setDirection('left'); }
+      if (e.key === 'ArrowRight') { setIsMoving('right'); setDirection('right'); }
+      if (e.key === 'Enter' || e.key === ' ') {
+        if (activeHotspot) navigate(activeHotspot.route);
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && isMoving === 'left') setIsMoving(null);
+      if (e.key === 'ArrowRight' && isMoving === 'right') setIsMoving(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [isMoving, activeHotspot, navigate]);
 
-  const boyShowBubble  = boyState.action === 'walk'  && boyState.react  !== 'idle';
-  const girlShowBubble = girlState.action === 'walk' && girlState.react !== 'idle';
+  // Reset to frame 1 when stopped
+  useEffect(() => {
+    if (!isMoving) setFrame(1);
+  }, [isMoving]);
 
-  // ═══════════════════════════════════════════════════════════════════════════
+  // Detect Proximity
+  useEffect(() => {
+    const PROXIMITY_THRESHOLD = 5; // +/- 5% to trigger
+    const nearby = HOTSPOTS.find(h => Math.abs(h.xPos - progress) < PROXIMITY_THRESHOLD);
+    setActiveHotspot(nearby || null);
+  }, [progress]);
+
+  // UI Event Handlers
+  const handleStartMove = (dir: 'left' | 'right') => {
+    setIsMoving(dir);
+    setDirection(dir);
+  };
+  const handleStopMove = () => {
+    setIsMoving(null);
+  };
+
+  const boySrc = getWalkFrame('boy', frame);
+  const girlSrc = getWalkFrame('girl', frame);
+
+  // Determine scaleX based on direction
+  // Assuming default sprites face RIGHT
+  const scale = direction === 'left' ? -1 : 1;
+
   return (
-    <div
-      className="relative h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-[#1e1c2e] select-none fixed inset-0"
-      style={{
-        backgroundImage: 'url(/images/backgrounds/home-bg.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        touchAction: 'none', // Prevents touch-based scroll shifts
-        overscrollBehavior: 'none' // Prevents elastic bounce scrolling
-      }}
-    >
-      <audio ref={audioRef} preload="auto" />
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-[#f4a1a3] select-none touch-none">
+      <audio ref={audioRef} />
 
-      {/* Very soft translucent overlay */}
-      <div className="absolute inset-0 bg-[#ffe4e1]/10 backdrop-blur-[0.2px] pointer-events-none" />
-
-      {/* Floating hearts */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden z-20">
-        {hearts.map(h => (
-          <div key={h.id} className="absolute animate-float-heart" style={{ left: h.x, top: h.y }}>
-            <span className="text-base select-none">💕</span>
+      {/* ─── WORLD LAYER (Moves based on progress) ─── */}
+      {/* 
+        To make the character appear to move, we shift the world background in the opposite direction.
+        The world width is much larger than the screen. Let's say world width is 300vw.
+        progress goes from 0 to 100.
+        translateX goes from 0 to -200vw (so the right edge meets the screen right edge).
+        Actually, an easier way is to use background-position-x.
+      */}
+      <div 
+        className="absolute inset-0 h-full"
+        style={{
+          width: '300vw',
+          transform: `translateX(-${progress * 2}vw)`, // progress 0 to 100 maps to 0 to -200vw
+          backgroundImage: 'url(/rpg-bg.png)',
+          backgroundSize: 'auto 100%',
+          backgroundPosition: 'left bottom',
+          backgroundRepeat: 'no-repeat',
+          imageRendering: 'pixelated',
+        }}
+      >
+        {/* Hotspots / Buildings */}
+        {HOTSPOTS.map((hotspot) => (
+          <div
+            key={hotspot.id}
+            className="absolute bottom-[20vh] flex flex-col items-center"
+            style={{ 
+              left: `${hotspot.xPos}%`,
+              transform: 'translateX(-50%)'
+            }}
+          >
+            <div className="text-5xl sm:text-7xl drop-shadow-xl animate-bounce">
+              {hotspot.icon}
+            </div>
+            {/* Soft shadow under hotspot */}
+            <div className="w-16 h-4 mt-2 bg-black/20 rounded-[50%] blur-sm" />
           </div>
         ))}
       </div>
 
-      {/* ── DESKTOP LEFT CHARACTER (Boy) ────────────────────────────────────── */}
-      <div className="hidden xl:flex pointer-events-auto absolute left-0 bottom-0 flex-col items-center z-30"
-           style={{ width: '220px' }}>
-        <div className={`mb-1 transition-all duration-300 ${boyShowBubble ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-          <div className="relative bg-[#121224] border-2 border-white/20 rounded-xl px-2 py-1 shadow-lg">
-            <img
-              src={getExpr('boy', BOY_REACT_EXPR[boyState.react])}
-              alt="reaction"
-              className="h-10 w-10 object-contain pixel-art mx-auto"
-            />
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white/20" />
-          </div>
-        </div>
-
-        <div
-          className={`relative cursor-pointer select-none transition-all duration-700 ${boyState.entered ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}`}
-          onMouseEnter={() => { setBoyHovered(true); triggerReact('boy', 'hover'); }}
-          onMouseLeave={() => setBoyHovered(false)}
-          onClick={() => triggerReact('boy', 'click')}
+      {/* ─── UI / HUD LAYER (Fixed) ─── */}
+      <div className="absolute top-4 left-4 right-4 flex justify-between z-20 pointer-events-auto">
+        <button
+          onClick={() => setMusicEnabled(!musicEnabled)}
+          className="flex items-center gap-2 rounded-full border-4 border-black bg-[#121224] px-4 py-2 text-white shadow-[3px_3px_0_#000]"
         >
-          <img
-            src={boySrc}
-            alt="Boy character"
-            className={`object-contain pixel-art transition-transform duration-150 ${boyHovered ? 'scale-110 drop-shadow-[0_0_16px_rgba(255,105,180,0.6)]' : ''} ${isIdle ? 'scale-105' : ''}`}
-            style={{
-              width: '160px',
-              height: '160px',
-              imageRendering: 'pixelated',
-              filter: boyHovered ? 'brightness(1.15)' : 'brightness(1)',
-            }}
-          />
-          <PixelShadow className="w-24" />
-        </div>
-
-        <div className={`mt-1 px-2 py-0.5 bg-[#121224]/80 border border-[#ff69b4]/40 rounded font-['Press_Start_2P'] text-[6px] text-[#ff69b4] select-none transition-opacity duration-500 ${boyState.entered ? 'opacity-100' : 'opacity-0'}`}>
-          {isIdle ? '♪ DANCE ♪' : boyHovered ? '( ´ ▽ ` )' : 'BOY'}
-        </div>
-      </div>
-
-      {/* ── DESKTOP RIGHT CHARACTER (Girl) ──────────────────────────────────── */}
-      <div className="hidden xl:flex pointer-events-auto absolute right-0 bottom-0 flex-col items-center z-30"
-           style={{ width: '220px' }}>
-        <div className={`mb-1 transition-all duration-300 ${girlShowBubble ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-          <div className="relative bg-[#121224] border-2 border-white/20 rounded-xl px-2 py-1 shadow-lg">
-            <img
-              src={getExpr('girl', GIRL_REACT_EXPR[girlState.react])}
-              alt="reaction"
-              className="h-10 w-10 object-contain pixel-art mx-auto"
-            />
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white/20" />
-          </div>
-        </div>
-
-        <div
-          className={`relative cursor-pointer select-none transition-all duration-700 delay-150 ${girlState.entered ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}`}
-          onMouseEnter={() => { setGirlHovered(true); triggerReact('girl', 'hover'); }}
-          onMouseLeave={() => setGirlHovered(false)}
-          onClick={() => triggerReact('girl', 'click')}
+          {musicEnabled ? <Volume2 className="h-4 w-4 text-[#ff69b4]" /> : <VolumeX className="h-4 w-4 text-[#a0a0b0]" />}
+        </button>
+        <button
+          onClick={() => navigate('/profile')}
+          className="flex items-center gap-2 rounded-full border-4 border-black bg-[#121224] px-4 py-2 text-white shadow-[3px_3px_0_#000]"
         >
-          <img
-            src={girlSrc}
-            alt="Girl character"
-            className={`object-contain pixel-art transition-transform duration-150 ${girlHovered ? 'scale-110 drop-shadow-[0_0_16px_rgba(255,105,180,0.6)]' : ''} ${isIdle ? 'scale-105' : ''}`}
-            style={{
-              width: '160px',
-              height: '160px',
+          <User className="h-4 w-4 text-[#ff69b4]" />
+        </button>
+      </div>
+
+      {/* Title */}
+      <div className="absolute top-6 w-full text-center pointer-events-none z-10">
+        <h1 className="font-['Press_Start_2P'] text-lg sm:text-2xl text-white drop-shadow-[3px_3px_0_#ff69b4]">
+          LOVESTORY TOWN
+        </h1>
+        <p className="font-['VT323'] text-white/90 text-sm mt-1">Explore to find our memories</p>
+      </div>
+
+      {/* ─── CHARACTER LAYER (Fixed in center) ─── */}
+      <div className="absolute bottom-[10vh] left-1/2 -translate-x-1/2 flex items-end gap-1 z-20 pointer-events-none">
+        {/* Active Hotspot Bubble */}
+        <div className={`absolute -top-24 left-1/2 -translate-x-1/2 transition-all duration-300 ${activeHotspot ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+          <div className="bg-white border-4 border-black rounded-xl p-3 shadow-[4px_4px_0_#000] whitespace-nowrap flex flex-col items-center">
+            <span className="font-['Press_Start_2P'] text-[10px] text-black mb-2">
+              {activeHotspot?.name}
+            </span>
+            <button
+              onClick={() => activeHotspot && navigate(activeHotspot.route)}
+              className="bg-[#ff69b4] text-white border-2 border-black rounded px-4 py-1.5 font-['Press_Start_2P'] text-[8px] hover:bg-pink-400 active:scale-95 transition-all"
+            >
+              MASUK
+            </button>
+            {/* Triangle pointer */}
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-black" />
+          </div>
+        </div>
+
+        {/* Boy Avatar */}
+        <div className="relative">
+          <img 
+            src={boySrc} 
+            alt="Boy" 
+            className="w-16 sm:w-20"
+            style={{ 
               imageRendering: 'pixelated',
-              transform: `scaleX(-1)${girlHovered ? ' scale(1.1)' : ''}`,
-              filter: girlHovered ? 'brightness(1.15)' : 'brightness(1)',
-            }}
+              transform: `scaleX(${scale})`
+            }} 
           />
-          <PixelShadow className="w-24" />
+          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-10 h-2 bg-black/30 rounded-[50%] blur-sm -z-10" />
         </div>
-
-        <div className={`mt-1 px-2 py-0.5 bg-[#121224]/80 border border-[#ff69b4]/40 rounded font-['Press_Start_2P'] text-[6px] text-[#ff69b4] select-none transition-opacity duration-500 delay-150 ${girlState.entered ? 'opacity-100' : 'opacity-0'}`}>
-          {isIdle ? '♪ DANCE ♪' : girlHovered ? '(*^▽^*)' : 'GIRL'}
-        </div>
-      </div>
-
-      {/* ── MAIN CONTENT LAYER ───────────────────────────────────────────────── */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-between px-4 py-3 xs:py-4 sm:py-6 md:py-8">
-
-        {/* ── TOP BAR ─────────────────────────────────────────────────────── */}
-        <div className="w-full flex flex-col items-center gap-1.5 xs:gap-2">
-          <p className="font-['VT323'] text-xs xs:text-sm sm:text-base text-white tracking-widest uppercase font-bold select-none drop-shadow-[1px_1px_2px_#000]">
-            Press Start to Continue Our Journey
-          </p>
-          <h1 className="font-['Press_Start_2P'] text-base xs:text-lg sm:text-2xl md:text-3xl leading-none text-white drop-shadow-[3px_3px_0_#ff69b4] tracking-wider font-bold select-none">
-            OUR LOVE STORY
-          </h1>
-          <div className="flex gap-2.5">
-            <button
-              type="button"
-              onClick={handleToggleMusic}
-              className="inline-flex min-h-[44px] min-w-[124px] items-center justify-center gap-2 rounded-full border-4 border-black bg-[#121224] px-4 py-2 text-white transition hover:bg-[#ff69b4] hover:text-black active:scale-95 shadow-[3px_3px_0_#000] font-bold"
-              aria-label={musicEnabled ? 'Mute background music' : 'Unmute background music'}
-            >
-              {musicEnabled ? <Volume2 className="h-4 w-4 text-[#ff69b4]" /> : <VolumeX className="h-4 w-4 text-[#a0a0b0]/60" />}
-              <span className="font-['VT323'] text-lg leading-none tracking-wide">{musicEnabled ? 'BGM ON' : 'BGM OFF'}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/profile')}
-              className="inline-flex min-h-[44px] min-w-[124px] items-center justify-center gap-2 rounded-full border-4 border-black bg-[#121224] px-4 py-2 text-white transition hover:bg-[#ff69b4] hover:text-black active:scale-95 shadow-[3px_3px_0_#000] font-bold"
-              aria-label="Profile"
-            >
-              <User className="h-4 w-4 text-[#ff69b4]" />
-              <span className="font-['VT323'] text-lg leading-none tracking-wide">PROFILE</span>
-            </button>
-          </div>
-        </div>
-
-        {/* ── CENTER CONSOLE ───────────────────────────────────────────────── */}
-        <div className="w-full max-w-[290px] xs:max-w-[320px] sm:max-w-[360px] bg-[#121224]/90 border-2 sm:border-4 border-black rounded-xl p-2.5 xs:p-3 sm:p-4 shadow-[3px_3px_0_#000] sm:shadow-[6px_6px_0_#000] relative">
-          <div className="mb-2 sm:mb-3.5 flex items-center justify-between border-b-2 border-black pb-1.5 xs:pb-2 select-none">
-            <span className="font-['Press_Start_2P'] text-[8px] xs:text-[9px] text-[#ff69b4] tracking-widest font-bold uppercase">
-              {activeCategory === null ? 'MAIN MENU' : activeCategory}
-            </span>
-            <span className="font-['VT323'] text-sm xs:text-base text-[#a0a0b0]/65 font-bold">
-              {activeCategory === null ? `${selectedIndex + 1} / 4` : `${selectedIndex} / 4`}
-            </span>
-          </div>
-
-          <div className="space-y-1.5">
-            {activeCategory === null ? (
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                {CATEGORIES.map((cat, index) => {
-                  const isSel = selectedIndex === index;
-                  return (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onMouseEnter={e => handleCategoryHover(e, index)}
-                      onFocus={() => setSelectedIndex(index)}
-                      onClick={e => handleCategoryClick(cat.id, index, e)}
-                      className={[
-                        'flex flex-col items-center justify-center p-2 rounded-xl border-2 sm:border-4 transition-all duration-100 cursor-pointer min-h-[75px] xs:min-h-[85px] sm:min-h-[100px] font-bold',
-                        isSel
-                          ? 'border-black bg-[#ff69b4] text-black shadow-[2px_2px_0_#000] translate-x-0.5 translate-y-0.5'
-                          : 'border-transparent bg-[#222230] text-[#a0a0b0] hover:bg-[#2a2a3e] hover:text-white',
-                      ].join(' ')}
-                      aria-label={cat.label}
-                    >
-                      <span className="text-lg xs:text-xl sm:text-2xl mb-1 xs:mb-1.5 shrink-0 select-none">{cat.icon}</span>
-                      <span className="font-['Press_Start_2P'] text-[7px] xs:text-[8px] sm:text-[9px] tracking-wider leading-none">{cat.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="space-y-1.5">
-                <button
-                  type="button"
-                  onMouseEnter={e => handleSubMenuHover(e, 0)}
-                  onFocus={() => setSelectedIndex(0)}
-                  onClick={() => handleGoBack()}
-                  className={[
-                    'w-full px-2 py-1.5 xs:px-3 xs:py-2 text-left transition-all duration-100 flex items-center gap-2 xs:gap-3 font-["Press_Start_2P"] text-[7px] xs:text-[8px] sm:text-[9px] border-2 sm:border-4 rounded-xl font-bold min-h-[32px] xs:min-h-[38px] sm:min-h-[44px] cursor-pointer',
-                    selectedIndex === 0
-                      ? 'border-black bg-[#a0a0b0] text-black shadow-[2px_2px_0_#000]'
-                      : 'border-transparent bg-[#222230] text-[#a0a0b0] hover:bg-[#2a2a3e] hover:text-white',
-                  ].join(' ')}
-                  aria-label="Kembali"
-                >
-                  <span className="w-3 xs:w-4 text-center text-[10px] shrink-0 select-none">◀</span>
-                  <span>KEMBALI</span>
-                </button>
-                <div className="border-t border-white/5 my-1" />
-                {SUB_MENU_ITEMS[activeCategory].map((item, index) => {
-                  const idx = index + 1;
-                  const isSel = selectedIndex === idx;
-                  const isEn  = item.enabled !== false;
-                  return (
-                    <button
-                      key={item.label}
-                      type="button"
-                      onMouseEnter={e => handleSubMenuHover(e, idx)}
-                      onFocus={() => setSelectedIndex(idx)}
-                      onClick={e => handleSubMenuClick(item, idx, e)}
-                      disabled={!isEn}
-                      className={[
-                        'w-full px-2 py-1.5 xs:px-3 xs:py-2 text-left transition-all duration-100 flex items-center gap-2 xs:gap-3 font-["Press_Start_2P"] text-[7px] xs:text-[8px] sm:text-[9px] border-2 sm:border-4 rounded-xl font-bold min-h-[32px] xs:min-h-[38px] sm:min-h-[44px] cursor-pointer',
-                        isEn
-                          ? isSel
-                            ? 'border-black bg-[#ff69b4] text-black shadow-[2px_2px_0_#000] translate-x-0.5 translate-y-0.5'
-                            : 'border-transparent bg-[#222230] text-[#a0a0b0] hover:bg-[#2a2a3e] hover:text-white'
-                          : 'cursor-not-allowed border-transparent bg-black/[0.15] text-[#a0a0b0]/30',
-                      ].join(' ')}
-                      aria-label={item.label}
-                    >
-                      <span className="w-3 xs:w-4 text-center text-[10px] shrink-0 select-none">{item.icon}</span>
-                      <span>{item.label}</span>
-                      {isSel && isEn && <span className="ml-auto text-black font-bold select-none">◀</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Description bar */}
-          <div className="mt-2.5 border-t-2 border-black/35 pt-1.5 select-none min-h-[32px] xs:min-h-[38px] flex items-center justify-center">
-            <p className="font-['VT323'] text-xs xs:text-sm sm:text-base text-[#a0a0b0] text-center tracking-wider leading-tight">
-              {activeCategory === null
-                ? CATEGORIES[selectedIndex]?.description
-                : selectedIndex === 0
-                  ? 'Kembali ke menu kategori utama'
-                  : `Buka fitur ${SUB_MENU_ITEMS[activeCategory][selectedIndex - 1]?.label}`}
-            </p>
-          </div>
-        </div>
-
-        {/* ── BOTTOM BAR ──────────────────────────────────────────────────── */}
-        <div className="w-full flex flex-col items-center gap-1">
-          <p className="font-['VT323'] text-[10px] xs:text-xs text-white/80 tracking-wider font-bold select-none drop-shadow-[1px_1px_2px_#000]">
-            Use ↑ ↓ key to navigate · ENTER to select
-          </p>
-
-          {/* Mobile: Large animated characters */}
-          <div className="flex items-end justify-center gap-2 sm:gap-6 xl:hidden pointer-events-auto">
-
-            {/* Boy */}
-            <div
-              className={`relative flex flex-col items-center transition-all duration-700 ${boyState.entered ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
-              onClick={(e) => { e.stopPropagation(); triggerReact('boy', 'click'); }}
-            >
-              <div className={`mb-0.5 transition-all duration-200 ${boyShowBubble ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
-                <div className="bg-[#121224] border border-white/20 rounded-lg p-0.5">
-                  <img src={getExpr('boy', BOY_REACT_EXPR[boyState.react])} alt="" className="h-7 w-7 object-contain pixel-art" />
-                </div>
-              </div>
-              <img
-                src={boySrc}
-                alt="Boy"
-                className="object-contain pixel-art cursor-pointer"
-                style={{ width: '76px', height: '76px', imageRendering: 'pixelated' }}
-              />
-              <PixelShadow className="w-10" />
-            </div>
-
-            {/* Center heart node */}
-            <div className="mb-3 flex flex-col items-center gap-0.5">
-              <span className={`text-base select-none ${isIdle ? 'animate-bounce' : 'animate-pulse'}`}>💕</span>
-              {isIdle && (
-                <span className="font-['Press_Start_2P'] text-[5px] text-[#ff69b4] animate-pulse select-none whitespace-nowrap">
-                  ★ DANCE ★
-                </span>
-              )}
-            </div>
-
-            {/* Girl */}
-            <div
-              className={`relative flex flex-col items-center transition-all duration-700 delay-100 ${girlState.entered ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
-              onClick={(e) => { e.stopPropagation(); triggerReact('girl', 'click'); }}
-            >
-              <div className={`mb-0.5 transition-all duration-200 ${girlShowBubble ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
-                <div className="bg-[#121224] border border-white/20 rounded-lg p-0.5">
-                  <img src={getExpr('girl', GIRL_REACT_EXPR[girlState.react])} alt="" className="h-7 w-7 object-contain pixel-art" />
-                </div>
-              </div>
-              <img
-                src={girlSrc}
-                alt="Girl"
-                className="object-contain pixel-art cursor-pointer"
-                style={{ width: '76px', height: '76px', imageRendering: 'pixelated', transform: 'scaleX(-1)' }}
-              />
-              <PixelShadow className="w-10" />
-            </div>
-          </div>
+        {/* Girl Avatar */}
+        <div className="relative">
+          <img 
+            src={girlSrc} 
+            alt="Girl" 
+            className="w-16 sm:w-20"
+            style={{ 
+              imageRendering: 'pixelated',
+              transform: `scaleX(${scale})` // Assuming default girl asset also faces right? Actually old code had `transform: scaleX(-1)` for girl by default.
+            }} 
+          />
+          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-10 h-2 bg-black/30 rounded-[50%] blur-sm -z-10" />
         </div>
       </div>
 
-      <style>{`
-        .pixel-art { image-rendering: pixelated; image-rendering: crisp-edges; }
+      {/* ─── ON-SCREEN CONTROLS ─── */}
+      <div className="absolute bottom-6 left-6 right-6 flex justify-between z-30 pointer-events-none">
+        <button
+          onPointerDown={() => handleStartMove('left')}
+          onPointerUp={handleStopMove}
+          onPointerLeave={handleStopMove}
+          onContextMenu={e => e.preventDefault()}
+          className="pointer-events-auto bg-black/40 border-4 border-white/80 rounded-full w-16 h-16 flex items-center justify-center text-white active:bg-black/60 active:scale-90 transition-all backdrop-blur-sm"
+        >
+          <ArrowLeft size={32} />
+        </button>
+        <button
+          onPointerDown={() => handleStartMove('right')}
+          onPointerUp={handleStopMove}
+          onPointerLeave={handleStopMove}
+          onContextMenu={e => e.preventDefault()}
+          className="pointer-events-auto bg-black/40 border-4 border-white/80 rounded-full w-16 h-16 flex items-center justify-center text-white active:bg-black/60 active:scale-90 transition-all backdrop-blur-sm"
+        >
+          <ArrowRight size={32} />
+        </button>
+      </div>
 
-        @keyframes float-up-heart {
-          0%   { transform: translateY(0) scale(1); opacity: 1; }
-          100% { transform: translateY(-70px) scale(0.5); opacity: 0; }
-        }
-        .animate-float-heart { animation: float-up-heart 1.3s ease-out forwards; }
-      `}</style>
     </div>
   );
-};
-
-export default Home;
+}
