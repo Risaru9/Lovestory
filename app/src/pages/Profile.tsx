@@ -80,24 +80,6 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 2 * 1024 * 1024) {
-      setMessage({ text: 'Ukuran gambar maksimal 2MB', type: 'error' });
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setAvatarBase64(event.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
   const handleGenerateCode = async () => {
     setIsGeneratingCode(true);
     setMessage(null);
@@ -231,19 +213,64 @@ const ProfilePage: React.FC = () => {
 
             <form onSubmit={handleUpdateProfile} className="space-y-4">
               
-              <div className="flex flex-col items-center mb-4">
-                <div className="relative group cursor-pointer" onClick={() => document.getElementById('avatar-upload')?.click()}>
-                  <div className="w-20 h-20 bg-black/40 border-4 border-black rounded-xl overflow-hidden flex items-center justify-center">
-                    {avatarBase64 ? (
-                      <img src={avatarBase64} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-[32px]">👤</span>
+              <div className="mb-4">
+                <label className="block font-['Press_Start_2P'] text-[7px] text-[#ff69b4] mb-2 font-bold text-center">
+                  PILIH AVATAR KARAKTER
+                </label>
+                <div className="flex justify-center gap-4">
+                  {/* Boy Avatar */}
+                  <button
+                    type="button"
+                    disabled={partner?.avatar_url === 'boy'}
+                    onClick={() => setAvatarBase64('boy')}
+                    className={`relative w-24 h-28 border-4 rounded-xl flex flex-col items-center justify-center transition-all ${
+                      avatarBase64 === 'boy' 
+                        ? 'border-[#ff69b4] bg-[#ff69b4]/20 shadow-[0_0_15px_rgba(255,105,180,0.5)]' 
+                        : partner?.avatar_url === 'boy'
+                          ? 'border-black/50 bg-black/40 opacity-50 cursor-not-allowed'
+                          : 'border-black bg-[#1a1a2a] hover:bg-[#2a2a3a] cursor-pointer'
+                    }`}
+                  >
+                    <img 
+                      src="/images/asset_baru_karakter/boy/walk/walk_01.png" 
+                      alt="Boy" 
+                      className="w-16 h-16 object-contain" 
+                      style={{ imageRendering: 'pixelated' }}
+                    />
+                    <span className="font-['VT323'] text-sm mt-1 text-white">COWOK</span>
+                    {partner?.avatar_url === 'boy' && (
+                      <div className="absolute top-1 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[7px] font-['Press_Start_2P'] py-1 px-1.5 rounded-sm whitespace-nowrap">
+                        TERKUNCI
+                      </div>
                     )}
-                  </div>
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
-                    <span className="font-['VT323'] text-white text-xs">UBAH</span>
-                  </div>
-                  <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  </button>
+
+                  {/* Girl Avatar */}
+                  <button
+                    type="button"
+                    disabled={partner?.avatar_url === 'girl'}
+                    onClick={() => setAvatarBase64('girl')}
+                    className={`relative w-24 h-28 border-4 rounded-xl flex flex-col items-center justify-center transition-all ${
+                      avatarBase64 === 'girl' 
+                        ? 'border-[#ff69b4] bg-[#ff69b4]/20 shadow-[0_0_15px_rgba(255,105,180,0.5)]' 
+                        : partner?.avatar_url === 'girl'
+                          ? 'border-black/50 bg-black/40 opacity-50 cursor-not-allowed'
+                          : 'border-black bg-[#1a1a2a] hover:bg-[#2a2a3a] cursor-pointer'
+                    }`}
+                  >
+                    <img 
+                      src="/images/asset_baru_karakter/girl/walk/walk_01.png" 
+                      alt="Girl" 
+                      className="w-16 h-16 object-contain"
+                      style={{ imageRendering: 'pixelated' }} 
+                    />
+                    <span className="font-['VT323'] text-sm mt-1 text-white">CEWEK</span>
+                    {partner?.avatar_url === 'girl' && (
+                      <div className="absolute top-1 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[7px] font-['Press_Start_2P'] py-1 px-1.5 rounded-sm whitespace-nowrap">
+                        TERKUNCI
+                      </div>
+                    )}
+                  </button>
                 </div>
               </div>
 

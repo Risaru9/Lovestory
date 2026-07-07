@@ -85,6 +85,10 @@ const CheckIn: React.FC = () => {
   const navigate   = useNavigate();
   const { profile, partner, coupleInfo } = useAuth();
 
+  const myAvatar = (profile?.avatar_url === 'boy' || profile?.avatar_url === 'girl') ? profile.avatar_url : 'boy';
+  const partnerAvatar = (partner?.avatar_url === 'boy' || partner?.avatar_url === 'girl') ? partner.avatar_url : (myAvatar === 'boy' ? 'girl' : 'boy');
+
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const [moodLogs,    setMoodLogs]    = useState<MoodLog[]>([]);
   const [rpgStats,    setRpgStats]    = useState<RPGStats | null>(null);
@@ -279,14 +283,14 @@ const CheckIn: React.FC = () => {
             <div className="flex justify-center items-center gap-0.5 mt-0.5 w-full px-0.5">
               {myLog && (
                 <img
-                  src={getExpressionPath(myLog.mood, 'boy')}
+                  src={getExpressionPath(myLog.mood, myAvatar as any)}
                   alt={myMeta?.label ?? 'Saya'}
                   className="h-5 w-5 object-contain"
                 />
               )}
               {partnerLog && (
                 <img
-                  src={getExpressionPath(partnerLog.mood, 'girl')}
+                  src={getExpressionPath(partnerLog.mood, partnerAvatar as any)}
                   alt={partnerMeta?.label ?? 'Pasangan'}
                   className="h-5 w-5 object-contain"
                 />
@@ -345,7 +349,7 @@ const CheckIn: React.FC = () => {
           {rpgStats && (
             <div className="bg-[#121224] border-4 border-black p-3 rounded-xl shadow-[4px_4px_0_#000] flex items-center gap-3">
               <img
-                src={getNewAssetPath('boy', 'expressions', 'confident')}
+                src={getNewAssetPath(myAvatar as any, 'expressions', 'confident')}
                 alt="Character"
                 className="h-12 w-12 object-contain shrink-0"
               />
@@ -420,7 +424,7 @@ const CheckIn: React.FC = () => {
       >
         <div className="bg-[#121224] border-4 border-[#ffb300] rounded-xl p-3 shadow-[6px_6px_0_#000] flex items-center gap-3">
           <img
-            src={getNewAssetPath('boy', 'expressions', 'laugh')}
+            src={getNewAssetPath(myAvatar as any, 'expressions', 'laugh')}
             alt="Yeay!"
             className="h-14 w-14 object-contain shrink-0"
           />
@@ -466,7 +470,7 @@ const CheckIn: React.FC = () => {
                   /* View mode */
                   <div className="flex flex-col gap-3 flex-1">
                     <div className="flex justify-center">
-                      <img src={getExpressionPath(myLog.mood, 'boy')} alt="Ekspresi" className="h-28 w-28 object-contain drop-shadow-lg" />
+                      <img src={getExpressionPath(myLog.mood, myAvatar as any)} alt="Ekspresi" className="h-28 w-28 object-contain drop-shadow-lg" />
                     </div>
                     <div className="bg-black/20 border border-black/40 p-2 rounded-lg">
                       <p className="font-['Press_Start_2P'] text-[7px] text-[#ffb300] font-bold">MOOD: {myMeta?.label?.toUpperCase()}</p>
@@ -501,7 +505,7 @@ const CheckIn: React.FC = () => {
                     <div className="flex flex-col items-center gap-1">
                       <div className="relative">
                         <img
-                          src={getExpressionPath(selectedMood, 'boy')}
+                          src={getExpressionPath(selectedMood, myAvatar as any)}
                           alt="Pratinjau"
                           className="h-24 w-24 object-contain drop-shadow-lg transition-all duration-200"
                         />
@@ -534,7 +538,7 @@ const CheckIn: React.FC = () => {
                               }`}
                             >
                               <img
-                                src={getExpressionPath(expr.id, 'boy')}
+                                src={getExpressionPath(expr.id, myAvatar as any)}
                                 alt={expr.label}
                                 className="h-8 w-8 object-contain"
                               />
@@ -611,7 +615,7 @@ const CheckIn: React.FC = () => {
                 {partnerLog && partnerMeta ? (
                   <div className="flex flex-col gap-3 flex-1">
                     <div className="flex justify-center">
-                      <img src={getExpressionPath(partnerLog.mood, 'girl')} alt="Ekspresi Pasangan" className="h-28 w-28 object-contain drop-shadow-lg" />
+                      <img src={getExpressionPath(partnerLog.mood, partnerAvatar as any)} alt="Ekspresi Pasangan" className="h-28 w-28 object-contain drop-shadow-lg" />
                     </div>
                     <div className="bg-black/20 border border-black/40 p-2 rounded-lg">
                       <p className="font-['Press_Start_2P'] text-[7px] text-[#ffb300] font-bold">MOOD: {partnerMeta.label.toUpperCase()}</p>
@@ -631,7 +635,7 @@ const CheckIn: React.FC = () => {
                   </div>
                 ) : (
                   <div className="flex-1 flex flex-col items-center justify-center gap-3 py-4 select-none">
-                    <img src={getNewAssetPath('girl', 'expressions', 'sleepy')} alt="Menunggu" className="h-24 w-24 object-contain opacity-70" />
+                    <img src={getNewAssetPath(partnerAvatar as any, 'expressions', 'sleepy')} alt="Menunggu" className="h-24 w-24 object-contain opacity-70" />
                     <p className="font-['VT323'] text-base text-[#a0a0b0] text-center leading-snug max-w-[180px]">
                       Menunggu {partner?.name ?? 'pasangan'} mengisi check-in hari ini...
                     </p>
