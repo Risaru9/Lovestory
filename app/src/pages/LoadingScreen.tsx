@@ -7,28 +7,11 @@ import { Capacitor } from '@capacitor/core';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
 
   React.useEffect(() => {
-    // Jika dibuka di Native App, skip halaman download dan langsung ke auth/profile
-    if (Capacitor.isNativePlatform() && !isLoading) {
-      if (user) {
-        navigate('/profile', { replace: true });
-      } else {
-        navigate('/auth', { replace: true });
-      }
-    }
-  }, [user, isLoading, navigate]);
-
-  if (Capacitor.isNativePlatform()) {
-    return (
-      <div className="min-h-screen bg-[#0c0a18] flex items-center justify-center">
-        <p className="font-['Press_Start_2P'] text-[#FF69B4] text-xs animate-pulse">
-          MEMUAT APLIKASI...
-        </p>
-      </div>
-    );
-  }
+    // Check auth to direct them correctly if they click Go To App
+  }, []);
 
   const handleDownload = () => {
     const url = '/LoveStory.apk';
@@ -42,7 +25,7 @@ const LandingPage: React.FC = () => {
 
   const handleGoToApp = () => {
     if (user) {
-      navigate('/profile');
+      navigate('/connect');
     } else {
       navigate('/auth');
     }
@@ -151,6 +134,24 @@ const LandingPage: React.FC = () => {
               </div>
             ))}
           </div>
+
+          {!Capacitor.isNativePlatform() && (
+            <div className="pt-4 flex flex-col items-center">
+              <button
+                onClick={handleDownload}
+                className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#ff69b4] to-[#d81b60] border-4 border-black rounded-2xl shadow-[4px_4px_0_#000] hover:shadow-[6px_6px_0_#000] hover:-translate-y-1 active:translate-y-1 active:shadow-[0px_0px_0_#000] transition-all"
+              >
+                <Download className="w-6 h-6 text-white group-hover:scale-110 transition-transform animate-bounce" />
+                <div className="flex flex-col text-left">
+                  <span className="font-['Press_Start_2P'] text-[10px] text-white/90">DOWNLOAD</span>
+                  <span className="font-['Press_Start_2P'] text-xs text-white drop-shadow-[2px_2px_0_rgba(0,0,0,0.5)]">APK (ANDROID)</span>
+                </div>
+                {/* Shine effect */}
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
+              </button>
+              <p className="mt-3 font-['VT323'] text-lg text-white/70">Ukuran: ~45MB • Versi 1.0.0</p>
+            </div>
+          )}
         </section>
 
         {/* ── USER GUIDE SECTION ──────────────────────────────────────────── */}

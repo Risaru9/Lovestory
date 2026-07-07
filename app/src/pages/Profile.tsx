@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { PixelButton } from '@/components/custom/PixelButton';
-import { supabase } from '@/lib/supabaseClient';
+import { Capacitor } from '@capacitor/core';
 import { LogOut, ArrowLeft, Download, ShieldCheck, UserCheck, RefreshCw } from 'lucide-react';
 
 const playSFX = (freq = 440, type: OscillatorType = 'square', duration = 0.1) => {
@@ -23,9 +23,11 @@ const playSFX = (freq = 440, type: OscillatorType = 'square', duration = 0.1) =>
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, profile, partner, coupleInfo, isConnected, signOut, generateCoupleCode, connectWithCode, refreshCouple } = useAuth();
+  const { user, profile, partner, coupleInfo, isConnected, signOut, generateCoupleCode, connectWithCode, refreshCouple, updateBio, updateAvatar, updateName, disconnectPartner } = useAuth();
 
   const [newName, setNewName] = useState(profile?.name || '');
+  const [newBio, setNewBio] = useState(profile?.bio || '');
+  const [avatarBase64, setAvatarBase64] = useState(profile?.avatar_url || '');
   const [partnerCode, setPartnerCode] = useState('');
   const [myCode, setMyCode] = useState<string | null>(null);
 
@@ -38,7 +40,9 @@ const ProfilePage: React.FC = () => {
 
   useEffect(() => {
     if (profile) {
-      setNewName(profile.name);
+      setNewName(profile.name || '');
+      setNewBio(profile.bio || '');
+      setAvatarBase64(profile.avatar_url || '');
     }
   }, [profile]);
 
@@ -48,32 +52,50 @@ const ProfilePage: React.FC = () => {
     }
   }, [coupleInfo]);
 
-  const handleUpdateName = async (e: React.FormEvent) => {
+  const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
     setIsUpdatingName(true);
     setMessage(null);
 
     try {
-      if (!supabase || !user) throw new Error('Supabase not initialized or not logged in.');
-      const { error } = await supabase
-        .from('profiles')
-        .update({ name: newName.trim() })
-        .eq('id', user.id);
+      const { error: nameErr } = await updateName(newName.trim());
+      if (nameErr) throw new Error(nameErr);
 
-      if (error) throw error;
+      const { error: bioErr } = await updateBio(newBio.trim());
+      if (bioErr) throw new Error(bioErr);
+
+      if (avatarBase64 !== profile?.avatar_url) {
+        const { error: avErr } = await updateAvatar(avatarBase64);
+        if (avErr) throw new Error(avErr);
+      }
 
       playSFX(600, 'square', 0.12);
-      setMessage({ text: 'Nama karakter berhasil diperbarui!', type: 'success' });
-      // Force refresh couple/profile
-      await refreshCouple();
-      window.location.reload();
+      setMessage({ text: 'Profil berhasil diperbarui!', type: 'success' });
     } catch (err: any) {
       playSFX(150, 'sawtooth', 0.25);
-      setMessage({ text: err.message || 'Gagal memperbarui nama.', type: 'error' });
+      setMessage({ text: err.message || 'Gagal memperbarui profil.', type: 'error' });
     } finally {
       setIsUpdatingName(false);
     }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setMessage({ text: 'Ukuran gambar maksimal 2MB', type: 'error' });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setAvatarBase64(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleGenerateCode = async () => {
@@ -117,6 +139,23 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  const handleDisconnect = async () => {
+    if (!window.confirm('Yakin ingin memutus hubungan dengan pasangan Anda? Kode baru akan diperlukan untuk terhubung kembali.')) return;
+    setIsRefreshing(true);
+    setMessage(null);
+    try {
+      const { error } = await disconnectPartner();
+      if (error) throw new Error(error);
+      playSFX(200, 'sawtooth', 0.2);
+      setMessage({ text: 'Berhasil memutus hubungan.', type: 'success' });
+    } catch (err: any) {
+      playSFX(150, 'sawtooth', 0.25);
+      setMessage({ text: err.message || 'Gagal memutus hubungan.', type: 'error' });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
     playSFX(350, 'triangle', 0.08);
@@ -154,8 +193,8 @@ const ProfilePage: React.FC = () => {
       {/* ── HEADER ────────────────────────────────────────────────────────── */}
       <header className="z-10 border-b-4 border-black bg-[#121224] px-4 py-3">
         <div className="max-w-3xl mx-auto flex justify-between items-center">
-          <PixelButton onClick={() => navigate('/')} variant="secondary" size="sm" className="text-[9px]">
-            <ArrowLeft className="h-3 w-3 mr-1" /> KEMBALI
+          <PixelButton onClick={() => navigate('/home')} variant="secondary" size="sm" className="text-[9px]">
+            <ArrowLeft className="h-3 w-3 mr-1" /> HOME
           </PixelButton>
           <span className="font-['Press_Start_2P'] text-[9px] text-[#ff69b4] font-bold">
             PROFILE CONSOLE
@@ -195,7 +234,24 @@ const ProfilePage: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleUpdateName} className="space-y-4">
+            <form onSubmit={handleUpdateProfile} className="space-y-4">
+              
+              <div className="flex flex-col items-center mb-4">
+                <div className="relative group cursor-pointer" onClick={() => document.getElementById('avatar-upload')?.click()}>
+                  <div className="w-20 h-20 bg-black/40 border-4 border-black rounded-xl overflow-hidden flex items-center justify-center">
+                    {avatarBase64 ? (
+                      <img src={avatarBase64} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-[32px]">👤</span>
+                    )}
+                  </div>
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
+                    <span className="font-['VT323'] text-white text-xs">UBAH</span>
+                  </div>
+                  <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                </div>
+              </div>
+
               <div>
                 <label className="block font-['Press_Start_2P'] text-[7px] text-[#ff69b4] mb-1.5 font-bold">
                   KODE EMAIL
@@ -212,19 +268,33 @@ const ProfilePage: React.FC = () => {
                 <label className="block font-['Press_Start_2P'] text-[7px] text-[#ff69b4] mb-1.5 font-bold">
                   NAMA KARAKTER SAYA
                 </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    placeholder="Nama karakter..."
-                    required
-                    className="flex-1 px-3 py-2 bg-[#1a1a2a] border-2 border-black rounded-lg text-white font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/20 transition-colors min-h-[38px]"
-                  />
-                  <PixelButton type="submit" disabled={isUpdatingName} className="text-[9px] px-3 shrink-0">
-                    {isUpdatingName ? 'SIMPAN...' : 'SIMPAN'}
-                  </PixelButton>
-                </div>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Nama karakter..."
+                  required
+                  className="w-full px-3 py-2 bg-[#1a1a2a] border-2 border-black rounded-lg text-white font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/20 transition-colors min-h-[38px]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-['Press_Start_2P'] text-[7px] text-[#ff69b4] mb-1.5 font-bold">
+                  BIO (TENTANG SAYA)
+                </label>
+                <textarea
+                  value={newBio}
+                  onChange={(e) => setNewBio(e.target.value)}
+                  placeholder="Tulis sedikit tentang dirimu..."
+                  rows={2}
+                  className="w-full px-3 py-2 bg-[#1a1a2a] border-2 border-black rounded-lg text-white font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/20 transition-colors min-h-[38px] resize-none custom-scrollbar"
+                />
+              </div>
+
+              <div className="pt-2">
+                <PixelButton type="submit" disabled={isUpdatingName} className="w-full text-[9px] py-2.5">
+                  {isUpdatingName ? 'MENYIMPAN...' : 'SIMPAN PERUBAHAN'}
+                </PixelButton>
               </div>
             </form>
           </div>
@@ -258,8 +328,14 @@ const ProfilePage: React.FC = () => {
                   </div>
                 </div>
                 <p className="font-['VT323'] text-sm text-[#a0a0b0] leading-relaxed">
-                  Akun Anda sudah terhubung dengan **{partner?.name || 'Pasangan'}**. Anda bisa langsung memainkan seluruh fitur cinta (chat, check-in, timeline, dsb.) secara lengkap dengan mengunduh aplikasi native kami di HP!
+                  Akun Anda sudah terhubung dengan **{partner?.name || 'Pasangan'}**. Anda bisa langsung memainkan seluruh fitur cinta secara lengkap.
                 </p>
+                <button
+                  onClick={handleDisconnect}
+                  className="w-full py-2 mt-2 font-['Press_Start_2P'] text-[7px] border-2 border-red-700 bg-black/20 hover:bg-red-900/30 text-red-500 active:scale-95 rounded cursor-pointer transition-all duration-100 font-bold min-h-[32px]"
+                >
+                  PUTUSKAN PASANGAN (UNCONNECT)
+                </button>
               </div>
             ) : (
               <div className="space-y-4">
@@ -320,20 +396,22 @@ const ProfilePage: React.FC = () => {
             )}
           </div>
 
-          {/* Download App Box */}
-          <div className="bg-[#121224] border-4 border-black p-4 rounded-xl shadow-[4px_4px_0_#000] flex flex-col gap-3">
-            <div className="border-b-2 border-black/35 pb-2 mb-1">
-              <span className="font-['Press_Start_2P'] text-[8px] text-[#ff69b4] font-bold">
-                DOWNLOAD PORTAL
-              </span>
+          {/* Download App Box - HANYA MUNCUL DI WEB */}
+          {!Capacitor.isNativePlatform() && (
+            <div className="bg-[#121224] border-4 border-black p-4 rounded-xl shadow-[4px_4px_0_#000] flex flex-col gap-3">
+              <div className="border-b-2 border-black/35 pb-2 mb-1">
+                <span className="font-['Press_Start_2P'] text-[8px] text-[#ff69b4] font-bold">
+                  DOWNLOAD PORTAL
+                </span>
+              </div>
+              <p className="font-['VT323'] text-sm text-[#a0a0b0] leading-relaxed">
+                Mainkan LoveStory secara normal, halus, dan responsif langsung di smartphone Anda sekarang!
+              </p>
+              <PixelButton onClick={handleDownload} className="w-full text-[10px] py-3.5 flex items-center justify-center gap-2">
+                <Download className="h-4 w-4" /> UNDUH APLIKASI (APK)
+              </PixelButton>
             </div>
-            <p className="font-['VT323'] text-sm text-[#a0a0b0] leading-relaxed">
-              Mainkan LoveStory secara normal, halus, dan responsif langsung di smartphone Anda sekarang!
-            </p>
-            <PixelButton onClick={handleDownload} className="w-full text-[10px] py-3.5 flex items-center justify-center gap-2">
-              <Download className="h-4 w-4" /> UNDUH APLIKASI (APK)
-            </PixelButton>
-          </div>
+          )}
 
           {/* Logout button */}
           <button

@@ -9,6 +9,7 @@ export interface Profile {
   id: string;
   name: string;
   avatar_url: string | null;
+  bio: string | null;
   couple_id: string | null;
 }
 
@@ -33,7 +34,11 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   generateCoupleCode: () => Promise<{ code: string | null; error: string | null }>;
   connectWithCode: (code: string) => Promise<{ error: string | null }>;
+  disconnectPartner: () => Promise<{ error: string | null }>;
   refreshCouple: () => Promise<void>;
+  updateBio: (bio: string) => Promise<{ error: string | null }>;
+  updateAvatar: (base64Str: string) => Promise<{ error: string | null }>;
+  updateName: (name: string) => Promise<{ error: string | null }>;
 }
 
 // ============================================================
@@ -296,6 +301,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error: null };
   };
 
+  // -----------------------------------------------------------
+  // DISCONNECT PARTNER
+  // -----------------------------------------------------------
+  const disconnectPartner = async (): Promise<{ error: string | null }> => {
+    if (!supabase || !user) return { error: 'Anda harus login terlebih dahulu.' };
+
+    const { data, error: rpcError } = await supabase.rpc('disconnect_couple');
+
+    if (rpcError) {
+      console.error('RPC disconnect_couple error:', rpcError);
+      return { error: `Gagal memutus hubungan: ${rpcError.message}` };
+    }
+
+    if (!data || !data.success) {
+      return { error: data?.error || 'Gagal memutus hubungan.' };
+    }
+
+    await refreshCouple();
+    return { error: null };
+  };
+
+  // -----------------------------------------------------------
+  // PROFILE UPDATES
+  // -----------------------------------------------------------
+  const updateBio = async (bio: string): Promise<{ error: string | null }> => {
+    if (!supabase || !user) return { error: 'Belum login.' };
+    const { error } = await supabase.from('profiles').update({ bio }).eq('id', user.id);
+    if (!error && profile) setProfile({ ...profile, bio });
+    return { error: error ? error.message : null };
+  };
+
+  const updateAvatar = async (base64Str: string): Promise<{ error: string | null }> => {
+    if (!supabase || !user) return { error: 'Belum login.' };
+    const { error } = await supabase.from('profiles').update({ avatar_url: base64Str }).eq('id', user.id);
+    if (!error && profile) setProfile({ ...profile, avatar_url: base64Str });
+    return { error: error ? error.message : null };
+  };
+
+  const updateName = async (name: string): Promise<{ error: string | null }> => {
+    if (!supabase || !user) return { error: 'Belum login.' };
+    const { error } = await supabase.from('profiles').update({ name }).eq('id', user.id);
+    if (!error && profile) setProfile({ ...profile, name });
+    return { error: error ? error.message : null };
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -310,7 +360,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       signOut,
       generateCoupleCode,
       connectWithCode,
+      disconnectPartner,
       refreshCouple,
+      updateBio,
+      updateAvatar,
+      updateName,
     }}>
       {children}
     </AuthContext.Provider>

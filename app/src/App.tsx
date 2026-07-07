@@ -93,7 +93,8 @@ const MobileOrFeature: React.FC<{ children: React.ReactNode }> = ({ children }) 
 const AuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
   if (isLoading) return null;
-  if (user) return <Navigate to="/profile" replace />;
+  // Jika sudah login, cek koneksi. Redirect awal ke /connect (ConnectRoute yang akan menangani jika sudah connect)
+  if (user) return <Navigate to="/connect" replace />;
   return <>{children}</>;
 };
 
@@ -104,7 +105,8 @@ const ConnectRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const { user, isLoading, isConnected } = useAuth();
   if (isLoading) return null;
   if (!user) return <Navigate to="/auth" replace />;
-  if (isConnected) return <Navigate to="/profile" replace />;
+  // Jika sudah connect, langsung masuk ke menu utama
+  if (isConnected) return <Navigate to="/home" replace />;
   return <>{children}</>;
 };
 

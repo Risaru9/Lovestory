@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, User } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface HeartParticle { id: string; x: number; y: number; }
@@ -515,15 +515,26 @@ const Home: React.FC = () => {
           <h1 className="font-['Press_Start_2P'] text-base xs:text-lg sm:text-2xl md:text-3xl leading-none text-white drop-shadow-[3px_3px_0_#ff69b4] tracking-wider font-bold select-none">
             OUR LOVE STORY
           </h1>
-          <button
-            type="button"
-            onClick={handleToggleMusic}
-            className="inline-flex items-center gap-2 rounded-full border-2 sm:border-4 border-black bg-[#121224] px-3 py-0.5 xs:py-1 sm:px-3.5 sm:py-1.5 text-white transition hover:bg-[#ff69b4] hover:text-black active:scale-95 text-[10px] sm:text-xs shadow-[2px_2px_0_#000] sm:shadow-[4px_4px_0_#000] font-bold"
-            aria-label={musicEnabled ? 'Turn music off' : 'Turn music on'}
-          >
-            {musicEnabled ? <Volume2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#ff69b4]" /> : <VolumeX className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#a0a0b0]/40" />}
-            <span className="font-['VT323'] text-xs sm:text-base tracking-wide">{musicEnabled ? 'BGM ON' : 'BGM OFF'}</span>
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleToggleMusic}
+              className="inline-flex items-center gap-2 rounded-full border-2 sm:border-4 border-black bg-[#121224] px-3 py-0.5 xs:py-1 sm:px-3.5 sm:py-1.5 text-white transition hover:bg-[#ff69b4] hover:text-black active:scale-95 text-[10px] sm:text-xs shadow-[2px_2px_0_#000] sm:shadow-[4px_4px_0_#000] font-bold"
+              aria-label={musicEnabled ? 'Turn music off' : 'Turn music on'}
+            >
+              {musicEnabled ? <Volume2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#ff69b4]" /> : <VolumeX className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#a0a0b0]/40" />}
+              <span className="font-['VT323'] text-xs sm:text-base tracking-wide">{musicEnabled ? 'BGM ON' : 'BGM OFF'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/profile')}
+              className="inline-flex items-center gap-2 rounded-full border-2 sm:border-4 border-black bg-[#121224] px-3 py-0.5 xs:py-1 sm:px-3.5 sm:py-1.5 text-white transition hover:bg-[#ff69b4] hover:text-black active:scale-95 text-[10px] sm:text-xs shadow-[2px_2px_0_#000] sm:shadow-[4px_4px_0_#000] font-bold"
+              aria-label="Profile"
+            >
+              <User className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#ff69b4]" />
+              <span className="font-['VT323'] text-xs sm:text-base tracking-wide">PROFILE</span>
+            </button>
+          </div>
         </div>
 
         {/* ── CENTER CONSOLE ───────────────────────────────────────────────── */}
