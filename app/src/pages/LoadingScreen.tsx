@@ -31,8 +31,22 @@ const LandingPage: React.FC = () => {
   }
 
   const handleDownload = () => {
-    // Direct download from GitHub Releases - works on all hosting platforms
-    window.open('https://github.com/Risaru9/Lovestory/releases/download/v1.0.0-debug/LoveStory.apk', '_blank');
+    const url = 'https://github.com/Risaru9/Lovestory/releases/download/v1.0.0-debug/LoveStory.apk';
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    
+    if (isAndroid) {
+      // Force Android to use an external browser (like Chrome) for downloading the APK
+      // This prevents the PWA/WebView from intercepting the download and getting stuck at 100%
+      const intentUrl = `intent://${url.replace('https://', '')}#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end;`;
+      window.location.href = intentUrl;
+      
+      // Fallback in case Intent fails
+      setTimeout(() => {
+        window.location.href = url;
+      }, 1500);
+    } else {
+      window.location.href = url;
+    }
   };
 
   const handleGoToApp = () => {
