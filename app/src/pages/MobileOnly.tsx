@@ -7,7 +7,7 @@ const MobileOnly: React.FC = () => {
   const navigate = useNavigate();
 
   const handleDownload = () => {
-    const url = '/LoveStory.apk';
+    const url = 'https://github.com/Risaru9/Lovestory/releases/download/v1.0.0-debug/LoveStory.apk';
     const a = document.createElement('a');
     a.href = url;
     a.download = 'LoveStory.apk';

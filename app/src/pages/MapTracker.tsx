@@ -861,18 +861,18 @@ const MapTracker: React.FC = () => {
       {/* Map & Sidebar Wrapper */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative min-h-0">
         {/* Map Container */}
-        <div className="flex-grow flex-1 w-full h-full relative z-10">
-          <div ref={mapContainerCallbackRef} className="w-full h-full" />
-
-          {permissionStatus !== 'granted' && (
-            <div className="absolute inset-0 bg-[#080b18]/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-[20]">
-              <div className="p-6 max-w-sm bg-[#11142b]/85 border border-white/10 shadow-2xl rounded-2xl relative">
+        <div className="flex-grow flex-1 w-full h-full relative z-10 bg-[#080b18]">
+          {permissionStatus === 'granted' ? (
+            <div ref={mapContainerCallbackRef} className="w-full h-full" />
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-50">
+              <div className="p-6 max-w-sm bg-[#11142b]/95 border border-white/10 shadow-2xl rounded-2xl relative">
                 <span className="text-3xl mb-3 block animate-bounce">🛰</span>
                 <h4 className="text-xs font-semibold text-[#F472B6] tracking-wider uppercase mb-3">Izin Lokasi Dibutuhkan</h4>
                 
                 {permissionStatus === 'denied' ? (
                   <p className="text-xs text-white/70 leading-normal mb-4">
-                    Akses GPS diblokir oleh peramban Anda. Silakan klik ikon gembok di sebelah kiri bilah alamat URL untuk mengizinkan akses lokasi.
+                    Akses GPS diblokir. Buka setelan aplikasi di ponsel Anda untuk mengizinkan akses lokasi secara manual.
                   </p>
                 ) : (
                   <p className="text-xs text-white/70 leading-normal mb-4">
@@ -883,14 +883,14 @@ const MapTracker: React.FC = () => {
                 {permissionStatus !== 'denied' ? (
                   <button
                     onClick={requestLocationPermission}
-                    className="w-full py-2.5 bg-[#F472B6] hover:bg-[#EC4899] active:translate-y-0.5 rounded-xl text-xs font-semibold text-white transition-all shadow-[0_2px_10px_rgba(244,114,182,0.3)]"
+                    className="w-full py-3 bg-[#F472B6] hover:bg-[#EC4899] active:translate-y-0.5 rounded-xl text-xs font-bold text-white transition-all shadow-[0_4px_15px_rgba(244,114,182,0.4)]"
                   >
                     Izinkan Akses GPS
                   </button>
                 ) : (
                   <button
                     onClick={checkLocationPermission}
-                    className="w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 active:translate-y-0.5 rounded-xl text-xs font-semibold text-white/80 transition-all"
+                    className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 active:translate-y-0.5 rounded-xl text-xs font-bold text-white/80 transition-all"
                   >
                     Periksa Ulang Izin
                   </button>
