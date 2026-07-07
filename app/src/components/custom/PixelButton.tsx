@@ -21,15 +21,15 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
   type = 'button',
 }) => {
   const variantStyles = {
-    primary: 'bg-[#FF69B4] hover:bg-[#FF1493]',
-    secondary: 'bg-[#E6E6FA] hover:bg-[#D8D8F0] text-[#1A1A2E]',
-    accent: 'bg-[#FFD700] hover:bg-[#FFC700] text-[#1A1A2E]',
+    primary: 'bg-[#FF5FAE] hover:bg-[#FF2F93] text-white',
+    secondary: 'bg-[#F3EEFF] hover:bg-[#E4DBFF] text-[#151427]',
+    accent: 'bg-[#FFD166] hover:bg-[#FFC247] text-[#151427]',
   };
 
   const sizeStyles = {
-    sm: 'px-4 py-2 text-[10px]',
-    md: 'px-6 py-3 text-xs',
-    lg: 'px-8 py-4 text-sm',
+    sm: 'px-4 py-2 text-[9px] min-h-[44px]',
+    md: 'px-5 py-3 text-[10px] min-h-[48px]',
+    lg: 'px-6 py-4 text-xs min-h-[52px]',
   };
 
   return (
@@ -38,22 +38,22 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'relative font-["Press_Start_2P"]',
-        'border-4 border-[#1A1A2E]',
-        'text-white',
-        'transition-all duration-100',
+        'relative inline-flex items-center justify-center gap-2 rounded-[8px] font-["Press_Start_2P"] leading-none',
+        'border-4 border-[#05050A]',
+        'transition-all duration-100 ease-out',
         'active:translate-x-1 active:translate-y-1',
         'disabled:opacity-50 disabled:cursor-not-allowed',
-        'shadow-[4px_4px_0_#1A1A2E]',
-        'hover:shadow-[6px_6px_0_#1A1A2E]',
+        'focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#FFD166]',
+        'shadow-[4px_4px_0_#05050A]',
+        'hover:shadow-[6px_6px_0_#05050A]',
         'hover:-translate-x-0.5 hover:-translate-y-0.5',
-        'active:shadow-[2px_2px_0_#1A1A2E]',
+        'active:shadow-[2px_2px_0_#05050A]',
         variantStyles[variant],
         sizeStyles[size],
         className
       )}
       style={{
-        boxShadow: '4px 4px 0 #1A1A2E, inset -4px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.2)',
+        boxShadow: '4px 4px 0 #05050A, inset -4px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.18)',
       }}
     >
       {children}

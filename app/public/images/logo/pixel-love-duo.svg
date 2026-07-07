@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Pixel Love duo hearts logo">
+  <rect width="128" height="128" rx="28" fill="#141427"/>
+  <rect x="18" y="42" width="12" height="12" fill="#ffb8d2"/>
+  <rect x="30" y="34" width="12" height="12" fill="#ff5fae"/>
+  <rect x="42" y="34" width="12" height="12" fill="#ff5fae"/>
+  <rect x="54" y="42" width="12" height="12" fill="#ff2f93"/>
+  <rect x="18" y="54" width="12" height="12" fill="#ff8d9e"/>
+  <rect x="30" y="54" width="12" height="12" fill="#ff5fae"/>
+  <rect x="42" y="54" width="12" height="12" fill="#ff2f93"/>
+  <rect x="54" y="66" width="12" height="12" fill="#ff2f93"/>
+  <rect x="30" y="66" width="12" height="12" fill="#ff5fae"/>
+  <rect x="42" y="78" width="12" height="12" fill="#ff2f93"/>
+  <rect x="66" y="42" width="12" height="12" fill="#5ad7ff"/>
+  <rect x="78" y="34" width="12" height="12" fill="#c7bcff"/>
+  <rect x="90" y="34" width="12" height="12" fill="#c7bcff"/>
+  <rect x="102" y="42" width="12" height="12" fill="#6f5bd9"/>
+  <rect x="66" y="54" width="12" height="12" fill="#5ad7ff"/>
+  <rect x="78" y="54" width="12" height="12" fill="#c7bcff"/>
+  <rect x="90" y="54" width="12" height="12" fill="#6f5bd9"/>
+  <rect x="102" y="66" width="12" height="12" fill="#6f5bd9"/>
+  <rect x="78" y="66" width="12" height="12" fill="#c7bcff"/>
+  <rect x="90" y="78" width="12" height="12" fill="#6f5bd9"/>
+  <rect x="58" y="88" width="12" height="12" fill="#ffd166"/>
+  <rect x="50" y="96" width="28" height="8" fill="#ffd166"/>
+  <rect x="22" y="24" width="6" height="6" fill="#ff5fae"/>
+  <rect x="100" y="92" width="6" height="6" fill="#5ad7ff"/>
+</svg>

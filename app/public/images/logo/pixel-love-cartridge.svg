@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Pixel Love cartridge logo">
+  <rect width="128" height="128" rx="22" fill="#0c0a18"/>
+  <rect x="18" y="22" width="92" height="84" rx="8" fill="#f3eeff"/>
+  <rect x="18" y="22" width="92" height="16" fill="#ffd166"/>
+  <rect x="28" y="48" width="12" height="12" fill="#ffb8d2"/>
+  <rect x="40" y="40" width="12" height="12" fill="#ff5fae"/>
+  <rect x="52" y="40" width="12" height="12" fill="#ff5fae"/>
+  <rect x="64" y="48" width="12" height="12" fill="#ff2f93"/>
+  <rect x="76" y="56" width="12" height="12" fill="#ff2f93"/>
+  <rect x="28" y="60" width="12" height="12" fill="#ff8d9e"/>
+  <rect x="40" y="60" width="12" height="12" fill="#ff5fae"/>
+  <rect x="52" y="60" width="12" height="12" fill="#ff5fae"/>
+  <rect x="64" y="60" width="12" height="12" fill="#ff2f93"/>
+  <rect x="40" y="72" width="12" height="12" fill="#ff5fae"/>
+  <rect x="52" y="72" width="12" height="12" fill="#ff5fae"/>
+  <rect x="64" y="84" width="12" height="12" fill="#ff2f93"/>
+  <rect x="26" y="92" width="76" height="6" fill="#141427"/>
+  <rect x="34" y="102" width="8" height="10" fill="#ffd166"/>
+  <rect x="50" y="102" width="8" height="10" fill="#ffd166"/>
+  <rect x="66" y="102" width="8" height="10" fill="#ffd166"/>
+  <rect x="82" y="102" width="8" height="10" fill="#ffd166"/>
+</svg>

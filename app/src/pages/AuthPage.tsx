@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { Heart, LockKeyhole, Mail, UserRound } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { PixelButton } from '@/components/custom/PixelButton';
 
 const AuthPage: React.FC = () => {
   const { user, isLoading, signIn, signUp } = useAuth();
@@ -14,15 +16,19 @@ const AuthPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0d0d1a] flex items-center justify-center">
-        <div className="font-['Press_Start_2P'] text-[#FF69B4] text-xs animate-pulse">
-          LOADING...
-        </div>
+      <div className="ls-screen flex items-center justify-center">
+        <p className="font-pixel text-[10px] text-[#FF5FAE] animate-pulse">LOADING...</p>
       </div>
     );
   }
 
   if (user) return <Navigate to="/profile" replace />;
+
+  const switchMode = (nextMode: 'login' | 'register') => {
+    setMode(nextMode);
+    setError(null);
+    setSuccess(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,169 +38,135 @@ const AuthPage: React.FC = () => {
 
     if (mode === 'register') {
       if (!name.trim()) {
-        setError('Nama karakter harus diisi!');
+        setError('Nama karakter harus diisi.');
         setIsSubmitting(false);
         return;
       }
       if (password.length < 6) {
-        setError('Password minimal 6 karakter!');
+        setError('Password minimal 6 karakter.');
         setIsSubmitting(false);
         return;
       }
+
       const { error: signUpError } = await signUp(email, password, name);
       if (signUpError) {
         setError(signUpError);
       } else {
-        setSuccess('Akun berhasil dibuat! Silakan cek email untuk verifikasi, lalu login.');
+        setSuccess('Akun berhasil dibuat. Cek email untuk verifikasi, lalu login.');
         setMode('login');
       }
     } else {
       const { error: signInError } = await signIn(email, password);
-      if (signInError) {
-        setError(signInError);
-      }
+      if (signInError) setError(signInError);
     }
+
     setIsSubmitting(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0a18] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated background particles */}
-      <div className="fixed inset-0 pointer-events-none">
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full animate-ping"
-            style={{
-              width: `${4 + (i % 3) * 2}px`,
-              height: `${4 + (i % 3) * 2}px`,
-              background: i % 2 === 0 ? '#ff69b4' : '#ffb300',
-              opacity: 0.15,
-              left: `${(i * 8.5) % 100}%`,
-              top: `${(i * 13 + 10) % 100}%`,
-              animationDuration: `${2 + (i % 3)}s`,
-              animationDelay: `${(i * 0.3) % 2}s`,
-            }}
-          />
-        ))}
-      </div>
+    <main className="ls-screen ls-safe relative flex items-center justify-center overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none opacity-35"
+        style={{ backgroundImage: 'url(/images/backgrounds/home-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+      />
+      <div className="absolute inset-0 pointer-events-none bg-[#070712]/80" />
 
-      <div className="relative z-10 w-full max-w-sm">
-        {/* Title */}
-        <div className="text-center mb-6 sm:mb-8 select-none">
-          <h1 className="font-['Press_Start_2P'] text-[#ffffff] text-base md:text-lg leading-loose drop-shadow-[2px_2px_0_#ff69b4] font-bold">
-            💕 LOVE STORY
-          </h1>
-          <p className="font-['VT323'] text-[#ffb300] text-xl mt-1 sm:mt-2 font-bold">
-            {mode === 'login' ? 'Masuk ke Dunia Kita' : 'Buat Karakter Baru'}
+      <section className="relative z-10 w-full max-w-[420px] space-y-5">
+        <div className="flex flex-col items-center text-center select-none">
+          <div className="ls-pixel-logo mb-4">
+            <Heart className="h-10 w-10 fill-[#FF5FAE] text-[#FF2F93] drop-shadow-[2px_2px_0_#FFD166]" />
+          </div>
+          <p className="ls-kicker">Welcome back to</p>
+          <h1 className="ls-title text-lg leading-relaxed">LOVE STORY</h1>
+          <p className="ls-body mt-2 max-w-xs text-xl">
+            {mode === 'login' ? 'Masuk ke dunia kecil kalian.' : 'Buat karakter baru untuk mulai bertualang.'}
           </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-[#121224] border-2 sm:border-4 border-[#000000] rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000]">
-          {/* Toggle buttons */}
-          <div className="flex rounded-lg overflow-hidden border-2 border-[#000000] mb-5 sm:mb-6 select-none">
+        <div className="ls-panel p-4 sm:p-5">
+          <div className="relative z-10 mb-5 grid grid-cols-2 gap-2 rounded-[8px] border-2 border-[#05050A] bg-[#0A0A18] p-1">
             <button
               type="button"
-              onClick={() => { setMode('login'); setError(null); setSuccess(null); }}
-              className={`flex-1 py-2.5 font-['Press_Start_2P'] text-[9px] transition-all duration-200 font-bold min-h-[44px] ${
-                mode === 'login'
-                  ? 'bg-[#ff69b4] text-[#000000]'
-                  : 'bg-transparent text-[#ff69b4]/60 hover:text-[#ff69b4]'
-              }`}
+              onClick={() => switchMode('login')}
+              className={`ls-mobile-hit rounded-[6px] font-pixel text-[9px] transition ${mode === 'login' ? 'bg-[#FF5FAE] text-[#05050A]' : 'text-[#A9A5C4] hover:text-white'}`}
             >
               LOGIN
             </button>
             <button
               type="button"
-              onClick={() => { setMode('register'); setError(null); setSuccess(null); }}
-              className={`flex-1 py-2.5 font-['Press_Start_2P'] text-[9px] transition-all duration-200 font-bold min-h-[44px] ${
-                mode === 'register'
-                  ? 'bg-[#ff69b4] text-[#000000]'
-                  : 'bg-transparent text-[#ff69b4]/60 hover:text-[#ff69b4]'
-              }`}
+              onClick={() => switchMode('register')}
+              className={`ls-mobile-hit rounded-[6px] font-pixel text-[9px] transition ${mode === 'register' ? 'bg-[#FF5FAE] text-[#05050A]' : 'text-[#A9A5C4] hover:text-white'}`}
             >
               DAFTAR
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="relative z-10 space-y-4">
             {mode === 'register' && (
-              <div>
-                <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 font-bold">
-                  NAMA KARAKTER
-                </label>
+              <label className="block">
+                <span className="mb-2 flex items-center gap-2 font-pixel text-[8px] text-[#FF5FAE]">
+                  <UserRound className="h-3.5 w-3.5" /> NAMA KARAKTER
+                </span>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Nama kamu..."
-                  className="w-full px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/30 transition-colors min-h-[44px]"
+                  placeholder="Nama kamu"
+                  className="ls-input"
                 />
-              </div>
+              </label>
             )}
 
-            <div>
-              <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 font-bold">
-                EMAIL
-              </label>
+            <label className="block">
+              <span className="mb-2 flex items-center gap-2 font-pixel text-[8px] text-[#FF5FAE]">
+                <Mail className="h-3.5 w-3.5" /> EMAIL
+              </span>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@kamu.com"
                 required
-                className="w-full px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/30 transition-colors min-h-[44px]"
+                className="ls-input"
               />
-            </div>
+            </label>
 
-            <div>
-              <label className="block font-['Press_Start_2P'] text-[8px] text-[#ff69b4] mb-2 font-bold">
-                PASSWORD
-              </label>
+            <label className="block">
+              <span className="mb-2 flex items-center gap-2 font-pixel text-[8px] text-[#FF5FAE]">
+                <LockKeyhole className="h-3.5 w-3.5" /> PASSWORD
+              </span>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Minimal 6 karakter"
                 required
-                className="w-full px-3 py-2.5 bg-[#1a1a2a] border-2 border-[#000000] rounded-lg text-white font-['VT323'] text-base focus:outline-none focus:border-[#ff69b4] placeholder:text-[#a0a0b0]/30 transition-colors min-h-[44px]"
+                className="ls-input"
               />
-              {mode === 'register' && (
-                <p className="font-['VT323'] text-[#a0a0b0] text-sm mt-1">Minimal 6 karakter</p>
-              )}
-            </div>
+            </label>
 
             {error && (
-              <div className="bg-red-950/20 border border-red-500/20 rounded-lg px-3 py-2">
-                <p className="font-['VT323'] text-red-400 text-base font-bold">⚠ {error}</p>
+              <div className="rounded-[8px] border-2 border-[#FF6B6B] bg-[#2A1118] px-3 py-2">
+                <p className="font-vt323 text-base font-bold text-[#FF8D9E]">{error}</p>
               </div>
             )}
 
             {success && (
-              <div className="bg-green-950/20 border border-green-500/20 rounded-lg px-3 py-2">
-                <p className="font-['VT323'] text-green-400 text-base font-bold">✓ {success}</p>
+              <div className="rounded-[8px] border-2 border-[#54D6A4] bg-[#0E241D] px-3 py-2">
+                <p className="font-vt323 text-base font-bold text-[#54D6A4]">{success}</p>
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-3 bg-[#ff69b4] hover:bg-[#ff69b4]/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-['Press_Start_2P'] text-[10px] text-[#000000] transition-all duration-200 shadow-[2px_2px_0_#000000] sm:shadow-[4px_4px_0_#000000] active:scale-95 border-2 border-[#000000] font-bold min-h-[44px]"
-            >
-              {isSubmitting
-                ? 'MEMPROSES...'
-                : mode === 'login' ? '▶ MASUK' : '✨ DAFTAR'
-              }
-            </button>
+            <PixelButton type="submit" disabled={isSubmitting} className="w-full">
+              {isSubmitting ? 'MEMPROSES...' : mode === 'login' ? 'MASUK' : 'BUAT AKUN'}
+            </PixelButton>
           </form>
         </div>
 
-        <p className="text-center font-['VT323'] text-[#a0a0b0]/30 text-base mt-4">
-          Made with 💕 for us
+        <p className="text-center font-vt323 text-base text-[#A9A5C4]/55">
+          Private retro world for two players.
         </p>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 
