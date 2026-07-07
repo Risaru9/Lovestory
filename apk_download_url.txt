@@ -1,1 +1,1 @@
-https://github.com/Risaru9/Lovestory/releases/download/v1.0.0-debug/LoveStory.apk
+https://raw.githubusercontent.com/Risaru9/Lovestory/main/app/public/LoveStory.apk
