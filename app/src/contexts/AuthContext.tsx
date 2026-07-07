@@ -143,6 +143,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await fetchCouple(s.user.id);
       }
       setIsLoading(false);
+    }).catch((err) => {
+      console.error("Auth session init error:", err);
+      setIsLoading(false);
     });
 
     // Langganan perubahan auth
