@@ -58,6 +58,7 @@ const HOME_PLAYLIST: PlaylistItem[] = [
   { title: 'Rainy', src: '/audio/home/Rainy_Day_Vinyl_Dreams.mp3' },
   { title: 'Rainy', src: '/audio/home/Golden_Hour_Drift.mp3' },
 ];
+const BGM_VOLUME = 1;
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
@@ -136,7 +137,7 @@ const Home: React.FC = () => {
   const [selectedIndex,     setSelectedIndex]     = useState(0);
   const [musicEnabled,      setMusicEnabled]      = useState<boolean>(getInitialMusic);
   const [isPlaying,         setIsPlaying]         = useState(false);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(getInitialTrack);
+  const [currentTrackIndex] = useState<number>(getInitialTrack);
 
   const [isIdle, setIsIdle] = useState(false);
 
@@ -177,17 +178,15 @@ const Home: React.FC = () => {
   // ── Audio ─────────────────────────────────────────────────────────────────
   const playAudio = useCallback(async () => {
     const a = audioRef.current; if (!a) return false;
-    try { a.volume = 0.35; await a.play(); setIsPlaying(true); return true; }
+    a.loop = true;
+    a.muted = !musicEnabled;
+    a.volume = musicEnabled ? BGM_VOLUME : 0;
+    try { await a.play(); setIsPlaying(true); return true; }
     catch { setIsPlaying(false); return false; }
-  }, []);
-  const pauseAudio = useCallback(() => {
-    const a = audioRef.current; if (!a) return;
-    a.pause(); setIsPlaying(false);
-  }, []);
+  }, [musicEnabled]);
   const handleToggleMusic = useCallback(() => {
-    if (musicEnabled) { setMusicEnabled(false); pauseAudio(); }
-    else setMusicEnabled(true);
-  }, [musicEnabled, pauseAudio]);
+    setMusicEnabled((enabled) => !enabled);
+  }, []);
 
   // ── Nav handlers ──────────────────────────────────────────────────────────
   const handleCategoryHover = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {
@@ -229,29 +228,39 @@ const Home: React.FC = () => {
   // ── Audio events ──────────────────────────────────────────────────────────
   useEffect(() => {
     const a = audioRef.current; if (!a) return;
-    a.volume = 0.35;
+    a.loop = true;
+    a.volume = musicEnabled ? BGM_VOLUME : 0;
+    a.muted = !musicEnabled;
     const onPlay  = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
-    const onEnded = () => setCurrentTrackIndex(p => p === HOME_PLAYLIST.length - 1 ? 0 : p + 1);
-    a.addEventListener('play', onPlay); a.addEventListener('pause', onPause); a.addEventListener('ended', onEnded);
-    return () => { a.removeEventListener('play', onPlay); a.removeEventListener('pause', onPause); a.removeEventListener('ended', onEnded); };
-  }, []);
+    a.addEventListener('play', onPlay); a.addEventListener('pause', onPause);
+    return () => { a.removeEventListener('play', onPlay); a.removeEventListener('pause', onPause); };
+  }, [musicEnabled]);
   useEffect(() => {
     const a = audioRef.current; if (!a) return;
-    a.src = currentTrack.src; a.load();
-    if (musicEnabled) void playAudio();
-  }, [currentTrack.src, musicEnabled, playAudio]);
+    if (!a.src.endsWith(currentTrack.src)) {
+      a.src = currentTrack.src;
+      a.load();
+    }
+    void playAudio();
+  }, [currentTrack.src, playAudio]);
   useEffect(() => {
     if (autoplayAttempted.current) return;
     autoplayAttempted.current = true;
-    if (musicEnabled) void playAudio();
-  }, [musicEnabled, playAudio]);
+    void playAudio();
+  }, [playAudio]);
   useEffect(() => {
-    if (!musicEnabled || isPlaying) return;
+    const a = audioRef.current; if (!a) return;
+    a.muted = !musicEnabled;
+    a.volume = musicEnabled ? BGM_VOLUME : 0;
+    if (!isPlaying) void playAudio();
+  }, [musicEnabled, isPlaying, playAudio]);
+  useEffect(() => {
+    if (isPlaying) return;
     const fn = async () => { await playAudio(); window.removeEventListener('pointerdown', fn); window.removeEventListener('keydown', fn); };
     window.addEventListener('pointerdown', fn); window.addEventListener('keydown', fn);
     return () => { window.removeEventListener('pointerdown', fn); window.removeEventListener('keydown', fn); };
-  }, [musicEnabled, isPlaying, playAudio]);
+  }, [isPlaying, playAudio]);
 
   // ── Keyboard navigation ───────────────────────────────────────────────────
   useEffect(() => {
@@ -515,24 +524,24 @@ const Home: React.FC = () => {
           <h1 className="font-['Press_Start_2P'] text-base xs:text-lg sm:text-2xl md:text-3xl leading-none text-white drop-shadow-[3px_3px_0_#ff69b4] tracking-wider font-bold select-none">
             OUR LOVE STORY
           </h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2.5">
             <button
               type="button"
               onClick={handleToggleMusic}
-              className="inline-flex items-center gap-2 rounded-full border-2 sm:border-4 border-black bg-[#121224] px-3 py-0.5 xs:py-1 sm:px-3.5 sm:py-1.5 text-white transition hover:bg-[#ff69b4] hover:text-black active:scale-95 text-[10px] sm:text-xs shadow-[2px_2px_0_#000] sm:shadow-[4px_4px_0_#000] font-bold"
-              aria-label={musicEnabled ? 'Turn music off' : 'Turn music on'}
+              className="inline-flex min-h-[44px] min-w-[124px] items-center justify-center gap-2 rounded-full border-4 border-black bg-[#121224] px-4 py-2 text-white transition hover:bg-[#ff69b4] hover:text-black active:scale-95 shadow-[3px_3px_0_#000] font-bold"
+              aria-label={musicEnabled ? 'Mute background music' : 'Unmute background music'}
             >
-              {musicEnabled ? <Volume2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#ff69b4]" /> : <VolumeX className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#a0a0b0]/40" />}
-              <span className="font-['VT323'] text-xs sm:text-base tracking-wide">{musicEnabled ? 'BGM ON' : 'BGM OFF'}</span>
+              {musicEnabled ? <Volume2 className="h-4 w-4 text-[#ff69b4]" /> : <VolumeX className="h-4 w-4 text-[#a0a0b0]/60" />}
+              <span className="font-['VT323'] text-lg leading-none tracking-wide">{musicEnabled ? 'BGM ON' : 'BGM OFF'}</span>
             </button>
             <button
               type="button"
               onClick={() => navigate('/profile')}
-              className="inline-flex items-center gap-2 rounded-full border-2 sm:border-4 border-black bg-[#121224] px-3 py-0.5 xs:py-1 sm:px-3.5 sm:py-1.5 text-white transition hover:bg-[#ff69b4] hover:text-black active:scale-95 text-[10px] sm:text-xs shadow-[2px_2px_0_#000] sm:shadow-[4px_4px_0_#000] font-bold"
+              className="inline-flex min-h-[44px] min-w-[124px] items-center justify-center gap-2 rounded-full border-4 border-black bg-[#121224] px-4 py-2 text-white transition hover:bg-[#ff69b4] hover:text-black active:scale-95 shadow-[3px_3px_0_#000] font-bold"
               aria-label="Profile"
             >
-              <User className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#ff69b4]" />
-              <span className="font-['VT323'] text-xs sm:text-base tracking-wide">PROFILE</span>
+              <User className="h-4 w-4 text-[#ff69b4]" />
+              <span className="font-['VT323'] text-lg leading-none tracking-wide">PROFILE</span>
             </button>
           </div>
         </div>
@@ -644,7 +653,7 @@ const Home: React.FC = () => {
           </p>
 
           {/* Mobile: Large animated characters */}
-          <div className="flex items-end justify-center gap-1 sm:gap-6 xl:hidden pointer-events-auto">
+          <div className="flex items-end justify-center gap-2 sm:gap-6 xl:hidden pointer-events-auto">
 
             {/* Boy */}
             <div
@@ -653,20 +662,20 @@ const Home: React.FC = () => {
             >
               <div className={`mb-0.5 transition-all duration-200 ${boyShowBubble ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
                 <div className="bg-[#121224] border border-white/20 rounded-lg p-0.5">
-                  <img src={getExpr('boy', BOY_REACT_EXPR[boyState.react])} alt="" className="h-6 w-6 object-contain pixel-art" />
+                  <img src={getExpr('boy', BOY_REACT_EXPR[boyState.react])} alt="" className="h-7 w-7 object-contain pixel-art" />
                 </div>
               </div>
               <img
                 src={boySrc}
                 alt="Boy"
                 className="object-contain pixel-art cursor-pointer"
-                style={{ width: '64px', height: '64px', imageRendering: 'pixelated' }}
+                style={{ width: '76px', height: '76px', imageRendering: 'pixelated' }}
               />
-              <PixelShadow className="w-8" />
+              <PixelShadow className="w-10" />
             </div>
 
             {/* Center heart node */}
-            <div className="mb-2 flex flex-col items-center gap-0.5">
+            <div className="mb-3 flex flex-col items-center gap-0.5">
               <span className={`text-base select-none ${isIdle ? 'animate-bounce' : 'animate-pulse'}`}>💕</span>
               {isIdle && (
                 <span className="font-['Press_Start_2P'] text-[5px] text-[#ff69b4] animate-pulse select-none whitespace-nowrap">
@@ -682,16 +691,16 @@ const Home: React.FC = () => {
             >
               <div className={`mb-0.5 transition-all duration-200 ${girlShowBubble ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
                 <div className="bg-[#121224] border border-white/20 rounded-lg p-0.5">
-                  <img src={getExpr('girl', GIRL_REACT_EXPR[girlState.react])} alt="" className="h-6 w-6 object-contain pixel-art" />
+                  <img src={getExpr('girl', GIRL_REACT_EXPR[girlState.react])} alt="" className="h-7 w-7 object-contain pixel-art" />
                 </div>
               </div>
               <img
                 src={girlSrc}
                 alt="Girl"
                 className="object-contain pixel-art cursor-pointer"
-                style={{ width: '64px', height: '64px', imageRendering: 'pixelated', transform: 'scaleX(-1)' }}
+                style={{ width: '76px', height: '76px', imageRendering: 'pixelated', transform: 'scaleX(-1)' }}
               />
-              <PixelShadow className="w-8" />
+              <PixelShadow className="w-10" />
             </div>
           </div>
         </div>
