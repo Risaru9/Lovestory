@@ -134,8 +134,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleDownload = () => {
-    // Direct download from GitHub Releases - works on all hosting platforms
-    window.location.href = 'https://github.com/Risaru9/Lovestory/releases/download/v1.0.0-debug/LoveStory.apk';
+    window.open('https://github.com/Risaru9/Lovestory/releases/download/v1.0.0-debug/LoveStory.apk', '_blank');
   };
 
   return (
